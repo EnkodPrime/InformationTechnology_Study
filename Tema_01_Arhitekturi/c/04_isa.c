@@ -2,6 +2,7 @@
  *
  * Учебната ISA (не е реален процесор; синтаксисът следва примерите от ръководството):
  *   8 регистъра R0..R7 (32 бита, със знак); R0 винаги е 0 (както x0 в RISC-V).
+ *   Аритметиката е по модул 2^32 (както в RV32I): смята се в unsigned, без UB при препълване.
  *   Данни: 32 думи mem[0..31], адресирани по ДУМИ (адрес = номер на дума).
  *   Програмата е в отделна памет за инструкции; PC е номер на инструкция и при
  *   последователно изпълнение нараства с 1 (в RV32I PC е байтов адрес и расте с 4).
@@ -48,17 +49,17 @@ int step(cpu_t *c)
     if (c->pc < 0 || c->pc >= c->n) return -1;          /* PC извън програмата */
     instr_t ir = c->imem[c->pc];                        //@fetch
     c->pc = c->pc + 1;                  /* следваща по ред */ //@fetch
-    int ea;
+    long long ea;                       /* без препълване при Rs + off */
     switch (ir.op) {                                    //@decode
     case OP_LI:   wr(c, ir.rd, ir.imm); break;          //@li
     case OP_MOV:  wr(c, ir.rd, c->r[ir.rs]); break;     //@mov
-    case OP_ADD:  wr(c, ir.rd, c->r[ir.rs] + c->r[ir.rt]); break;  //@add
-    case OP_SUB:  wr(c, ir.rd, c->r[ir.rs] - c->r[ir.rt]); break;  //@sub
+    case OP_ADD:  wr(c, ir.rd, (int)((unsigned)c->r[ir.rs] + (unsigned)c->r[ir.rt])); break;  //@add
+    case OP_SUB:  wr(c, ir.rd, (int)((unsigned)c->r[ir.rs] - (unsigned)c->r[ir.rt])); break;  //@sub
     case OP_SLT:  wr(c, ir.rd, c->r[ir.rs] < c->r[ir.rt]); break;  //@slt
-    case OP_ADDI: wr(c, ir.rd, c->r[ir.rs] + ir.imm); break;       //@addi
+    case OP_ADDI: wr(c, ir.rd, (int)((unsigned)c->r[ir.rs] + (unsigned)ir.imm)); break;       //@addi
     case OP_LOAD:
     case OP_STORE:
-        ea = (ir.rs == NO_BASE ? 0 : c->r[ir.rs]) + ir.imm;  /* ефективен адрес */ //@ea
+        ea = (ir.rs == NO_BASE ? 0LL : (long long)c->r[ir.rs]) + ir.imm;  /* ефективен адрес */ //@ea
         if (ea < 0 || ea >= NMEM) return -1;                 //@ea
         if (ir.op == OP_LOAD) wr(c, ir.rd, c->mem[ea]);      //@load
         else                  c->mem[ea] = c->r[ir.rd];      //@store

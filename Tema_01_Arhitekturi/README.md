@@ -73,4 +73,4 @@ sh tools/run_tests.sh Tema_01_Arhitekturi      # компилира с -Werror �
 python3 tools/clickall.py Tema_01_Arhitekturi  # натиска всички бутони във всички раздели
 ```
 
-783 сверки JS↔C в 9 тестови файла, 0 разлики. Всички C файлове минават чисто под `-fsanitize=address,undefined`.
+785 сверки JS↔C в 9 тестови файла, 0 разлики. Всички C файлове минават чисто под `-fsanitize=address,undefined`.

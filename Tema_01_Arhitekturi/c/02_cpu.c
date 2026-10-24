@@ -93,14 +93,14 @@ static int32_t imm_of(uint32_t ir)                      /* генератор н
 
 static uint32_t mem_rd(const cpu_t *c, uint32_t a)      /* 32 бита, little endian */
 {
-    if (a < DBASE || a + 4 > DBASE + 64 || (a & 3)) return 0;
+    if (a < DBASE || a - DBASE > 64 - 4 || (a & 3)) return 0;
     const uint8_t *p = &c->dmem[a - DBASE];
     return p[0] | (uint32_t)p[1] << 8 | (uint32_t)p[2] << 16 | (uint32_t)p[3] << 24;
 }
 
 static void mem_wr(cpu_t *c, uint32_t a, uint32_t v)
 {
-    if (a < DBASE || a + 4 > DBASE + 64 || (a & 3)) return;
+    if (a < DBASE || a - DBASE > 64 - 4 || (a & 3)) return;
     for (int i = 0; i < 4; i++) c->dmem[a - DBASE + i] = (uint8_t)(v >> (8 * i));
 }
 

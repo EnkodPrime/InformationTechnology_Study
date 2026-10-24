@@ -48,22 +48,22 @@ int vec_add_simd(const int *a, const int *b, int *c, int n, int W)
 int round_robin(int n, const int *len, const int *dep, int cores, int q,
                 int tl[MAXC][TMAX], int *finish)
 {
-    int rem[MAXT], queued[MAXT] = {0}, queue[MAXT * 4], qh = 0, qt = 0;
+    int rem[MAXT], queued[MAXT] = {0}, queue[MAXT], qh = 0, qn = 0; /* кръгова опашка: в нея има най-много n задачи */
     int cur[MAXC], used[MAXC], done = 0, t = 0;
     for (int i = 0; i < n; i++) { rem[i] = len[i]; finish[i] = -1; }
     for (int k = 0; k < cores; k++) cur[k] = -1;
     while (done < n && t < TMAX) {                              //@loop
         for (int i = 0; i < n; i++)                             /* готови задачи */
             if (!queued[i] && (dep[i] < 0 || finish[dep[i]] >= 0)) { //@ready
-                queue[qt++] = i; queued[i] = 1;
+                queue[(qh + qn++) % MAXT] = i; queued[i] = 1;
             }
         for (int k = 0; k < cores; k++)                         /* изтекъл квант */
             if (cur[k] >= 0 && q > 0 && used[k] == q) {         //@preempt
-                queue[qt++] = cur[k]; cur[k] = -1;
+                queue[(qh + qn++) % MAXT] = cur[k]; cur[k] = -1;
             }
         for (int k = 0; k < cores; k++)                         /* свободно ядро */
-            if (cur[k] < 0 && qh < qt) {                        //@pick
-                cur[k] = queue[qh++]; used[k] = 0;
+            if (cur[k] < 0 && qn > 0) {                        //@pick
+                cur[k] = queue[qh]; qh = (qh + 1) % MAXT; qn--; used[k] = 0;
             }
         for (int k = 0; k < cores; k++) {                       /* една единица време */
             tl[k][t] = cur[k];                                  //@run
@@ -121,6 +121,8 @@ int main(void)
     rr_case("c2q2", 6, L3, D3, 2, 2);
     rr_case("c3q1", 6, L3, D3, 3, 1);
     rr_case("c1q3", 6, L3, D3, 1, 3);
+    const int L4[] = {9, 9, 9, 9, 9, 9};                   /* дълга опашка: 54 връщания в опашката */
+    rr_case("d1q1", 6, L4, D0, 1, 1);
     return 0;
 }
 #endif

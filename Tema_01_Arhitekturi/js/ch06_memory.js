@@ -144,7 +144,7 @@
     <p>При директно съответствие два често използвани блока могат да се изместват взаимно, въпреки че общият им обем е малък. Пусни „Конфликт 0/64“: при 4 набора × 16 B адресите 0 и 64 попадат в набор 0 и се гонят — 8 пропуска от 8. Със същия обем (64 B), но 2-пътен по набори, повторенията попадат. Това е конфликт на разполагането и се различава от недостиг на общ капацитет.</p>
   </div></details>
   <details class="hint"><summary>Хинт: LRU срещу FIFO</summary><div>
-    <p><dfn data-g="lru">LRU</dfn> измества най-отдавна <i>използваната</i> линия; <dfn data-g="fifo">FIFO</dfn> — най-отдавна <i>заредената</i>, без значение колко често се ползва. В „LRU vs FIFO“ блокът 0 се ползва постоянно: LRU го пази, FIFO рано или късно го изхвърля. Политиките на замяна не са изброени в ръководството — добавени са като общоизвестни примери за „избор в множество места“.</p>
+    <p><dfn data-g="lru">LRU</dfn> измества най-отдавна <i>използваната</i> линия; <dfn data-g="fifo">FIFO</dfn> — най-отдавна <i>заредената</i>, без значение колко често се ползва. В „LRU vs FIFO“ (1 набор × 2 линии) блокът 0 се ползва постоянно: LRU го пази, докато се ползва често (2 попадения), FIFO го изхвърля още при първото изместване (1 попадение). Ако всички блокове се побират в набора (напр. 4 линии), двете политики дават едно и също — замяна изобщо няма. Политиките на замяна не са изброени в ръководството — добавени са като общоизвестни примери за „избор в множество места“.</p>
   </div></details>
   <details class="hint"><summary>Хинт: write-through и write-back</summary><div>
     <p><dfn data-g="write-through">Write-through</dfn> предава записите към следващото ниво; <dfn data-g="write-back">write-back</dfn> може да ги отложи до изместване на изменена (dirty) линия. Брояч „записи към RAM“ показва разликата. В симулатора write-through е съчетан с no-write-allocate, а write-back — с write-allocate (типичните комбинации).</p>
@@ -214,7 +214,7 @@
       presets: [
         { label: "Конфликт 0/64 (директно)", values: { trace: "0 64 0 64 4 68 128 0", sets: 4, ways: 1, block: 16 } },
         { label: "Същото, 2-пътен", values: { trace: "0 64 0 64 4 68 128 0", sets: 2, ways: 2, block: 16 } },
-        { label: "LRU vs FIFO", values: { trace: "0 32 0 64 0 96 32 0", sets: 1, ways: 4, block: 16 } },
+        { label: "LRU vs FIFO", values: { trace: "0 32 0 64 0 96 32 0", sets: 1, ways: 2, block: 16 } },
         { label: "Записи", values: { trace: "W0 16 W32 0 48 W64 16 W0 80 32", sets: 4, ways: 1, block: 16 } },
         { label: "Последователно (пространств.)", values: { trace: "0 4 8 12 16 20 24 28 32 36 40 44", sets: 4, ways: 1, block: 16 } },
       ],
@@ -309,7 +309,7 @@
       let r, txt;
       if (two.checked) { const a2 = algos.amat(T2, M2, P); r = algos.amat(T, M, a2); txt = `AMAT<sub>L2</sub> = ${T2} + ${M2} · ${P} = ${+a2.toFixed(4)} ns;  AMAT = ${T} + ${M} · ${+a2.toFixed(4)} = <b>${+r.toFixed(4)} ns</b>`; }
       else { r = algos.amat(T, M, P); txt = `AMAT = ${T} + ${M} · ${P} = <b>${+r.toFixed(4)} ns</b>`; }
-      out.innerHTML = `<span class="formula">${txt}</span><br><span class="muted">Без кеш всеки достъп би струвал ≈ ${+(T + P).toFixed(2)} ns.</span>`;
+      out.innerHTML = `<span class="formula">${txt}</span><br><span class="muted">Един пропуск в L1 струва t<sub>hit</sub> + наказание = ${+(T + (two.checked ? algos.amat(T2, M2, P) : P)).toFixed(2)} ns.</span>`;
       const vals = [0, 0.01, 0.02, 0.05, 0.1, 0.2].map((m) => (two.checked ? algos.amat(T, m, algos.amat(T2, M2, P)) : algos.amat(T, m, P)));
       const ms = [0, 1, 2, 5, 10, 20];
       const tb = h("table", { class: "t grid" }, h("tr", null, h("th", { text: "дял пропуски L1" }), ...ms.map((m) => h("th", { text: m + "%" }))),
