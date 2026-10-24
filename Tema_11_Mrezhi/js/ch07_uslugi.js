@@ -100,7 +100,9 @@
       add({ who: "C", m: { d: "C>*", n: "REQUEST", src: "0.0.0.0:68", dst: "255.255.255.255:67", body: "„Искам 192.168.10.34 от сървър 192.168.10.1“" }, msg: "<b>R</b>equest: клиентът заявява избраното предложение. Пак broadcast — така и другите сървъри (ако има) научават, че тяхното не е избрано.", log: "REQUEST" });
       add({ who: "S", m: { d: "S>C", n: "ACK", src: "192.168.10.1:67", dst: "→ клиента", body: "потвърждава 192.168.10.34, наем " + lease + " s" }, msg: "<b>A</b>cknowledgment: сървърът потвърждава. Клиентът конфигурира интерфейса.", log: "ACK" });
       const half = Math.floor(lease / 2);
-      if (t >= half && t < lease) add({ who: "C", m: { d: "C>S", n: "REQUEST", src: "192.168.10.34:68", dst: "192.168.10.1:67", body: "подновяване на наема" }, renew: true, msg: `t = ${t} s ≥ половината от наема (${half} s): клиентът подновява директно към сървъра — <b>не</b> повтаря целия DORA.`, log: "подновяване (unicast)" });
+      const t2 = Math.floor(lease * 7 / 8);   /* T2 = 0,875 · наема (RFC 2131 §4.4.5) */
+      if (t >= t2 && t < lease) add({ who: "C", m: { d: "C>*", n: "REQUEST", src: "192.168.10.34:68", dst: "255.255.255.255:67", body: "повторно обвързване (rebinding)" }, renew: true, msg: `t = ${t} s ≥ T2 = ${t2} s (7/8 от наема): ако подновяването до сървъра не е успяло, клиентът изпраща REQUEST като <b>broadcast</b> към всеки DHCP сървър (REBINDING).`, log: "rebinding (broadcast)" });
+      else if (t >= half && t < lease) add({ who: "C", m: { d: "C>S", n: "REQUEST", src: "192.168.10.34:68", dst: "192.168.10.1:67", body: "подновяване на наема" }, renew: true, msg: `t = ${t} s ≥ T1 = половината от наема (${half} s): клиентът подновява директно към сървъра — <b>не</b> повтаря целия DORA.`, log: "подновяване (unicast)" });
       else if (t >= lease) add({ who: "C", expired: true, msg: `t = ${t} s ≥ наема: без подновяване адресът изтича и клиентът започва отначало.`, log: "наемът изтече" });
       add({ done: true, msg: "Учебният DORA показва типичен начален обмен, не всеки възможен DHCP случай. При IPv6 има и други механизми като SLAAC." });
       return { frames: F };
@@ -117,15 +119,18 @@
       const lines = [`${method} ${path} HTTP/1.1`, `Host: ${host}`];
       if (method === "POST") lines.push("Content-Type: application/json", `Content-Length: ${blen}`);
       const req = lines.join("\r\n") + "\r\n\r\n" + body;
-      let status, rbody = "";
-      if (path === "/status" && (method === "GET" || method === "HEAD")) { status = "200 OK"; rbody = '{"state":"ok"}'; }
-      else if (path === "/measurements" && method === "POST") {
+      let status, rbody = "", allow = "";
+      const ALLOW = { "/status": "GET, HEAD", "/measurements": "GET, HEAD, POST" };
+      if (!(path in ALLOW)) status = "404 Not Found";
+      else if (!ALLOW[path].split(", ").includes(method)) { status = "405 Method Not Allowed"; allow = ALLOW[path]; }
+      else if (path === "/status") { status = "200 OK"; rbody = '{"state":"ok"}'; }
+      else if (method === "POST") {
         try { const j = JSON.parse(body); status = typeof j.temperature === "number" ? "201 Created" : "400 Bad Request"; } catch (e) { status = "400 Bad Request"; }
-      } else if (path === "/measurements" && method === "GET") { status = "200 OK"; rbody = '[{"temperature":23.5}]'; }
-      else if (method === "DELETE") status = "405 Method Not Allowed";
-      else status = "404 Not Found";
+      } else { status = "200 OK"; rbody = '[{"temperature":23.5}]'; }
+      /* HEAD: същите заглавни полета като при GET (вкл. Content-Length), но без тяло — RFC 9110 §9.3.2, §8.6 */
+      const clen = enc.encode(rbody).length, ctype = rbody ? "Content-Type: application/json\r\n" : "";
       if (method === "HEAD") rbody = "";
-      const resp = `HTTP/1.1 ${status}\r\n` + (rbody ? `Content-Type: application/json\r\nContent-Length: ${enc.encode(rbody).length}\r\n` : "Content-Length: 0\r\n") + "\r\n" + rbody;
+      const resp = `HTTP/1.1 ${status}\r\n` + (allow ? `Allow: ${allow}\r\n` : "") + ctype + `Content-Length: ${clen}\r\n` + "\r\n" + rbody;
       const F = [
         { part: "start", req, resp, status, msg: `Стартов ред: метод <b>${method}</b>, път <b>${S.esc(path)}</b>, версия HTTP/1.1.` },
         { part: "headers", req, resp, status, msg: "Заглавни полета: Host казва кой сайт (един IP адрес може да обслужва много имена)." + (method === "POST" ? " Content-Length казва къде свършва тялото — нужно е, защото TCP е поток." : "") },

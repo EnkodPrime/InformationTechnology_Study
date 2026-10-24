@@ -39,7 +39,7 @@
       let first, last, hosts;
       if (p >= 31) {
         first = net; last = bc; hosts = p === 31 ? 2 : 1;
-        F.push(Object.assign({ step: 5, at: "special", first, last, hosts, msg: p === 31 ? `<b>Специален случай /31</b>: двата адреса се използват за връзка точка–точка — няма отделни адрес на мрежата и broadcast.` : `<b>/32</b>: един адрес — маршрут до конкретен хост.`, vars: { hosts }, log: `хостове ${hosts}` }, base));
+        F.push(Object.assign({ step: 5, at: "special", first, last, hosts, msg: p === 31 ? `<b>Специален случай /31</b>: двата адреса се използват за връзка точка–точка — няма отделни адреси за мрежата и за broadcast (RFC 3021).` : `<b>/32</b>: един адрес — маршрут до конкретен хост.`, vars: { hosts }, log: `хостове ${hosts}` }, base));
       } else {
         first = net + 1; last = bc - 1; hosts = size - 2;
         F.push(Object.assign({ step: 5, at: "hosts", first, last, hosts, msg: `Обичайни хостове: от <b>${ipS(first)}</b> до <b>${ipS(last)}</b> — ${hosts.toLocaleString("bg")} адреса (без мрежовия и broadcast).`, vars: { first: ipS(first), last: ipS(last), hosts }, log: `хостове ${hosts}` }, base));

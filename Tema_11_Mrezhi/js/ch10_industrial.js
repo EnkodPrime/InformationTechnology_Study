@@ -195,7 +195,7 @@
 
     // LIN + FlexRay
     const tIn = root.querySelector("#sch-t"), sv = root.querySelector("#sch-svg"), sm = root.querySelector("#sch-msg");
-    const LIN = [{ s: 0, e: 33, hdr: "PID 0x10: позиция на огледалото (заявка)", pub: "commander", resp: "commander" }, { s: 33, e: 66, hdr: "PID 0x11: отчетено положение", pub: "огледало", resp: "responder" }, { s: 66, e: 100, hdr: "PID 0x3C: диагностика", pub: "commander", resp: "commander" }];
+    const LIN = [{ s: 0, e: 33, hdr: "ID 0x10 (PID 0x50): позиция на огледалото (заявка)", pub: "commander", resp: "commander" }, { s: 33, e: 66, hdr: "ID 0x11 (PID 0x11): отчетено положение", pub: "огледало", resp: "responder" }, { s: 66, e: 100, hdr: "ID 0x3C (PID 0x3C): диагностика", pub: "commander", resp: "commander" }];
     const FR = [{ s: 0, e: 15, k: "слот 1: A" }, { s: 15, e: 30, k: "слот 2: B" }, { s: 30, e: 45, k: "слот 3: C" }, { s: 45, e: 85, k: "динамичен сегмент (minislots)" }, { s: 85, e: 100, k: "NIT" }];
     function drawSch() {
       const t = +tIn.value, W = 600, sx = (v) => 10 + (v * (W - 20)) / 100, svg = S.svg("svg", { class: "g", viewBox: `0 0 ${W} 140`, width: W });

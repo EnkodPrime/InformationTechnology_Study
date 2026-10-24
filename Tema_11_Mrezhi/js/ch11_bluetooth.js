@@ -54,7 +54,7 @@
           }
         }
         if (!hops.length) break;
-        F.push({ N, E, R, seen: [...seen], hops, wave: next.map((x) => x[0]), msg: `Вълна: ${hops.map(([a, b]) => a + "→" + b).join(", ")}. Нови получатели: ${next.map((x) => `${x[0]} (TTL ${x[1]})`).join(", ") || "няма"}. Вече видени съобщения се изхвърлят (кеш на дубликати).`, stats: { предавания: tx, дубликати: dup }, log: `вълна: +${next.map((x) => x[0]).join(",") || "—"}` });
+        F.push({ N, E, R, seen: [...seen], hops, wave: next.map((x) => x[0]), msg: `Вълна: ${hops.map(([a, b]) => a + "→" + b).join(", ")}. Нови получатели: ${next.map((x) => `${x[0]} (TTL при препредаване ${x[1]})`).join(", ") || "няма"}. Вече видени съобщения се изхвърлят (кеш на дубликати).`, stats: { предавания: tx, дубликати: dup }, log: `вълна: +${next.map((x) => x[0]).join(",") || "—"}` });
         wave = next;
       }
       const lamps = ["C", "D", "E", "F", "G"].filter((x) => seen.has(x));
