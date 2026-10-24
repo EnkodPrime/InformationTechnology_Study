@@ -121,7 +121,7 @@
       const G = parseGraph(n, edges);
       const F = [], cyc = Array.from({ length: G.n }, (_, i) => i);
       let tried = 0;
-      F.push({ G, cyc: cyc.slice(), at: "init", vars: { n: G.n, "(n−1)!": fact(G.n - 1) }, stats: { пробвани: 0 }, msg: `Връх 0 е фиксиран; остават (n−1)! = ${fact(G.n - 1)} наредби.` });
+      F.push({ G, cyc: cyc.slice(), at: "init", search: true, vars: { n: G.n, "(n−1)!": fact(G.n - 1) }, stats: { пробвани: 0 }, msg: `Връх 0 е фиксиран; остават (n−1)! = ${fact(G.n - 1)} наредби.` });
       do {
         tried++;
         const ok = verifyPlain(G.n, G.adj, cyc);
@@ -339,7 +339,8 @@
           if (f.cyc) { f.cyc.forEach((v, i) => (order[v] = i)); for (let i = 0; i < G.n; i++) { const a = f.cyc[i], b = f.cyc[(i + 1) % G.n]; if (G.adj[a][b]) edgeCls[ek(a, b)] = f.verdict ? "s-done" : "s-cmp"; else if (!missing) missing = [a, b]; } }
           for (let k = 0; k < G.n; k++) nodeCls[k] = f.verdict ? "s-done" : f.final ? "s-swap" : "s-cmp";
         } else {
-          f.cyc.forEach((v, i) => { if (order[v] == null) order[v] = i; nodeCls[v] = f.seen[v] ? "s-done" : "s-cmp"; });
+          f.cyc = f.cyc || [];
+          f.cyc.forEach((v, i) => { if (order[v] == null) order[v] = i; nodeCls[v] = f.seen && f.seen[v] ? "s-done" : "s-cmp"; });
           if (f.cur != null) nodeCls[f.cur] = "s-act";
           if (f.bad != null) nodeCls[f.bad] = "s-swap";
           if (f.pairIdx != null) for (let i = 0; i < Math.min(f.pairIdx, f.cyc.length); i++) { const a = f.cyc[i], b = f.cyc[(i + 1) % f.cyc.length]; edgeCls[ek(a, b)] = "s-done"; }
