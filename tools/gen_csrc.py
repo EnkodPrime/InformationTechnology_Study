@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Генерира js/csrc.js от C файловете на една тема.
 
-Всеки .c файл в <тема>/c/ може да съдържа един или повече региона:
+Всеки .c или .cpp файл в <тема>/c/ може да съдържа един или повече региона:
 
     //#viz <ключ>
     ... C код, който се показва във визуализацията ...
@@ -58,7 +58,7 @@ def parse(path):
 def main():
     topic = pathlib.Path(sys.argv[1])
     allr = {}
-    for f in sorted((topic / "c").glob("*.c")):
+    for f in sorted(list((topic / "c").glob("*.c")) + list((topic / "c").glob("*.cpp"))):
         for k, v in parse(f).items():
             if k in allr:
                 sys.exit(f"Дублиран ключ {k} в {f} и {allr[k]['file']}")
