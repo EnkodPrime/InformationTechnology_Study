@@ -1,0 +1,10 @@
+const t = require("../../tools/harness.js")(__dirname + "/..", "ch09_ekspertni.js", null);
+const A = t.ch.algos;
+const r = A.checkKB({ rules: "R1: T>80 -> прегряване; R2: T>80 & вентилатор_работи -> норма; R3: прегряване & датчик_ок -> спри; R4: спри -> рестарт; R5: рестарт -> спри", inputs: "T вентилатор_работи", contra: "прегряване/норма" });
+const kinds = r.issues.map((i) => i.kind).sort().join(",");
+t.eq("kinds", kinds, ["възможно противоречие", "непокрито условие", "цикъл"].sort().join(","));
+const r2 = A.checkKB({ rules: "R1: A -> B; R2: A -> C", inputs: "A", contra: "B/C" });
+t.eq("contradiction", r2.issues[0].kind, "противоречие");
+const r3 = A.checkKB({ rules: "R1: A -> B", inputs: "A", contra: "" });
+t.eq("clean", r3.count, 0);
+t.done();
