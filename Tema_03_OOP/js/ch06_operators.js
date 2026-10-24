@@ -1,8 +1,12 @@
 /* Раздел 6 — Предефиниране (претоварване) на операции: Complex. */
 (function () {
   const S = window.Study, h = S.h;
-  const g = (v) => String(Number(v.toPrecision(6)));                      // като ostream по подразбиране (6 значещи цифри)
-  const cs = (z) => `${g(z[0])}${z[1] < 0 ? "-" : "+"}${g(Math.abs(z[1]))}i`;  // същото като operator<<
+  /* като printf("%g") / ostream по подразбиране: 6 значещи цифри, експоненциален запис при X < -4 или X >= 6 */
+  const g6 = (v) => { if (v === 0) return Object.is(v, -0) ? "-0" : "0"; const [m, ex] = v.toExponential(5).split("e"), X = Number(ex);
+    if (X < -4 || X >= 6) return m.replace(/\.?0+$/, "") + "e" + (X < 0 ? "-" : "+") + String(Math.abs(X)).padStart(2, "0");
+    const f = v.toFixed(5 - X); return f.includes(".") ? f.replace(/\.?0+$/, "") : f; };
+  const g = g6;
+  const cs = (z) => `${g(z[0])}${z[1] < 0 ? "-" : "+"}${g(z[1] < 0 ? -z[1] : z[1])}i`;  // същото като operator<< (вкл. −0 → "+-0")
 
   /* Парсер с приоритета и асоциативността на C++: * преди + и -, всички — лявоасоциативни. */
   function parse(src, env) {

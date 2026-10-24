@@ -74,7 +74,8 @@ void protected_delete() {
 }
 
 // struct BaseN { ~BaseN(); };  BaseN* q = new DerN; delete q;
-//   -> НЕДЕФИНИРАНО поведение; g++ -Wall: warning [-Wdelete-non-virtual-dtor]       //@ub
+//   -> НЕДЕФИНИРАНО поведение; g++ -Wall НЕ предупреждава: -Wdelete-non-virtual-dtor   //@ub
+//      се включва само ако класът има други виртуални функции (BaseN няма)
 //#end
 
 /* интерпретатор на списък от фигури: "R 3 4; T 3 4; Q 2" */

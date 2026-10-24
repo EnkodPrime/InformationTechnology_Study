@@ -38,7 +38,7 @@
       const sel = target === "all" ? ["TemperatureSensor", "Sensor", "Clock"] : [target];
       if (sel.some((x) => !T[x])) throw new Error("Непознат базов тип.");
       const F = [];
-      F.push({ at: "mi_field", L, sel: null, vars: { "&lg": "0x2000", "sizeof(Logger)": 24 }, msg: "Обектът <code>Logger</code> съдържа подобект <code>TemperatureSensor</code> (с подобект <code>Sensor</code>) и подобект <code>Clock</code>. Базовите подобекти са преди собствените полета.", log: "Logger lg;" });
+      F.push({ at: "mi_field", L, sel: null, vars: { "&lg": "0x2000", "sizeof(Logger)": 24 }, msg: "Обектът <code>Logger</code> съдържа подобект <code>TemperatureSensor</code> (с подобект <code>Sensor</code>) и подобект <code>Clock</code>. Тук (Itanium C++ ABI) невиртуалните базови подобекти са преди собствените полета — стандартът не задава това разположение.", log: "Logger lg;" });
       const res = [];
       sel.forEach((s) => {
         const t = T[s];
@@ -154,11 +154,11 @@
 </div>`;
 
   /* ---------- диаграма „е вид“ / „има“ ---------- */
-  const NODES = { Sensor: [40, 20], TemperatureSensor: [10, 150], Logger: [250, 20], ISensor: [250, 150] };
+  const NODES = { Sensor: [40, 20], TemperatureSensor: [10, 150], DataLogger: [250, 20], ISensor: [250, 150] };
   const INFO = {
     Sensor: "<b>Sensor</b> — базов клас с договор „датчик“.",
     TemperatureSensor: "<b>TemperatureSensor</b> е <b>вид</b> Sensor: публично наследяване, може да се използва навсякъде, където се очаква Sensor.",
-    Logger: "<b>Logger</b> (регистратор) <b>съдържа</b> датчик — композиция. Регистраторът не е непременно датчик.",
+    DataLogger: "<b>DataLogger</b> (регистратор) <b>съдържа</b> датчик — композиция. Регистраторът не е датчик. (Не го бъркай с <code>Logger</code> от схемата за upcast по-долу — той нарочно <b>наследява</b> TemperatureSensor и Clock.)",
     ISensor: "<b>ISensor</b> — абстрактен интерфейс; регистраторът държи референция към него и работи с всеки конкретен датчик.",
     inh: "Стрелка с триъгълник = наследяване, „е вид“. Производният обект съдържа базов подобект и се преобразува неявно нагоре.",
     has: "Линия с ромб = композиция, „има“. Цялото съдържа или използва частта; връзката не обещава интерфейса на частта.",

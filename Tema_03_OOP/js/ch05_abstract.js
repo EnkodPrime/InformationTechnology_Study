@@ -1,7 +1,11 @@
 /* Раздел 5 — Абстрактни класове и работещият пример Shape / Rectangle. */
 (function () {
   const S = window.Study, h = S.h;
-  const fmt = (v) => { const r = Number(v.toPrecision(6)); return String(r); };   // като %g
+  /* като printf("%g") / ostream по подразбиране: 6 значещи цифри, експоненциален запис при X < -4 или X >= 6 */
+  const g6 = (v) => { if (v === 0) return Object.is(v, -0) ? "-0" : "0"; const [m, ex] = v.toExponential(5).split("e"), X = Number(ex);
+    if (X < -4 || X >= 6) return m.replace(/\.?0+$/, "") + "e" + (X < 0 ? "-" : "+") + String(Math.abs(X)).padStart(2, "0");
+    const f = v.toFixed(5 - X); return f.includes(".") ? f.replace(/\.?0+$/, "") : f; };
+  const fmt = g6;
 
   const algos = {
     /** Скрипт "R 3 4; T 3 4; Q 2" → конструктори, total(), разрушаване от последния към първия (vector::pop_back). */
@@ -60,7 +64,7 @@
         add({ at: "dp", parts: ["BaseP"], gone: "DerP", ev: "~DerP", msg: "Край на обхвата: <code>~DerP()</code>.", log: "~DerP" });
         add({ at: "bp", parts: [], gone: "BaseP", ev: "~BaseP", done: true, msg: "<code>~BaseP()</code> — достъпен от производния клас, затова е наред.", log: "~BaseP" });
       } else if (mode === "ub") {
-        add({ at: "ub", parts: ["BaseN", "DerN"], bad: true, msg: "Публичен <b>невиртуален</b> деструктор и <code>delete</code> през базов указател: <b>недефинирано поведение</b>. На практика обикновено се вика само ~BaseN и ресурсът на DerN изтича — но езикът не обещава нищо. g++ -Wall предупреждава (<code>-Wdelete-non-virtual-dtor</code>); програмата в <code>c/</code> нарочно не го изпълнява.", inv: { text: "недефинирано поведение", ok: false }, done: true });
+        add({ at: "ub", parts: ["BaseN", "DerN"], bad: true, msg: "Публичен <b>невиртуален</b> деструктор и <code>delete</code> през базов указател: <b>недефинирано поведение</b>. На практика обикновено се вика само ~BaseN и ресурсът на DerN изтича — но езикът не обещава нищо. g++ -Wall предупреждава (<code>-Wdelete-non-virtual-dtor</code>) само ако класът има други виртуални функции — за BaseN без тях няма предупреждение; програмата в <code>c/</code> нарочно не го изпълнява.", inv: { text: "недефинирано поведение", ok: false }, done: true });
       } else throw new Error("Непознат режим.");
       return { frames: F, result: ev.join("|") };
     },

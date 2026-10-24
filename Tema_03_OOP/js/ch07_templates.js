@@ -14,7 +14,11 @@
     if (/^-?\d*\.\d+$|^-?\d+\.\d*$/.test(s)) return { t: "double", v: Number(s), show: s };
     throw new Error(`„${s}“ не е литерал (int, 2.5, 'c', 5L или "текст").`);
   }
-  const fmt = (t, v) => (t === "double" ? String(Number(v.toPrecision(6))) : String(v));
+  /* като printf("%g") / ostream по подразбиране: 6 значещи цифри, експоненциален запис при X < -4 или X >= 6 */
+  const g6 = (v) => { if (v === 0) return Object.is(v, -0) ? "-0" : "0"; const [m, ex] = v.toExponential(5).split("e"), X = Number(ex);
+    if (X < -4 || X >= 6) return m.replace(/\.?0+$/, "") + "e" + (X < 0 ? "-" : "+") + String(Math.abs(X)).padStart(2, "0");
+    const f = v.toFixed(5 - X); return f.includes(".") ? f.replace(/\.?0+$/, "") : f; };
+  const fmt = (t, v) => (t === "double" ? g6(v) : String(v));
 
   const algos = {
     /** Скрипт от извиквания на larger(...) → кои специализации се генерират и в какъв ред. */
@@ -46,7 +50,13 @@
         const isSpec = T === "const char*";
         const sig = isSpec ? "T larger(T, T) [with T = const char*]" : `T larger(T, T) [with T = ${PF[T]}]`;
         const fresh = !inst.includes(sig);
-        const cv = (x) => (T === "int" || T === "long" ? Math.trunc(Number(x.v)) : T === "char" ? x.v : T === "double" ? Number(x.v) : x.v);
+        const num = (x) => (x.t === "char" ? x.v.charCodeAt(0) : Number(x.v));   // 'a' -> 97 (стандартно преобразуване)
+        const cv = (x) => {
+          if (T === "int" || T === "long") return Math.trunc(num(x));
+          if (T === "double") return num(x);
+          if (T === "char") { if (x.t === "char") return x.v; const k = Math.trunc(num(x)); if (k < 32 || k > 126) throw new Error(`„${c}“: ${x.show} → char извън печатния ASCII не се демонстрира.`); return String.fromCharCode(k); }
+          return x.v;
+        };
         const a = cv(A), b = cv(B);
         const less = T === "const char*" ? a < b : a < b;
         const r = less ? b : a;
@@ -88,7 +98,7 @@
   <h3>larger&lt;T&gt;: кои функции се генерират</h3>
   <p class="prose"><code>larger(3, 7)</code> използва T=int; <code>larger(2.5, 1.0)</code> — T=double. Опиши поредица от извиквания: вдясно се трупат специализациите в реда на първото им използване. Списъкът е същият, който програмата отпечатва чрез <code>__PRETTY_FUNCTION__</code> (разширение на g++).</p>
   <div id="v-larger"></div>
-  <details class="hint"><summary>Хинт: шаблонът не е текстов макрос</summary><div><p>Макросът <code>#define LARGER(a,b) ((a)&lt;(b)?(b):(a))</code> изчислява аргументите два пъти и не знае типове. Шаблонът участва в типизирането: T се извежда, проверява се, че <code>&lt;</code> съществува за T, връщаният тип е T. Грешката „противоречиво извеждане“ е именно типова проверка.</p></div></details>
+  <details class="hint"><summary>Хинт: шаблонът не е текстов макрос</summary><div><p>Макросът <code>#define LARGER(a,b) ((a)&lt;(b)?(b):(a))</code> изчислява един от аргументите (по-големия) два пъти и не знае типове. Шаблонът участва в типизирането: T се извежда, проверява се, че <code>&lt;</code> съществува за T, връщаният тип е T. Грешката „противоречиво извеждане“ е именно типова проверка.</p></div></details>
 </div>
 
 <div class="block">
