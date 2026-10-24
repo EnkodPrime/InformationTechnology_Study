@@ -4,7 +4,7 @@
 import sys, pathlib
 from playwright.sync_api import sync_playwright
 args = sys.argv[1:]
-chap = args[0]; out = args[1] if len(args) > 1 and not args[1].startswith("--") else f"/tmp/claude-0/shot_{chap}.png"
+chap = args[0]; out = args[1] if len(args) > 1 and not args[1].startswith("--") else f"/tmp/shot_{chap}.png"
 dark = "--dark" in args; mobile = "--mobile" in args
 clicks = [args[i + 1] for i, a in enumerate(args) if a == "--click"]
 url = pathlib.Path(__file__).resolve().parent.parent.joinpath("index.html").as_uri() + "#" + chap
