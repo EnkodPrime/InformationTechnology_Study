@@ -1,6 +1,6 @@
 /* Тема 9, раздел 7 — защитна стена (първото съвпадащо правило) и два подхода на IDS:
  * сигнатури срещу аномалии.
- * Компилиране:  gcc -std=c11 -Wall -Wextra -Werror -O2 07_defense.c -o 07 && ./07
+ * Компилиране:  gcc -std=c11 -Wall -Wextra -Werror -O2 07_defense.c -o 07 -lm && ./07
  *
  * Всичко е модел в паметта: „пакетът“ е структура, а не мрежов трафик.
  * IPv4 адресите са 32-битови числа; мрежата се задава с адрес и префикс (/24 и т.н.).
@@ -49,7 +49,7 @@ int ids_signature(const char *payload, const char *const sig[], int nsig)
     return -1;                                                   //@sig_none
 }
 
-/* Аномалии: стойност извън mean ± k*std на обучителен период */
+/* Аномалии: стойност над mean + k*std на обучителен период (едностранен праг) */
 int ids_anomaly(const double base[], int nb, double x, double k, double *thr)
 {
     double m = 0, v = 0;

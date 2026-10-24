@@ -67,6 +67,7 @@ int count_tokens(const char *q)
 int copy_checked(char *dst, int cap, const char *src)
 {
     int i = 0;
+    if (cap <= 0) return -1;     /* няма място дори за нулата */
     while (src[i] && i < cap - 1) {                              //@c_loop
         dst[i] = src[i];                                         //@c_write
         i++;

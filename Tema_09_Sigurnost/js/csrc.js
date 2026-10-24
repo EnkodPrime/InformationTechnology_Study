@@ -140,19 +140,19 @@ window.CSRC = {
  },
  "ch05_copy": {
   "file": "05_app.c",
-  "code": "/* Копира в буфер с вместимост cap байта (вкл. завършващата нула).\n   Никога не пише извън буфера; връща -1, ако входът е бил отрязан. */\nint copy_checked(char *dst, int cap, const char *src)\n{\n    int i = 0;\n    while (src[i] && i < cap - 1) {\n        dst[i] = src[i];\n        i++;\n    }\n    dst[i] = '\\0';\n    return src[i] ? -1 : i;   /* -1: входът е по-дълъг — съобщаваме */\n}",
+  "code": "/* Копира в буфер с вместимост cap байта (вкл. завършващата нула).\n   Никога не пише извън буфера; връща -1, ако входът е бил отрязан. */\nint copy_checked(char *dst, int cap, const char *src)\n{\n    int i = 0;\n    if (cap <= 0) return -1;     /* няма място дори за нулата */\n    while (src[i] && i < cap - 1) {\n        dst[i] = src[i];\n        i++;\n    }\n    dst[i] = '\\0';\n    return src[i] ? -1 : i;   /* -1: входът е по-дълъг — съобщаваме */\n}",
   "tags": {
    "c_loop": [
-    6
-   ],
-   "c_write": [
     7
    ],
+   "c_write": [
+    8
+   ],
    "c_term": [
-    10
+    11
    ],
    "c_ret": [
-    11
+    12
    ]
   }
  },
@@ -212,7 +212,7 @@ window.CSRC = {
  },
  "ch07_ids": {
   "file": "07_defense.c",
-  "code": "/* Сигнатури: търсим известни шаблони в съдържанието (подниз) */\nint ids_signature(const char *payload, const char *const sig[], int nsig)\n{\n    for (int i = 0; i < nsig; i++)\n        if (strstr(payload, sig[i])) return i;   /* сигнал */\n    return -1;\n}\n\n/* Аномалии: стойност извън mean ± k*std на обучителен период */\nint ids_anomaly(const double base[], int nb, double x, double k, double *thr)\n{\n    double m = 0, v = 0;\n    for (int i = 0; i < nb; i++) m += base[i];\n    m /= nb;\n    for (int i = 0; i < nb; i++) v += (base[i] - m) * (base[i] - m);\n    double sd = sqrt(v / nb);\n    *thr = m + k * sd;\n    return x > *thr;\n}",
+  "code": "/* Сигнатури: търсим известни шаблони в съдържанието (подниз) */\nint ids_signature(const char *payload, const char *const sig[], int nsig)\n{\n    for (int i = 0; i < nsig; i++)\n        if (strstr(payload, sig[i])) return i;   /* сигнал */\n    return -1;\n}\n\n/* Аномалии: стойност над mean + k*std на обучителен период (едностранен праг) */\nint ids_anomaly(const double base[], int nb, double x, double k, double *thr)\n{\n    double m = 0, v = 0;\n    for (int i = 0; i < nb; i++) m += base[i];\n    m /= nb;\n    for (int i = 0; i < nb; i++) v += (base[i] - m) * (base[i] - m);\n    double sd = sqrt(v / nb);\n    *thr = m + k * sd;\n    return x > *thr;\n}",
   "tags": {
    "sig_loop": [
     4
