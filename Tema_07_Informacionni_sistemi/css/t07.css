@@ -1,0 +1,46 @@
+/* Тема 7 — допълнителни стилове за схемите (кутии, стрелки, хранилища, участници).
+   Използва цветовите токени и състоянията s-* от common/css/study.css. */
+.dg-wrap { overflow-x: auto; max-width: 100%; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+.viz-stage .dg-wrap { border: none; padding: 0; background: transparent; }
+svg.dg { display: block; width: 100%; max-width: 860px; margin: 0 auto; min-width: 520px; height: auto; }
+svg.dg.narrow { min-width: 340px; }
+svg.dg text { fill: var(--ink); font-family: var(--f-body); font-size: 13px; }
+svg.dg text.sub { fill: var(--muted); font-size: 11px; }
+svg.dg text.el { fill: var(--ink-2); font-size: 11px; font-family: var(--f-mono); }
+svg.dg text.ttl { font-family: var(--f-display); font-weight: 600; font-size: 14px; }
+svg.dg .nd > rect, svg.dg .nd > ellipse, svg.dg .nd > path.shape, svg.dg .nd > circle {
+  fill: var(--cb, var(--panel)); stroke: var(--c, var(--ink-2)); stroke-width: 1.6;
+}
+svg.dg .nd.click { cursor: pointer; }
+svg.dg .nd.click:hover > rect, svg.dg .nd.click:hover > ellipse, svg.dg .nd.click:hover > path.shape, svg.dg .nd.click:hover > circle { stroke: var(--accent); stroke-width: 2.4; }
+svg.dg .nd.sel > rect, svg.dg .nd.sel > ellipse, svg.dg .nd.sel > path.shape, svg.dg .nd.sel > circle { stroke-width: 3; }
+svg.dg .nd.s-dim { opacity: .4; }
+svg.dg .nd.ghost > rect { fill: transparent; stroke-dasharray: 6 4; stroke: var(--line); }
+svg.dg .ln { stroke: var(--c, var(--muted)); stroke-width: 1.6; fill: none; }
+svg.dg .ln.dash { stroke-dasharray: 5 4; }
+svg.dg .ln.s-act, svg.dg .ln.s-cmp, svg.dg .ln.s-done, svg.dg .ln.s-swap, svg.dg .ln.s-piv { stroke-width: 3; }
+svg.dg .ln.s-dim { opacity: .35; }
+svg.dg .ah { fill: var(--muted); }
+svg.dg .boundary { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 8 5; }
+svg.dg .band { fill: var(--panel-2); stroke: var(--line); }
+svg.dg .actor { fill: none; stroke: var(--c, var(--ink-2)); stroke-width: 1.8; }
+
+.detail { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--r); background: var(--panel); padding: 10px 14px; display: grid; gap: 6px; max-width: 80ch; }
+.detail h4 { font-size: 1rem; }
+.detail p { color: var(--ink-2); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { appearance: none; font: 500 .82rem/1.2 var(--f-body); padding: 6px 10px; border-radius: 999px; border: 1px solid var(--c, var(--line)); background: var(--cb, var(--panel)); color: var(--ink); cursor: pointer; }
+.chip[aria-pressed="true"] { --c: var(--st-act); --cb: var(--st-act-bg); font-weight: 600; }
+.axis { display: grid; grid-template-columns: minmax(0, 12em) minmax(0, 1fr); gap: 8px 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line-2); }
+.axis > b { font-size: .88rem; }
+@media (max-width: 520px) { .axis { grid-template-columns: minmax(0, 1fr); } }
+.phase-row { display: flex; flex-wrap: wrap; gap: 4px; }
+.ph { font: 600 .78rem/1 var(--f-mono); padding: 7px 8px; border-radius: 4px; border: 1.5px solid var(--c, var(--line)); background: var(--cb, var(--panel)); min-width: 2.4em; text-align: center; }
+.timeline { display: grid; gap: 6px; }
+.timeline .tl-row { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 8px; align-items: center; }
+.timeline .tl-row > span { font-size: .78rem; color: var(--muted); }
+.json { font: 12.5px/1.5 var(--f-mono); background: var(--code-bg); border: 1px solid var(--line-2); border-radius: 6px; padding: 8px 10px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+.mini { font-size: .84rem; color: var(--ink-2); }
+/* решетките на раздела не се разширяват от минималната ширина на схемите */
+.chapter-body > *, .block > *, .viz > * { min-width: 0; }
+.block { min-width: 0; }

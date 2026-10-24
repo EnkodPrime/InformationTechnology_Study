@@ -1,0 +1,27 @@
+/* Концептуалните раздели (без C): проверява, че чистите функции дават очакваните резултати и не хвърлят. */
+const H = require("../../tools/harness.js");
+const T = __dirname + "/..";
+let fails = 0, ok = 0;
+const eq = (n, a, b) => { if (String(a) === String(b)) ok++; else { fails++; console.error(`  ✗ ${n}: ${a} ≠ ${b}`); } };
+let A = H(T, "ch01_sashtnost.js", null).ch.algos;
+eq("info 60/80", A.data_to_info({ value: 60, vunit: "продажби", vperiod: "day", target: 80, tunit: "продажби", tperiod: "day" }).pct, 75);
+eq("info period mismatch", A.data_to_info({ value: 60, vunit: "продажби", vperiod: "day", target: 80, tunit: "продажби", tperiod: "week" }).valid, false);
+eq("flow frames", A.flow({ scope: "org" }).frames.length, 7);
+A = H(T, "ch02_upravlenie.js", null).ch.algos;
+let r = A.sale_levels({ sales: "120 80 45 200 60", growth: 15 }); eq("sale sum", r.sum, 505); eq("sale scen", r.scen, 581);
+A = H(T, "ch03_funkcia.js", null).ch.algos;
+eq("integ ok", A.integrate({ client: "same", unit: "same", status: "same" }).ok, true);
+eq("integ 3 bad", A.integrate({ client: "diff", unit: "diff", status: "diff" }).mismatch, 3);
+A = H(T, "ch04_pmis.js", null).ch.algos;
+eq("pmis late", A.pmis_flow({ report_day: 22, same_day: true, role_ok: true }).late, true);
+eq("pmis ontime", A.pmis_flow({ report_day: 18, same_day: true, role_ok: false }).late, false);
+A = H(T, "ch05_zhiznen.js", null).ch.algos;
+r = A.lifecycle({ cycles: 2, skip_owner: true, skip_train: true, ext_api: true }); eq("lc versions", r.versions, 3); eq("lc risks", r.risks, 7);
+A = H(T, "ch08_modeli.js", null).ch.algos;
+r = A.rework({ model: "waterfall", parts: 4, at: 14, part: 1 }); eq("rework wf p1", r.rework, 4); eq("wf firstUse", r.firstUse, 13);
+r = A.rework({ model: "iter", parts: 4, at: 14, part: 1 }); eq("rework it p1", r.rework, 4); eq("it firstUse", r.firstUse, 4);
+eq("rework it p4", A.rework({ model: "iter", parts: 4, at: 14, part: 4 }).rework, 2);
+eq("rework it p4 @12", A.rework({ model: "iter", parts: 4, at: 12, part: 4 }).rework, 0);
+eq("rework wf p4", A.rework({ model: "waterfall", parts: 4, at: 14, part: 4 }).rework, 3);
+eq("spiral", A.spiral({ risks: "8 5 7", threshold: 3 }).cycles, 4);
+console.log(`concept: ${ok} съвпадения, ${fails} разлики`); if (fails) process.exitCode = 1;
