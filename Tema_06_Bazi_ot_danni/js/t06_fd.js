@@ -136,7 +136,7 @@
       if (!X || rels.length >= 12) { push({ at: "b_ok", ri: i, okRel: i, msg: `R${i + 1} = {${FD.str(sch, Ri)}} е в BCNF${m <= 2 ? " (всяка релация с два атрибута е в BCNF)" : ""}.`, log: `R${i + 1} = {${FD.str(sch, Ri)}} ✓` }); i++; continue; }
       const rest = Ri & ~(c & ~X);
       rels[i] = c; rels.push(rest);
-      push({ at: "b_split", ri: i, X, c, newRel: rels.length - 1, msg: `Разделяме: R${i + 1} := {${FD.str(sch, c)}} (X ∪ X⁺) и R${rels.length} := {${FD.str(sch, rest)}} (R − (X⁺ − X)). Общият атрибут {${FD.str(sch, X)}} е ключ на първата част ⇒ разделянето е без загуба.`, log: `раздели по ${FD.str(sch, X)}` });
+      push({ at: "b_split", ri: i, X, c, newRel: rels.length - 1, msg: `Разделяме: R${i + 1} := {${FD.str(sch, c)}} (X⁺ ∩ R${i + 1}) и R${rels.length} := {${FD.str(sch, rest)}} (R − (X⁺ − X)). Общият атрибут {${FD.str(sch, X)}} е суперключ на първата част ⇒ разделянето е без загуба.`, log: `раздели по ${FD.str(sch, X)}` });
     }
     push({ done: true, msg: `Резултат: ${rels.map((r) => "{" + FD.str(sch, r) + "}").join(", ")}.` });
     return rels;

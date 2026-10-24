@@ -13,7 +13,7 @@
     });
     if (!out.length) throw new Error("Нужен е поне един студент.");
     if (out.length > 6) throw new Error("Най-много 6 студента.");
-    return out;
+    return out.sort((a, b) => a.id - b.id);   /* резултатът се показва по групите в този ред — ORDER BY s.id */
   }
   function parseEnr(txt, studs) {
     const out = [];
