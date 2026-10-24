@@ -27,7 +27,7 @@ int affine_from_pairs(int p1, int c1, int p2, int c2, int m, int *a, int *b)
 {
     int dp = mod(p1 - p2, m), dc = mod(c1 - c2, m); //@diff
     int inv = modinv(dp, m);                         //@inv
-    if (inv < 0) return 0;  /* двойките не определят a еднозначно */ //@fail
+    if (inv < 0) return 0;  /* p1 - p2 няма обратен: a не се получава директно */ //@fail
     *a = mod(dc * inv, m);                           //@a
     *b = mod(c1 - *a * p1, m);                       //@b
     if (gcd_int(*a, m) != 1) return 0;  /* не е валиден ключ */ //@fail
@@ -67,7 +67,7 @@ int main(void)
     /* E(x)=5x+8: C(2)->S(18), D(3)->X(23) */
     int ok = affine_from_pairs(2, 18, 3, 23, 26, &a, &b);
     printf("affine(C>S,D>X) = %d %d %d\n", ok, a, b);
-    /* C(2)->S(18), A(0)->I(8): разликата 2 не е обратима по модул 26 */
+    /* C(2)->S(18), A(0)->I(8): разликата 2 не е обратима по модул 26 (решения a = 5 и 18; валидно е само 5) */
     ok = affine_from_pairs(2, 18, 0, 8, 26, &a, &b);
     printf("affine(C>S,A>I) = %d\n", ok);
     /* p1-p2 = 13 не е обратимо по модул 26 */

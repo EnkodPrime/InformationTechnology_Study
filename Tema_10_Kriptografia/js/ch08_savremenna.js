@@ -53,7 +53,7 @@
 <p class="prose muted">Литература: Shannon C., Communication Theory of Secrecy Systems, 1949; NIST FIPS 197 (AES); NIST CSRC Glossary. По конспекта: Станев С., Железов С. Компютърна и мрежова сигурност, 2005; Станев С. Стеганологична защита на информацията, 2013.</p>`;
 
   function toyHash(s, bits) {
-    // FNV-1a върху UTF-16 кодовете, отрязан до bits бита — само илюстрация
+    // FNV-1a (32 бита) върху Unicode кодовете на знаците (за ASCII = байтовете), отрязан до bits бита — само илюстрация
     let x = 0x811c9dc5;
     for (const ch of s) { x ^= ch.codePointAt(0); x = Math.imul(x, 0x01000193) >>> 0; }
     return x & ((1 << bits) - 1);

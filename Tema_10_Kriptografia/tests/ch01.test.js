@@ -9,4 +9,5 @@ for (const s of ["ATTACK", "AT DAWN", "Ключ", "M"]) {
 }
 const bad = A.b64({ text: "QUJ", mode: "dec" });
 t.eq("bad(QUJ)", bad.result, t.get("bad(QUJ)")); t.checkTags("ch01_b64dec", bad.frames);
+for (const s of ["QQ=A", "Q===", "QQ==QUJD"]) { const b = A.b64({ text: s, mode: "dec" }); t.eq(`bad(${s})`, b.result, t.get(`bad(${s})`)); t.checkTags("ch01_b64dec", b.frames); }
 t.done();

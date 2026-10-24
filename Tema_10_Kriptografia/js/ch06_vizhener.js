@@ -96,7 +96,7 @@
       }
       const guess = T10.decode(al, found), real = T10.decode(al, k);
       const dec = c.map((v, i) => T10.mod(v - found[i % L], m));
-      F.push({ at: "col", found, L, dec, done: true, ok: guess === real, vars: { ключ: guess }, msg: `Възстановен ключ: <b>${guess}</b>${guess === real ? " — точно." : ` (истинският е ${real}). ${L !== k.length ? "Периодът е грешен." : "Някоя колона е твърде къса за надеждна статистика — грешката обаче е в една буква и се поправя на око."}`}`, inv: { text: guess === real ? "ключът е възстановен" : "статистиката е подвела в поне една колона", ok: guess === real } });
+      F.push({ at: "col", found, L, dec, done: true, ok: guess === real, vars: { ключ: guess }, msg: `Възстановен ключ: <b>${guess}</b>${guess === real ? " — точно." : ` (истинският е ${real}). ${L !== k.length ? "Периодът е грешен." : `Някоя колона е твърде къса за надеждна статистика — грешни са ${[...guess].filter((ch, q) => ch !== [...real][q]).length} от ${L} букви; при малко грешки ключът се поправя на око.`}`}`, inv: { text: guess === real ? "ключът е възстановен" : "статистиката е подвела в поне една колона", ok: guess === real } });
       return { frames: F, key: guess };
     },
   };

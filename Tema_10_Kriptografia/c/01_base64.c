@@ -43,6 +43,8 @@ long b64_decode(const char *in, unsigned char *out)
         for (int k = 0; k < 4; k++) {                   //@six
             int d = in[i + k] == '=' ? (pad++, 0) : b64_val(in[i + k]);
             if (d < 0) return -1;                       //@check
+            /* '=' само на позиции 2–3 в последната група и нищо след него (RFC 4648, 3.3) */
+            if (in[i + k] == '=' ? (k < 2 || i + 4 != n) : pad > 0) return -1; //@check
             v = (v << 6) | (unsigned)d;                 //@six
         }
         out[j++] = (unsigned char)(v >> 16);            //@unpack
@@ -67,6 +69,9 @@ int main(void)
     }
     unsigned char d[16];
     printf("bad(QUJ) = %ld\n", b64_decode("QUJ", d));
+    printf("bad(QQ=A) = %ld\n", b64_decode("QQ=A", d));
+    printf("bad(Q===) = %ld\n", b64_decode("Q===", d));
+    printf("bad(QQ==QUJD) = %ld\n", b64_decode("QQ==QUJD", d));
     return 0;
 }
 #endif

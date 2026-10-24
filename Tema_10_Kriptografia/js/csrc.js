@@ -29,26 +29,27 @@ window.CSRC = {
  },
  "ch01_b64dec": {
   "file": "01_base64.c",
-  "code": "/* Обратното правило — също публично. Ключ не е нужен. */\nstatic int b64_val(char c)\n{\n    const char *p = strchr(B64, c);\n    return (c && p) ? (int)(p - B64) : -1;\n}\nlong b64_decode(const char *in, unsigned char *out)\n{\n    size_t n = strlen(in), j = 0;\n    if (n % 4) return -1;\n    for (size_t i = 0; i < n; i += 4) {\n        unsigned v = 0; int pad = 0;\n        for (int k = 0; k < 4; k++) {\n            int d = in[i + k] == '=' ? (pad++, 0) : b64_val(in[i + k]);\n            if (d < 0) return -1;\n            v = (v << 6) | (unsigned)d;\n        }\n        out[j++] = (unsigned char)(v >> 16);\n        if (pad < 2) out[j++] = (unsigned char)(v >> 8);\n        if (pad < 1) out[j++] = (unsigned char)v;\n    }\n    return (long)j;\n}",
+  "code": "/* Обратното правило — също публично. Ключ не е нужен. */\nstatic int b64_val(char c)\n{\n    const char *p = strchr(B64, c);\n    return (c && p) ? (int)(p - B64) : -1;\n}\nlong b64_decode(const char *in, unsigned char *out)\n{\n    size_t n = strlen(in), j = 0;\n    if (n % 4) return -1;\n    for (size_t i = 0; i < n; i += 4) {\n        unsigned v = 0; int pad = 0;\n        for (int k = 0; k < 4; k++) {\n            int d = in[i + k] == '=' ? (pad++, 0) : b64_val(in[i + k]);\n            if (d < 0) return -1;\n            /* '=' само на позиции 2–3 в последната група и нищо след него (RFC 4648, 3.3) */\n            if (in[i + k] == '=' ? (k < 2 || i + 4 != n) : pad > 0) return -1;\n            v = (v << 6) | (unsigned)d;\n        }\n        out[j++] = (unsigned char)(v >> 16);\n        if (pad < 2) out[j++] = (unsigned char)(v >> 8);\n        if (pad < 1) out[j++] = (unsigned char)v;\n    }\n    return (long)j;\n}",
   "tags": {
    "check": [
     10,
-    15
+    15,
+    17
    ],
    "group": [
     11
    ],
    "six": [
     13,
-    16
+    18
    ],
    "unpack": [
-    18,
-    19,
-    20
+    20,
+    21,
+    22
    ],
    "done": [
-    22
+    24
    ]
   }
  },
@@ -79,7 +80,7 @@ window.CSRC = {
  },
  "ch02_affine_kp": {
   "file": "02_known_plain.c",
-  "code": "/* Две известни двойки открит/шифротекст -> ключ (a, b) на афинния шифър.\n   c1 - c2 ≡ a (p1 - p2)  =>  a = (c1 - c2) * (p1 - p2)^-1,  b = c1 - a p1 */\nint affine_from_pairs(int p1, int c1, int p2, int c2, int m, int *a, int *b)\n{\n    int dp = mod(p1 - p2, m), dc = mod(c1 - c2, m);\n    int inv = modinv(dp, m);\n    if (inv < 0) return 0;  /* двойките не определят a еднозначно */\n    *a = mod(dc * inv, m);\n    *b = mod(c1 - *a * p1, m);\n    if (gcd_int(*a, m) != 1) return 0;  /* не е валиден ключ */\n    return 1;\n}",
+  "code": "/* Две известни двойки открит/шифротекст -> ключ (a, b) на афинния шифър.\n   c1 - c2 ≡ a (p1 - p2)  =>  a = (c1 - c2) * (p1 - p2)^-1,  b = c1 - a p1 */\nint affine_from_pairs(int p1, int c1, int p2, int c2, int m, int *a, int *b)\n{\n    int dp = mod(p1 - p2, m), dc = mod(c1 - c2, m);\n    int inv = modinv(dp, m);\n    if (inv < 0) return 0;  /* p1 - p2 няма обратен: a не се получава директно */\n    *a = mod(dc * inv, m);\n    *b = mod(c1 - *a * p1, m);\n    if (gcd_int(*a, m) != 1) return 0;  /* не е валиден ключ */\n    return 1;\n}",
   "tags": {
    "diff": [
     5
