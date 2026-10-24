@@ -1,0 +1,50 @@
+/* Тема 3 — допълнителни елементи за обекти, памет и таблици. Използва токените от common/css/study.css. */
+.mem { display: grid; grid-template-columns: repeat(8, minmax(30px, 46px)); gap: 3px; padding: 16px 0 6px; }
+.mem .b { position: relative; height: 40px; border: 1.5px solid var(--c, var(--line)); background: var(--cb, var(--panel)); border-radius: 4px;
+  display: grid; place-items: center; font: 600 12px var(--f-mono); color: var(--ink); }
+.mem .b .o { position: absolute; top: -15px; left: 2px; font: 10px var(--f-mono); color: var(--muted); }
+.mem .b.pad { background: repeating-linear-gradient(45deg, transparent 0 4px, color-mix(in srgb, var(--st-swap) 22%, transparent) 4px 6px); border-style: dashed; color: var(--muted); }
+.mem .b.empty { opacity: .35; }
+.objs { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+.obj { border: 1.5px solid var(--c, var(--line)); background: var(--cb, var(--panel)); border-radius: 6px; min-width: 120px; font: 13px var(--f-mono); }
+.obj > .oh { padding: 5px 10px; border-bottom: 1px solid var(--line); font-weight: 700; display: flex; gap: 8px; justify-content: space-between; }
+.obj > .oh .ad { color: var(--muted); font-weight: 400; }
+.obj > .orow { padding: 3px 10px; display: flex; gap: 10px; justify-content: space-between; border-bottom: 1px dotted var(--line-2); }
+.obj > .orow:last-child { border-bottom: none; }
+.obj > .orow.s-act, .obj > .orow.s-cmp, .obj > .orow.s-done, .obj > .orow.s-swap, .obj > .orow.s-piv { background: var(--cb); color: var(--c); font-weight: 700; }
+.obj > .sub { margin: 4px 6px 6px; }
+.obj.gone { opacity: .35; border-style: dashed; }
+.lane { display: grid; gap: 10px; }
+.lane > .lbl { font-size: .74rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.tl { display: flex; flex-wrap: wrap; gap: 4px; }
+.tl .ev { font: 12px var(--f-mono); padding: 3px 7px; border-radius: 4px; border: 1px solid var(--c, var(--line)); background: var(--cb, var(--panel)); }
+.tl .ev.fut { opacity: .3; }
+.flow { display: grid; grid-template-columns: auto auto auto auto auto; gap: 8px 10px; align-items: center; }
+.flow .ar { color: var(--muted); font: 700 16px var(--f-mono); }
+.vt { border: 1.5px solid var(--c, var(--st-piv)); border-radius: 6px; font: 12.5px var(--f-mono); background: var(--panel); min-width: 150px; }
+.vt > .oh { padding: 4px 8px; border-bottom: 1px solid var(--line); font-weight: 700; color: var(--st-piv); }
+.vt > .orow { padding: 3px 8px; display: flex; gap: 8px; }
+.vt > .orow .k { color: var(--muted); }
+.vt > .orow.s-act { background: var(--st-act-bg); color: var(--st-act); font-weight: 700; }
+.mx td.ok { background: var(--st-done-bg); color: var(--st-done); font-weight: 700; text-align: center; }
+.mx td.no { background: var(--st-swap-bg); color: var(--st-swap); text-align: center; }
+.mx td.cur { outline: 2px solid var(--st-act); outline-offset: -2px; }
+.mx td, .mx th { cursor: default; }
+.mx button.cellbtn { all: unset; cursor: pointer; display: block; width: 100%; text-align: center; }
+.tree { font: 13px var(--f-mono); display: grid; gap: 2px; }
+.tree .nd { padding: 2px 8px; border-left: 3px solid var(--c, var(--line)); background: var(--cb, transparent); border-radius: 0 4px 4px 0; justify-self: start; }
+.diag svg text { font-family: var(--f-mono); font-size: 13px; fill: var(--ink); }
+.diag svg .bx { fill: var(--panel); stroke: var(--ink-2); stroke-width: 1.5; }
+.diag svg .bx.on { fill: var(--st-act-bg); stroke: var(--st-act); stroke-width: 2.5; }
+.diag svg .ln { stroke: var(--ink-2); stroke-width: 1.5; fill: none; }
+.diag svg .ln.on { stroke: var(--st-act); stroke-width: 3; }
+.diag svg .ln.has { stroke-dasharray: 5 4; }
+.diag svg g[role=button] { cursor: pointer; }
+.diag svg .tri { fill: var(--panel); stroke: var(--ink-2); stroke-width: 1.5; }
+.diag svg .dia { fill: var(--ink-2); }
+@media (max-width: 520px) {
+  .mem { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .mem .b { font-size: 10px; }
+  .flow { grid-template-columns: auto auto auto; }
+  .flow .ar.w { display: none; }
+}
