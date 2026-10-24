@@ -11,7 +11,7 @@
 | 3 | **Обектно ориентирано програмиране** | [`Tema_03_OOP/`](Tema_03_OOP/) | готова |
 | 4 | **Абстрактни структури от данни** | [`Tema_04_Strukturi_ot_danni/`](Tema_04_Strukturi_ot_danni/) | готова |
 | 5 | **Алгоритми** | [`Tema_05_Algoritmi/`](Tema_05_Algoritmi/) | готова |
-| 6 | Бази от данни | — | предстои |
+| 6 | **Бази от данни** | [`Tema_06_Bazi_ot_danni/`](Tema_06_Bazi_ot_danni/) | готова |
 | 7 | **Информационни системи** | [`Tema_07_Informacionni_sistemi/`](Tema_07_Informacionni_sistemi/) | готова |
 | 8 | **Интелигентни системи** | [`Tema_08_Inteligentni_sistemi/`](Tema_08_Inteligentni_sistemi/) | готова |
 | 9 | **Компютърна сигурност** | [`Tema_09_Sigurnost/`](Tema_09_Sigurnost/) | готова |
