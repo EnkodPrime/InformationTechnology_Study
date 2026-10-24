@@ -45,19 +45,19 @@ window.CSRC = {
  },
  "is_even_partial": {
   "file": "01_algorithm.c",
-  "code": "/* Частично коректна, но НЕ пълно коректна:\n   ако спре, отговорът е верен; за нечетно x не спира. */\nint is_even(int x)\n{\n    while (x != 0)\n        x = x - 2;\n    return 1;  /* \"четно\" */\n}",
+  "code": "/* Частично коректна, но НЕ пълно коректна:\n   ако спре, отговорът е верен; за нечетно x не спира.\n   (Разсъждението е в модела с неограничени цели числа. В C с int\n   x - 2 стига INT_MIN и препълва — недефинирано поведение; gcc -O2\n   дори премахва цикъла и връща 1 и за нечетно x.) */\nint is_even(int x)\n{\n    while (x != 0)\n        x = x - 2;\n    return 1;  /* \"четно\" */\n}",
   "tags": {
    "enter": [
-    4
+    7
    ],
    "cond": [
-    5
+    8
    ],
    "step": [
-    6
+    9
    ],
    "ret": [
-    7
+    10
    ]
   }
  },
@@ -72,10 +72,10 @@ window.CSRC = {
  },
  "prop_definiteness": {
   "file": "01_algorithm.c",
-  "code": "/* Нарушена ОПРЕДЕЛЕНОСТ: редът на изчисляване на\n   аргументите не е зададен — резултатът зависи от компилатора */\nint next(void) { static int k = 0; return ++k; }\nint pair_diff(void)\n{\n    return next() - next();\n}",
+  "code": "/* Нарушена ОПРЕДЕЛЕНОСТ: редът на изчисляване на\n   операндите на „−“ не е зададен (unspecified, C11 6.5p3) —\n   резултатът (−1 или 1) зависи от компилатора */\nint next(void) { static int k = 0; return ++k; }\nint pair_diff(void)\n{\n    return next() - next();\n}",
   "tags": {
    "bug": [
-    6
+    7
    ]
   }
  },
@@ -171,19 +171,19 @@ window.CSRC = {
  },
  "ch02_is_even": {
   "file": "02_computability.c",
-  "code": "/* Спира само за четни x >= 0; за нечетно x прескача 0 и не спира. */\nint is_even_loop(int x)\n{\n    while (x != 0)\n        x = x - 2;\n    return 1;\n}",
+  "code": "/* Спира само за четни x >= 0; за нечетно x прескача 0 и не спира\n   (в модела с неограничени цели числа; в C int препълването е UB). */\nint is_even_loop(int x)\n{\n    while (x != 0)\n        x = x - 2;\n    return 1;\n}",
   "tags": {
    "enter": [
-    3
-   ],
-   "cond": [
     4
    ],
-   "step": [
+   "cond": [
     5
    ],
-   "halt": [
+   "step": [
     6
+   ],
+   "halt": [
+    7
    ]
   }
  },
@@ -933,28 +933,28 @@ window.CSRC = {
  },
  "ch07_heap": {
   "file": "07_sorting.c",
-  "code": "/* Пирамидално: строим max-пирамида, после n−1 пъти\n   местим максимума в края. Θ(n log n) винаги, на място, не е стабилно. */\nstatic void sift_down(item a[], int k, int n)\n{\n    for (;;) {\n        int c = 2 * k + 1;\n        if (c >= n) return;\n        if (c + 1 < n && less(a[c], a[c + 1]))\n            c++;\n        if (!less(a[k], a[c])) return;\n        swap(&a[k], &a[c]);\n        k = c;\n    }\n}\nvoid heap_sort(item a[], int n)\n{\n    for (int k = n / 2 - 1; k >= 0; k--)\n        sift_down(a, k, n);\n    for (int end = n - 1; end > 0; end--) {\n        swap(&a[0], &a[end]);\n        sift_down(a, 0, end);\n    }\n}",
+  "code": "/* Пирамидално: строим max-пирамида, после n−1 пъти\n   местим максимума в края. O(n log n) винаги (Θ(n log n) при различни\n   ключове; при всички равни — Θ(n)), на място, не е стабилно. */\nstatic void sift_down(item a[], int k, int n)\n{\n    for (;;) {\n        int c = 2 * k + 1;\n        if (c >= n) return;\n        if (c + 1 < n && less(a[c], a[c + 1]))\n            c++;\n        if (!less(a[k], a[c])) return;\n        swap(&a[k], &a[c]);\n        k = c;\n    }\n}\nvoid heap_sort(item a[], int n)\n{\n    for (int k = n / 2 - 1; k >= 0; k--)\n        sift_down(a, k, n);\n    for (int end = n - 1; end > 0; end--) {\n        swap(&a[0], &a[end]);\n        sift_down(a, 0, end);\n    }\n}",
   "tags": {
    "child": [
-    6
+    7
    ],
    "cmp2": [
-    8
+    9
    ],
    "cmp": [
-    10
-   ],
-   "swap": [
     11
    ],
+   "swap": [
+    12
+   ],
    "build": [
-    17
+    18
    ],
    "extract": [
-    19
+    20
    ],
    "top": [
-    20
+    21
    ]
   }
  },
