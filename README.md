@@ -30,6 +30,8 @@ git clone https://github.com/EnkodPrime/InformationTechnology_Study.git
 
 Алтернатива: `Tema_05_Algoritmi/dist/Tema_05_Algoritmi.html` е цялата тема в един файл — може да се копира и отвори където и да е.
 
+- [`PROVERKA/`](PROVERKA/) — независима проверка на коректността на всички теми (34 поправени грешки, 47 неточности).
+
 ## Структура
 
 ```
