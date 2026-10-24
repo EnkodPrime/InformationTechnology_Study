@@ -13,14 +13,15 @@
 
 #define MAXR 16
 
-typedef struct { int id; int student; long amount; } Row; /* amount: стотинки или евроценти */
+typedef struct { int id; int student; long long amount; } Row; /* amount: стотинки или евроценти */
 
 enum { BUG_NONE, BUG_NO_CONVERT, BUG_FK_SHIFT, BUG_DUP_ID, BUG_DROP, BUG_FK_TYPO, BUG_COUNT };
 
 /* стотинки -> евроценти, закръгляне до най-близкия цент (за amount >= 0) */
-long bgn_to_eur(long st)
+/* long long: st * 100000 + 97791 надхвърля INT32_MAX още при 21474 стотинки, а long е 32-битов под Windows (LLP64) */
+long long bgn_to_eur(long long st)
 {
-    return (st * 100000L + 97791L) / 195583L;
+    return (st * 100000LL + 97791LL) / 195583LL;
 }
 
 /* Пренасяне (Extract-Transform-Load) с възможна грешка. Връща броя редове в dst. */
@@ -66,7 +67,7 @@ int accept(const Row src[], int n, const Row dst[], int m,
     }
     if (fk) mask |= 4;
     /* 4. Контролна сума в евро (смисъл на единиците) */
-    long want = 0, got = 0;
+    long long want = 0, got = 0;
     for (int i = 0; i < n; i++) want += bgn_to_eur(src[i].amount);
     for (int i = 0; i < m; i++) got += dst[i].amount;
     if (want == got) mask |= 8;                           //@sum
@@ -92,8 +93,8 @@ int main(void)
                        {4, 101, 3000}, {5, 104, 9999}};
     const int n = 5, ns = 4;
     static const char *const NAME[BUG_COUNT] = {"none", "noconv", "fkshift", "dupid", "drop", "fktypo"};
-    printf("bgn_to_eur(12000) = %ld\n", bgn_to_eur(12000));
-    printf("bgn_to_eur(9999) = %ld\n", bgn_to_eur(9999));
+    printf("bgn_to_eur(12000) = %lld\n", bgn_to_eur(12000));
+    printf("bgn_to_eur(9999) = %lld\n", bgn_to_eur(9999));
     for (int b = 0; b < BUG_COUNT; b++) {
         Row dst[MAXR];
         int m = migrate(src, n, students, ns, b, dst);

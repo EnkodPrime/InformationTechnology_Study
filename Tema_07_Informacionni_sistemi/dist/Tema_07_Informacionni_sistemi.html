@@ -1171,7 +1171,7 @@ window.CSRC = {
  },
  "ch09_accept": {
   "file": "09_migration.c",
-  "code": "/* Пет проверки преди приемане. Бит k в резултата = проверка k е минала. */\nint accept(const Row src[], int n, const Row dst[], int m,\n           const int students[], int ns)\n{\n    int mask = 0;\n    /* 1. Брой редове */\n    if (m == n) mask |= 1;\n    /* 2. Уникален първичен ключ */\n    int uniq = 1;\n    for (int i = 0; i < m; i++)\n        for (int j = i + 1; j < m; j++)\n            if (dst[i].id == dst[j].id) uniq = 0;\n    if (uniq) mask |= 2;\n    /* 3. Чуждите ключове сочат съществуващи студенти */\n    int fk = 1;\n    for (int i = 0; i < m; i++) {\n        int found = 0;\n        for (int k = 0; k < ns; k++)\n            if (students[k] == dst[i].student) found = 1;\n        if (!found) fk = 0;\n    }\n    if (fk) mask |= 4;\n    /* 4. Контролна сума в евро (смисъл на единиците) */\n    long want = 0, got = 0;\n    for (int i = 0; i < n; i++) want += bgn_to_eur(src[i].amount);\n    for (int i = 0; i < m; i++) got += dst[i].amount;\n    if (want == got) mask |= 8;\n    /* 5. Съпоставяне ред по ред: същият студент и сума за всеки ид */\n    int rec = 1;\n    for (int i = 0; i < n; i++) {\n        int hit = 0;\n        for (int j = 0; j < m; j++)\n            if (dst[j].id == src[i].id && dst[j].student == src[i].student\n                && dst[j].amount == bgn_to_eur(src[i].amount)) hit = 1;\n        if (!hit) rec = 0;\n    }\n    if (rec) mask |= 16;\n    return mask;\n}",
+  "code": "/* Пет проверки преди приемане. Бит k в резултата = проверка k е минала. */\nint accept(const Row src[], int n, const Row dst[], int m,\n           const int students[], int ns)\n{\n    int mask = 0;\n    /* 1. Брой редове */\n    if (m == n) mask |= 1;\n    /* 2. Уникален първичен ключ */\n    int uniq = 1;\n    for (int i = 0; i < m; i++)\n        for (int j = i + 1; j < m; j++)\n            if (dst[i].id == dst[j].id) uniq = 0;\n    if (uniq) mask |= 2;\n    /* 3. Чуждите ключове сочат съществуващи студенти */\n    int fk = 1;\n    for (int i = 0; i < m; i++) {\n        int found = 0;\n        for (int k = 0; k < ns; k++)\n            if (students[k] == dst[i].student) found = 1;\n        if (!found) fk = 0;\n    }\n    if (fk) mask |= 4;\n    /* 4. Контролна сума в евро (смисъл на единиците) */\n    long long want = 0, got = 0;\n    for (int i = 0; i < n; i++) want += bgn_to_eur(src[i].amount);\n    for (int i = 0; i < m; i++) got += dst[i].amount;\n    if (want == got) mask |= 8;\n    /* 5. Съпоставяне ред по ред: същият студент и сума за всеки ид */\n    int rec = 1;\n    for (int i = 0; i < n; i++) {\n        int hit = 0;\n        for (int j = 0; j < m; j++)\n            if (dst[j].id == src[i].id && dst[j].student == src[i].student\n                && dst[j].amount == bgn_to_eur(src[i].amount)) hit = 1;\n        if (!hit) rec = 0;\n    }\n    if (rec) mask |= 16;\n    return mask;\n}",
   "tags": {
    "enter": [
     4
@@ -1605,7 +1605,7 @@ window.CSRC = {
   const SYS = [
     { t: "Касова POS система", v: { lvl: ["оперативно"], dec: ["структурирано"], org: ["разпределена"] }, n: "TPS функции: регистрира продажбите. [допускане: каси в няколко магазина към обща система → разпределена]" },
     { t: "Месечна справка за продажбите", v: { lvl: ["управленско"], dec: ["структурирано"], org: ["централизирана"] }, n: "MIS функция: периодично обобщение. Правилото за пресмятане е ясно — структурирано. [допускане: генерира се от един централен сървър]" },
-    { t: "Анализ „нов пазар“", v: { lvl: ["стратегическо"], dec: ["неструктурирано"], org: ["централизирана"] }, n: "Избор на нова бизнес посока изисква значителна човешка преценка — неструктурирано." },
+    { t: "Анализ „нов пазар“", v: { lvl: ["стратегическо"], dec: ["неструктурирано"], org: ["централизирана"] }, n: "Избор на нова бизнес посока изисква значителна човешка преценка — неструктурирано. [допускане: анализът се прави централно]" },
     { t: "Интегрирана платформа (оперативни модули + отчети + анализ)", v: { lvl: ["оперативно", "управленско", "стратегическо"], dec: ["структурирано", "полуструктурирано", "неструктурирано"], org: ["разпределена"] }, n: "Една платформа може да обслужва няколко равнища. Класификацията описва доминираща функция, а не задължително отделен продукт." },
   ];
 
@@ -1741,7 +1741,7 @@ window.CSRC = {
       const F = [];
       const msg = { client_id: 4711, amount: 1200, status: "closed" };
       const mismatch = [];
-      F.push({ st: "send", msg: "CRM изпраща JSON съобщение към ERP: <code>{client_id: 4711, amount: 1200, status: \"closed\"}</code>.", log: "CRM → ERP", m: msg });
+      F.push({ st: "send", msg: "CRM изпраща JSON съобщение към ERP: <code>{\"client_id\": 4711, \"amount\": 1200, \"status\": \"closed\"}</code>.", log: "CRM → ERP", m: msg });
       F.push({ st: "syntax", ok: true, msg: "<b>Синтактична проверка:</b> валиден JSON, полетата съществуват, типовете съвпадат. Транспортът е успешен.", log: "синтаксис ✓", m: msg });
       const cl = client === "same";
       F.push({ st: "client", ok: cl, msg: cl ? "<b>client_id:</b> и в двете системи означава фирма — съвпада." : "<b>client_id:</b> в CRM означава <b>лице за контакт</b>, в ERP — <b>фирма</b>. Еднаквото име на полето не решава разликата.", log: cl ? "клиент ✓" : "клиент ✗", m: msg });
@@ -2795,10 +2795,11 @@ window.CSRC = {
       while (Math.max(...cur) > thr && cyc < 12) {
         cyc++;
         const k = cur.indexOf(Math.max(...cur));
-        F.push({ r: cur.slice(), cyc, q: 0, k, msg: `<b>Цикъл ${cyc}, квадрант 1 — цели и ограничения.</b> Уточняваме какво искаме от тази обиколка.`, log: `цикъл ${cyc}` });
-        F.push({ r: cur.slice(), cyc, q: 1, k, msg: `<b>Квадрант 2 — анализ на риска.</b> Най-голям е ${names[k]} = ${cur[k]}. Изграждаме прототип, който проверява точно тази хипотеза.`, log: `риск ${names[k]}=${cur[k]}` });
+        F.push({ r: cur.slice(), cyc, q: 0, k, msg: `<b>Цикъл ${cyc}, квадрант 1 — цели, алтернативи и ограничения.</b> Уточняваме какво искаме от тази обиколка.`, log: `цикъл ${cyc}` });
+        F.push({ r: cur.slice(), cyc, q: 1, k, msg: `<b>Квадрант 2 — оценка на алтернативите и анализ на риска.</b> Най-голям е ${names[k]} = ${cur[k]}. Изграждаме прототип, който проверява точно тази хипотеза.`, log: `риск ${names[k]}=${cur[k]}` });
         cur[k] = Math.max(1, cur[k] - 4);
-        F.push({ r: cur.slice(), cyc, q: 2, k, msg: `<b>Квадрант 3 — разработване и проверка.</b> Прототипът намалява ${names[k]} до ${cur[k]}.`, log: `${names[k]} → ${cur[k]}` });
+        F.push({ r: cur.slice(), cyc, q: 1, k, res: true, msg: `<b>Квадрант 2 — разрешаване на риска.</b> Прототипът намалява ${names[k]} до ${cur[k]}.`, log: `${names[k]} → ${cur[k]}` });
+        F.push({ r: cur.slice(), cyc, q: 2, k, res: true, msg: `<b>Квадрант 3 — разработване и проверка</b> на продукта от следващото ниво, вече при по-нисък риск.` });
         F.push({ r: cur.slice(), cyc, q: 3, k, msg: `<b>Квадрант 4 — планиране на следващия цикъл.</b> Остават: ${cur.map((v, j) => names[j] + "=" + v).join(", ")}.` });
       }
       F.push({ r: cur.slice(), cyc, q: -1, done: true, msg: `Всички рискове ≤ ${thr} след <b>${cyc}</b> цикъла. Рискът е в центъра — броят обиколки се определя от него, а не от предварителен план.`, inv: { text: "max риск ≤ праг", ok: Math.max(...cur) <= thr } });
@@ -2957,7 +2958,7 @@ window.CSRC = {
         st.append(h("p", { class: "mini", text: `цикъл ${f.cyc}` }), row);
         const b = h("div", { style: { marginTop: "10px", maxWidth: "420px" } });
         st.append(b);
-        S.drawBars(b, f.r, { height: 130, cls: f.k != null ? { [f.k]: f.q === 2 ? "s-done" : "s-swap" } : {}, fmt: (v, k) => "Р" + (k + 1) + "=" + v });
+        S.drawBars(b, f.r, { height: 130, cls: f.k != null ? { [f.k]: f.res ? "s-done" : "s-swap" } : {}, fmt: (v, k) => "Р" + (k + 1) + "=" + v });
       },
     });
 
@@ -2976,8 +2977,8 @@ window.CSRC = {
         vv.append(h("div", { class: "axis" }, h("b", { text: t }), c));
       });
       const ver = st.impl === "spec", val = ver && st.req === "right";
-      vo.innerHTML = `<p><span class="pill ${ver ? "s-done" : "s-swap"}">верификация: ${ver ? "минава" : "не минава"}</span> <span class="pill ${val ? "s-done" : "s-swap"}">валидация: ${val ? "минава" : "не минава"}</span></p>
-        <p>${ver && !val ? "Системата <b>точно изпълнява написаното</b> — и пак не е пригодна: студент, който трябва да повтори дисциплината в нов семестър, не може да се запише. Грешката е в изискването, не в кода." : !ver ? "Реализацията не съответства на спецификацията — верификацията го открива. Без съответствие няма смисъл да се говори за пригодност." : "Съответства на спецификацията и спецификацията отразява нуждата."}</p>
+      vo.innerHTML = `<p><span class="pill ${ver ? "s-done" : "s-swap"}">верификация: ${ver ? "минава" : "не минава"}</span> <span class="pill ${!ver ? "s-piv" : val ? "s-done" : "s-swap"}">валидация: ${!ver ? "зависи от отклонението" : val ? "минава" : "не минава"}</span></p>
+        <p>${ver && !val ? "Системата <b>точно изпълнява написаното</b> — и пак не е пригодна: студент, който трябва да повтори дисциплината в нов семестър, не може да се запише. Грешката е в изискването, не в кода." : !ver ? "Реализацията не съответства на спецификацията — верификацията го открива. Пригодността е <b>отделен въпрос</b>, който валидацията проверява независимо: отклонението може да направи системата непригодна, а при погрешно изискване може дори да е по-близо до нуждата." : "Съответства на спецификацията и спецификацията отразява нуждата."}</p>
         <p class="mini">[допускане: примерът с повторно записване в нов семестър е учебна илюстрация, изградена върху правилото от ръководството „студент, дисциплина и семестър“.]</p>`;
     }
     drawVV();
@@ -3235,7 +3236,7 @@ window.CSRC = {
     ["Конспект за кандидат-докторантски изпит „Информатика“, ШУ, 21.01.2025", null],
     ["M07 R01 — Object Management Group, BPMN", "https://www.omg.org/bpmn/"],
     ["M07 R02 — Object Management Group, Specifications (UML и др.)", "https://www.omg.org/spec/"],
-    ["M07 R03 — Ilyas Hassan and Ilyas, PMIS boon or bane, 2013", "https://www.pmi.org/learning/library/2019/04/07/15/21/project-management-information-systems-overviews-5813"],
+    ["M07 R03 — Ilyas M. A. B., Hassan M. K., Ilyas M. U. PMIS: boon or bane? PMI Global Congress EMEA, 2013", "https://www.pmi.org/learning/library/2019/04/07/15/21/project-management-information-systems-overviews-5813"],
     ["M07 R04 — David Cleland, Defining a project management system, 1977", "https://www.pmi.org/learning/library/defining-project-management-systems-approach-1752"],
     ["M07 R05 — Atlassian, Jira project management template", "https://www.atlassian.com/software/jira/templates/project-management-templates"],
     ["SAP S/4HANA", "https://www.sap.com/products/erp/s4hana.html"],

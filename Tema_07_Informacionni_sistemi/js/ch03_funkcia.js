@@ -10,7 +10,7 @@
       const F = [];
       const msg = { client_id: 4711, amount: 1200, status: "closed" };
       const mismatch = [];
-      F.push({ st: "send", msg: "CRM изпраща JSON съобщение към ERP: <code>{client_id: 4711, amount: 1200, status: \"closed\"}</code>.", log: "CRM → ERP", m: msg });
+      F.push({ st: "send", msg: "CRM изпраща JSON съобщение към ERP: <code>{\"client_id\": 4711, \"amount\": 1200, \"status\": \"closed\"}</code>.", log: "CRM → ERP", m: msg });
       F.push({ st: "syntax", ok: true, msg: "<b>Синтактична проверка:</b> валиден JSON, полетата съществуват, типовете съвпадат. Транспортът е успешен.", log: "синтаксис ✓", m: msg });
       const cl = client === "same";
       F.push({ st: "client", ok: cl, msg: cl ? "<b>client_id:</b> и в двете системи означава фирма — съвпада." : "<b>client_id:</b> в CRM означава <b>лице за контакт</b>, в ERP — <b>фирма</b>. Еднаквото име на полето не решава разликата.", log: cl ? "клиент ✓" : "клиент ✗", m: msg });

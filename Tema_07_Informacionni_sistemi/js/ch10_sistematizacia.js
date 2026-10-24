@@ -51,7 +51,7 @@
     ["Конспект за кандидат-докторантски изпит „Информатика“, ШУ, 21.01.2025", null],
     ["M07 R01 — Object Management Group, BPMN", "https://www.omg.org/bpmn/"],
     ["M07 R02 — Object Management Group, Specifications (UML и др.)", "https://www.omg.org/spec/"],
-    ["M07 R03 — Ilyas Hassan and Ilyas, PMIS boon or bane, 2013", "https://www.pmi.org/learning/library/2019/04/07/15/21/project-management-information-systems-overviews-5813"],
+    ["M07 R03 — Ilyas M. A. B., Hassan M. K., Ilyas M. U. PMIS: boon or bane? PMI Global Congress EMEA, 2013", "https://www.pmi.org/learning/library/2019/04/07/15/21/project-management-information-systems-overviews-5813"],
     ["M07 R04 — David Cleland, Defining a project management system, 1977", "https://www.pmi.org/learning/library/defining-project-management-systems-approach-1752"],
     ["M07 R05 — Atlassian, Jira project management template", "https://www.atlassian.com/software/jira/templates/project-management-templates"],
     ["SAP S/4HANA", "https://www.sap.com/products/erp/s4hana.html"],
