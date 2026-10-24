@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Информатика · Кандидат-докторантски изпит</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="common/css/study.css">
+<style>
+  .hub { max-width: 1040px; margin: 0 auto; display: grid; gap: 22px; padding-block: 32px 64px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+  .topic { display: grid; grid-template-columns: 2.6em 1fr; gap: 4px 10px; align-items: start; padding: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; text-decoration: none; color: inherit; }
+  .topic .n { font: 600 1.3rem/1 var(--f-mono); color: var(--muted); grid-row: span 2; }
+  .topic b { font-family: var(--f-display); font-size: 1.02rem; }
+  .topic p { font-size: .84rem; color: var(--ink-2); grid-column: 2; }
+  .topic .pill { grid-column: 2; justify-self: start; margin-top: 4px; }
+  a.topic:hover { border-color: var(--accent); }
+  a.topic .n { color: var(--accent); }
+  div.topic { opacity: .72; }
+</style>
+</head>
+<body>
+<div class="hub">
+  <header style="display:grid;gap:8px">
+    <span class="eyebrow">Докторска програма „Информатика“ · 4.6 · Шуменски университет</span>
+    <h1>Подготовка за кандидат-докторантския изпит</h1>
+    <p class="muted" style="max-width:70ch">Интерактивни материали по 12-те теми от конспекта. Всяка тема е отделна папка: визуализации стъпка по стъпка, примери на C/C++ и речник с подсказки.</p>
+  </header>
+  <div class="topics" id="topics"></div>
+  <p class="muted" style="font-size:.85rem">Източник на темите: Конспект за кандидат-докторантски изпит по докторска програма „Информатика“, катедра „Компютърна информатика“, 21.01.2025 г.</p>
+</div>
+<script>
+  const T = [
+    ["01", "Последователни и паралелни компютърни архитектури", "Система от инструкции. Конвейерна обработка. Йерархия на паметта. Подсистема за вход/изход."],
+    ["02", "Операционни системи", "Състав и функции. Управление на паметта, процесите и ресурсите. Файлови системи."],
+    ["03", "Обектно ориентирано програмиране", "Класове, обекти, полиморфизъм, наследяване, абстрактни класове, виртуални методи, предефиниране на операции, шаблони."],
+    ["04", "Абстрактни структури от данни", "Стек, опашка, линеен списък, двоично дърво. Реализация и основни операции."],
+    ["05", "Алгоритми", "Свойства, изчислимост, P и NP класове от задачи. Рекурсия, разделяй и владей, алчен подход, динамично програмиране.", "Tema_05_Algoritmi/index.html"],
+    ["06", "Бази от данни", "Системи за управление на бази от данни, релационен модел, нормализация."],
+    ["07", "Информационни системи", "Класификация, проектиране и жизнен цикъл."],
+    ["08", "Интелигентни системи", "Печеливши стратегии, модели за представяне на знания, експертни системи."],
+    ["09", "Компютърна сигурност", "Мрежови атаки, социално инженерство."],
+    ["10", "Основни понятия в криптографията", "Класически методи с разбъркване и заместване."],
+    ["11", "Компютърни мрежи", "Класификация, основни протоколи, интерфейси и услуги. Интернет."],
+    ["12", "Уеб дизайн", "Основни структурни елементи, форматиране и програмиране."],
+  ];
+  const box = document.getElementById("topics");
+  for (const [n, t, d, href] of T) {
+    const el = document.createElement(href ? "a" : "div");
+    el.className = "topic";
+    if (href) el.href = href;
+    el.innerHTML = `<span class="n">${n}</span><b>${t}</b><p>${d}</p>` + (href ? `<span class="pill s-done">готова</span>` : `<span class="pill">предстои</span>`);
+    box.append(el);
+  }
+  try { const th = JSON.parse(localStorage.getItem("its:theme")); if (th) document.documentElement.dataset.theme = th; } catch (e) {}
+</script>
+</body>
+</html>

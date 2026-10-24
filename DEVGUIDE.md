@@ -1,0 +1,74 @@
+# Ръководство за разработка на тема
+
+Всяка тема е отделна папка (`Tema_NN_Ime/`) и се отваря директно с `index.html` — без сървър, без build. Общата рамка е в `common/`.
+
+```
+common/
+├─ css/study.css          обща визия, цветови токени (светла/тъмна тема)
+└─ js/study.js            рамка: Study.viz, Study.quiz, Study.drawArray, речник, навигация
+tools/gen_csrc.py         C регионите -> js/csrc.js
+Tema_05_Algoritmi/
+├─ index.html             зарежда рамката и главите (ch00…ch11)
+├─ c/NN_*.c               C изходници — единственият източник на показания код; всеки има main()
+├─ js/glossary.js         речник (подсказки за <dfn data-g="...">)
+├─ js/csrc.js             ГЕНЕРИРАН — не се редактира ръчно
+├─ js/chNN_*.js           една глава = един файл
+└─ tests/                 harness.js, chNN.test.js, run_all.sh, shot.py
+```
+
+## C код
+
+* Показваният код се отбелязва с регион: `//#viz ключ` … `//#end`. Ключът е уникален в темата.
+* Ред, който визуализацията подсвечва, завършва с `//@етикет` (може няколко: `//@a @b`). Маркерът не се показва.
+* Всеки файл има `main()` в `#ifndef NO_MAIN`, който пуска примерите и печата редове `име = стойност`.
+* Трябва да се компилира с `gcc -std=c11 -Wall -Wextra -Werror -O2 файл.c -lm` без предупреждения.
+* Темите, където C++ е по-естествен (ООП), могат да ползват `.cpp`; за тема 5 всичко е на C.
+* След промяна: `python3 tools/gen_csrc.py Tema_05_Algoritmi`.
+
+## Глава
+
+```js
+(function () {
+  const S = window.Study, h = S.h;
+  const algos = { /* ЧИСТИ функции: вход (стрингове от полетата) -> {frames, result, ...} */ };
+  const html = `...проза, <dfn data-g="ключ">термин</dfn>, details.hint, details.trap, div#място-за-viz...`;
+  function mount(root) { S.viz(root.querySelector("#v-x"), {...}); S.quiz(...); }
+  S.chapter({ id: "latin-id", order: N, num: "N", group: "Група", title: "...", lead: "...", html, mount, algos });
+})();
+```
+
+* `algos` не пипат DOM — тестват се в node (`tests/harness.js`).
+* Грешен вход: `throw new Error("ясно съобщение")` — визуализаторът го показва. Помощници: `S.parseNums`, `S.int`.
+
+## Study.viz(контейнер, cfg)
+
+| поле | смисъл |
+|---|---|
+| `title`, `sub` | заглавие, подзаглавие (html) |
+| `code` | ключ на C регион или `(inputs) => ключ`; `false` = без код |
+| `inputs` | `[{id, label, type:"text"\|"number"\|"select"\|"checkbox", value, options, width, live}]` |
+| `presets`, `random` | бутони с готови стойности / случайни стойности |
+| `build(inputs)` | връща масив от кадри или `{frames, ...}` |
+| `draw(stage, frame, {inputs, frames, i, res})` | рисува кадъра в `stage` |
+| `legend` | `[["s-cmp","сравнение"], ...]` |
+| `speed` | индекс 0..4 (по подразбиране 1) |
+
+Кадър: `{at: "етикет" | ["етикет","вторичен"], vars: {...}, stats: {...}, msg: "html", inv: {text, ok}, log: "ред в историята", ...собствени данни за draw}`.
+
+Състояния (CSS класове): `s-act` текущ, `s-cmp` сравнение, `s-swap` размяна/конфликт, `s-done` готово, `s-piv` опорен, `s-dim` изключен. Работят за `.cell`, `.bar`, `td` в `table.grid`, svg `.node` и `.edge`.
+
+Помощници: `S.drawArray(el, arr, {cls, ptr, dim, gapAt})`, `S.drawBars(el, arr, {cls, height, fmt})`, `S.svg(tag, attrs, ...деца)`, `S.codeView(el, ключ, етикети)`, `S.quiz(el, [{q, options, correct, why}])`.
+
+## Съдържание
+
+* Понятията от речника се маркират с `<dfn data-g="ключ">` — подсказка при посочване.
+* `<details class="hint">` — хинт „защо“; `<details class="trap">` — капан на изпита; `<div class="key">` — формула/извод за запомняне.
+* Материал извън конспекта: `<span class="extra-tag">извън конспекта</span>`.
+* Всеки пример казва при какво условие е валиден (напр. „при неотрицателни тегла“).
+
+## Проверка
+
+```
+sh Tema_05_Algoritmi/tests/run_all.sh                 # C компилация + сверка JS/C
+python3 Tema_05_Algoritmi/tests/shot.py <id-на-глава> # headless снимка + конзолни грешки
+```
