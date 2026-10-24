@@ -59,6 +59,7 @@ int check_brackets(const char *s)
     for (i = 0; s[i]; i++) {                                         //@loop
         char c = s[i];
         if (c == '(' || c == '[' || c == '{') {
+            if (top == (int)sizeof st) return i; /* препълване на стека: отказ, не запис извън масива */
             st[top++] = c;                       /* push */          //@push
         } else if (c == ')' || c == ']' || c == '}') {
             char want = c == ')' ? '(' : c == ']' ? '[' : '{';

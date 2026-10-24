@@ -110,7 +110,7 @@ window.CSRC = {
  },
  "ch02_brackets": {
   "file": "02_stack.c",
-  "code": "/* Проверка на скоби ( ) [ ] { }. Връща -1 при коректен низ,\n   иначе позицията на първата грешка (len — незатворена отваряща). */\nint check_brackets(const char *s)\n{\n    char st[256];\n    int top = 0;                                 /* празен стек */\n    int i;\n    for (i = 0; s[i]; i++) {\n        char c = s[i];\n        if (c == '(' || c == '[' || c == '{') {\n            st[top++] = c;                       /* push */\n        } else if (c == ')' || c == ']' || c == '}') {\n            char want = c == ')' ? '(' : c == ']' ? '[' : '{';\n            if (top == 0) return i;              /* няма отваряща */\n            if (st[top - 1] != want) return i;   /* не съвпада с върха */\n            top--;                               /* pop */\n        }\n    }\n    return top == 0 ? -1 : i;                    /* в края стекът трябва да е празен */\n}",
+  "code": "/* Проверка на скоби ( ) [ ] { }. Връща -1 при коректен низ,\n   иначе позицията на първата грешка (len — незатворена отваряща). */\nint check_brackets(const char *s)\n{\n    char st[256];\n    int top = 0;                                 /* празен стек */\n    int i;\n    for (i = 0; s[i]; i++) {\n        char c = s[i];\n        if (c == '(' || c == '[' || c == '{') {\n            if (top == (int)sizeof st) return i; /* препълване на стека: отказ, не запис извън масива */\n            st[top++] = c;                       /* push */\n        } else if (c == ')' || c == ']' || c == '}') {\n            char want = c == ')' ? '(' : c == ']' ? '[' : '{';\n            if (top == 0) return i;              /* няма отваряща */\n            if (st[top - 1] != want) return i;   /* не съвпада с върха */\n            top--;                               /* pop */\n        }\n    }\n    return top == 0 ? -1 : i;                    /* в края стекът трябва да е празен */\n}",
   "tags": {
    "init": [
     6
@@ -119,19 +119,19 @@ window.CSRC = {
     8
    ],
    "push": [
-    11
+    12
    ],
    "underflow": [
-    14
-   ],
-   "mismatch": [
     15
    ],
-   "pop": [
+   "mismatch": [
     16
    ],
+   "pop": [
+    17
+   ],
    "end": [
-    19
+    20
    ]
   }
  },
