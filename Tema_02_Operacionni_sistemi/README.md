@@ -53,7 +53,7 @@ sh tools/run_tests.sh Tema_02_Operacionni_sistemi      # компилира с -
 python3 tools/clickall.py Tema_02_Operacionni_sistemi  # натиска всички бутони във всички раздели
 ```
 
-Състояние: 8 C файла, 0 предупреждения, чисти под AddressSanitizer/UBSan; 294 сверки JS↔C, 0 разлики;
+Състояние: 8 C файла, 0 предупреждения, чисти под AddressSanitizer/UBSan; 300 сверки JS↔C, 0 разлики;
 clickall — 0 грешки; без хоризонтално препълване на 390 px.
 
 ## Източници

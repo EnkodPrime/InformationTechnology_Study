@@ -9,7 +9,7 @@
 #include <string.h>
 
 #define MAXI 8
-#define MAXD 12
+#define MAXD 16                 /* >= най-много команди в сценарий (16) */
 #define NAMEL 12
 
 typedef struct { int used, nlink, nopen, is_symlink; char data[NAMEL]; } Inode;
@@ -48,7 +48,7 @@ static void maybe_free(FS *fs, int ino)
 
 static int fs_create(FS *fs, const char *name, const char *data)
 {
-    if (lookup(fs, name) >= 0) return -1;
+    if (lookup(fs, name) >= 0 || fs->nd >= MAXD) return -1;
     int ino = new_inode(fs);                     //@create
     if (ino < 0) return -1;
     snprintf(fs->in[ino].data, NAMEL, "%s", data);
@@ -60,7 +60,7 @@ static int fs_create(FS *fs, const char *name, const char *data)
 static int fs_link(FS *fs, const char *old, const char *name)   /* твърда връзка */
 {
     int e = lookup(fs, old);
-    if (e < 0 || lookup(fs, name) >= 0) return -1;
+    if (e < 0 || lookup(fs, name) >= 0 || fs->nd >= MAXD) return -1;
     int ino = fs->d[e].ino;
     fs->in[ino].nlink++;                         //@link
     add_name(fs, name, ino);                     //@name
@@ -69,7 +69,7 @@ static int fs_link(FS *fs, const char *old, const char *name)   /* твърда 
 
 static int fs_symlink(FS *fs, const char *target, const char *name)
 {
-    if (lookup(fs, name) >= 0) return -1;
+    if (lookup(fs, name) >= 0 || fs->nd >= MAXD) return -1;
     int ino = new_inode(fs);                     //@symlink
     if (ino < 0) return -1;
     fs->in[ino].is_symlink = 1;
@@ -94,7 +94,7 @@ static int fs_unlink(FS *fs, const char *name)
 static int fs_open(FS *fs, const char *name)
 {
     int e = lookup(fs, name);
-    if (e < 0) return -1;                        //@noent
+    if (e < 0 || fs->nfd >= MAXD) return -1;     //@noent
     int ino = fs->d[e].ino;
     if (fs->in[ino].is_symlink) {                //@follow
         e = lookup(fs, fs->in[ino].data);

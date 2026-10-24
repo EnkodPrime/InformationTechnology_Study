@@ -27,6 +27,7 @@ typedef struct {
 typedef struct {
     PCB p[MAXP];
     int n, running;      /* индекс или -1 */
+    int last;            /* чий контекст е бил на процесора последно (-1 = ничий) */
     int rq[MAXP], rq_len;
     int kernel_entries, ctx_switches;
     int clock;           /* условно време: всяко събитие = 1 */
@@ -45,12 +46,16 @@ static int rq_pop(Kernel *k)
 /* Избира следващия готов процес (FIFO) — само ако процесорът е свободен. */
 static void dispatch(Kernel *k)
 {
-    if (k->running >= 0 || k->rq_len == 0)               //@disp
+    if (k->running >= 0 || k->rq_len == 0) {             //@disp
+        if (k->running < 0) k->last = -1;   /* процесорът остава свободен */
         return;
+    }
     int i = rq_pop(k);
     k->p[i].state = RUNNING;                              //@run
     k->running = i;
-    k->ctx_switches++;           /* възстановяваме контекста на i */ //@ctx
+    if (i != k->last)            /* същият процес отново: няма превключване */
+        k->ctx_switches++;       /* възстановяваме контекста на i */ //@ctx
+    k->last = i;
 }
 
 /* Обработка на едно събитие. Връща -1 при недопустимо събитие. */
@@ -96,6 +101,7 @@ static void init(Kernel *k, int n)
     memset(k, 0, sizeof *k);
     k->n = n;
     k->running = -1;
+    k->last = -1;
     for (int i = 0; i < n; i++) {
         k->p[i].pid = i + 1;
         k->p[i].state = READY;
@@ -144,6 +150,7 @@ int main(void)
     report("s2", 2, "w d1 w d2 x x");
     report("s3", 3, "w w w d2 d1");
     report("s4", 2, "x x t");
+    report("s5", 1, "t t w d1 x");   /* един процес: t не сменя изпълнителя; след престой (w) — сменя */
     return 0;
 }
 #endif

@@ -42,7 +42,7 @@ static int better(int pol, const Job *j, const int *rem, int a, int b)
 //#viz s03_sched
 static void schedule(int pol, int q, const Job *j, int n, Result *R)
 {
-    int rem[MAXN], queue[MAXN * 4], qh = 0, qt = 0;
+    int rem[MAXN], queue[MAXT + MAXN], qh = 0, qt = 0;   /* qt <= пристигания + 1 добавяне на единица време */
     int cur = -1, slice = 0, done = 0, t = 0, prev = -1;
     memset(R, 0, sizeof *R);
     for (int i = 0; i < n; i++) { rem[i] = j[i].burst; R->start[i] = -1; }

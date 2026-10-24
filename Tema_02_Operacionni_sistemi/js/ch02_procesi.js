@@ -22,17 +22,21 @@
       n = S.int(n, 1, 6, "Броят процеси");
       const evs = parseScript(script, n);
       const p = Array.from({ length: n }, (_, i) => ({ pid: i + 1, state: READY, pc: 0 }));
-      let rq = [], running = -1, kernel = 0, ctx = 0, clock = 0, bad = 0;
+      let rq = [], running = -1, last = -1, kernel = 0, ctx = 0, clock = 0, bad = 0;
       const F = [];
       const snap = (o) => ({ n, p: p.map((x) => ({ ...x })), rq: rq.slice(), running, stats: { "влизания в ядрото": kernel, "превключвания на контекст": ctx }, ...o });
       const dispatch = (fr) => {
         if (running >= 0 || rq.length === 0) {
+          if (running < 0) last = -1;
           F.push(snap({ at: "disp", vars: { running: running >= 0 ? "P" + (running + 1) : "—", "опашка": rq.map((i) => "P" + (i + 1)) }, msg: running >= 0 ? `Процесорът е зает от P${running + 1} — няма избор на нов процес, <b>няма превключване на контекст</b>.` : "Опашката на готовите е празна — процесорът остава свободен.", ...fr }));
           return;
         }
         const i = rq.shift();
-        p[i].state = RUNNING; running = i; ctx++;
-        F.push(snap({ at: ["run", "ctx"], hiTr: "dispatch", hiP: i, vars: { running: "P" + (i + 1) }, msg: `Планировчикът избира P${i + 1} (първия в опашката). Възстановява се неговият <dfn data-g="контекст">контекст</dfn> — превключване №${ctx}.`, log: `→ P${i + 1} се изпълнява`, ...fr }));
+        p[i].state = RUNNING; running = i;
+        const sw = i !== last;
+        if (sw) ctx++;
+        last = i;
+        F.push(snap({ at: sw ? ["run", "ctx"] : "run", hiTr: "dispatch", hiP: i, vars: { running: "P" + (i + 1) }, msg: sw ? `Планировчикът избира P${i + 1} (първия в опашката). Възстановява се неговият <dfn data-g="контекст">контекст</dfn> — превключване №${ctx}.` : `Планировчикът избира отново P${i + 1} — той е единственият готов и контекстът му вече е на процесора: <b>няма превключване на контекст</b>.`, log: `→ P${i + 1} се изпълнява`, ...fr }));
       };
       // init
       for (let i = 0; i < n; i++) rq.push(i);

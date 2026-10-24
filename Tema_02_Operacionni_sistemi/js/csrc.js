@@ -27,46 +27,46 @@ window.CSRC = {
  },
  "s02_states": {
   "file": "02_procesi.c",
-  "code": "/* Избира следващия готов процес (FIFO) — само ако процесорът е свободен. */\nstatic void dispatch(Kernel *k)\n{\n    if (k->running >= 0 || k->rq_len == 0)\n        return;\n    int i = rq_pop(k);\n    k->p[i].state = RUNNING;\n    k->running = i;\n    k->ctx_switches++;           /* възстановяваме контекста на i */\n}\n\n/* Обработка на едно събитие. Връща -1 при недопустимо събитие. */\nstatic int on_event(Kernel *k, char ev, int target)\n{\n    k->kernel_entries++;         /* смяна на режим: влизаме в ядрото */\n    int r = k->running;\n    if (r >= 0) k->p[r].pc = k->clock;   /* запазваме контекста */\n    switch (ev) {\n    case 't':\n        if (r < 0) return -1;\n        k->p[r].state = READY;   /* изпреварване: обратно в опашката */\n        rq_push(k, r);\n        k->running = -1;\n        break;\n    case 'w':\n        if (r < 0) return -1;\n        k->p[r].state = BLOCKED; /* чака събитие — не е в опашката */\n        k->running = -1;\n        break;\n    case 'd':\n        if (target < 0 || target >= k->n || k->p[target].state != BLOCKED)\n            return -1;\n        k->p[target].state = READY;   /* ГОТОВ, не веднага изпълняващ се */\n        rq_push(k, target);\n        break;\n    case 'x':\n        if (r < 0) return -1;\n        k->p[r].state = DONE;\n        k->running = -1;\n        break;\n    default:\n        return -1;\n    }\n    dispatch(k);\n    k->clock++;\n    return 0;                    /* връщане в потребителски режим */\n}",
+  "code": "/* Избира следващия готов процес (FIFO) — само ако процесорът е свободен. */\nstatic void dispatch(Kernel *k)\n{\n    if (k->running >= 0 || k->rq_len == 0) {\n        if (k->running < 0) k->last = -1;   /* процесорът остава свободен */\n        return;\n    }\n    int i = rq_pop(k);\n    k->p[i].state = RUNNING;\n    k->running = i;\n    if (i != k->last)            /* същият процес отново: няма превключване */\n        k->ctx_switches++;       /* възстановяваме контекста на i */\n    k->last = i;\n}\n\n/* Обработка на едно събитие. Връща -1 при недопустимо събитие. */\nstatic int on_event(Kernel *k, char ev, int target)\n{\n    k->kernel_entries++;         /* смяна на режим: влизаме в ядрото */\n    int r = k->running;\n    if (r >= 0) k->p[r].pc = k->clock;   /* запазваме контекста */\n    switch (ev) {\n    case 't':\n        if (r < 0) return -1;\n        k->p[r].state = READY;   /* изпреварване: обратно в опашката */\n        rq_push(k, r);\n        k->running = -1;\n        break;\n    case 'w':\n        if (r < 0) return -1;\n        k->p[r].state = BLOCKED; /* чака събитие — не е в опашката */\n        k->running = -1;\n        break;\n    case 'd':\n        if (target < 0 || target >= k->n || k->p[target].state != BLOCKED)\n            return -1;\n        k->p[target].state = READY;   /* ГОТОВ, не веднага изпълняващ се */\n        rq_push(k, target);\n        break;\n    case 'x':\n        if (r < 0) return -1;\n        k->p[r].state = DONE;\n        k->running = -1;\n        break;\n    default:\n        return -1;\n    }\n    dispatch(k);\n    k->clock++;\n    return 0;                    /* връщане в потребителски режим */\n}",
   "tags": {
    "disp": [
     4
    ],
    "run": [
-    7
-   ],
-   "ctx": [
     9
    ],
-   "enter": [
-    15
+   "ctx": [
+    12
    ],
-   "tmo": [
+   "enter": [
     19
    ],
+   "tmo": [
+    23
+   ],
    "wait": [
-    25
+    29
    ],
    "io": [
-    30
+    34
    ],
    "wake": [
-    33
+    37
    ],
    "exit": [
-    36
+    40
    ],
    "sched": [
-    44
+    48
    ],
    "ret": [
-    46
+    50
    ]
   }
  },
  "s03_sched": {
   "file": "03_planirane.c",
-  "code": "static void schedule(int pol, int q, const Job *j, int n, Result *R)\n{\n    int rem[MAXN], queue[MAXN * 4], qh = 0, qt = 0;\n    int cur = -1, slice = 0, done = 0, t = 0, prev = -1;\n    memset(R, 0, sizeof *R);\n    for (int i = 0; i < n; i++) { rem[i] = j[i].burst; R->start[i] = -1; }\n    while (done < n && t < MAXT) {\n        for (int i = 0; i < n; i++)                     /* пристигания */\n            if (j[i].arr == t) queue[qt++] = i;\n        if (pol == RR && cur >= 0 && slice == q) {      /* изтекъл квант */\n            queue[qt++] = cur;\n            cur = -1;\n        }\n        int preempt = (pol == SRTF || pol == PPRIO);\n        if (cur < 0 || preempt) {\n            int best = cur, bi = -1;\n            for (int k = qh; k < qt; k++) {\n                int c = queue[k];\n                if (pol == FCFS || pol == RR) { if (bi < 0) { best = c; bi = k; } }\n                else if (better(pol, j, rem, c, best)) { best = c; bi = k; }\n            }\n            if (bi >= 0) {\n                if (cur >= 0) queue[qt++] = cur;        /* изпреварен */\n                for (int k = bi; k > qh; k--) queue[k] = queue[k - 1];\n                qh++;\n                cur = best;\n                slice = 0;\n                if (R->start[cur] < 0) R->start[cur] = t;\n            }\n        }\n        R->timeline[t] = cur;\n        if (cur >= 0) {\n            if (prev >= 0 && prev != cur) R->switches++;\n            prev = cur;\n            rem[cur]--; slice++;\n            if (rem[cur] == 0) {\n                R->finish[cur] = t + 1;\n                done++;\n                cur = -1;\n            }\n        }\n        t++;\n    }\n    R->T = t;\n    for (int i = 0; i < n; i++) {\n        int tat = R->finish[i] - j[i].arr;\n        R->tat_sum  += tat;                             /* обръщане */\n        R->wait_sum += tat - j[i].burst;                /* чакане   */\n        R->resp_sum += R->start[i] - j[i].arr;          /* отговор  */\n    }\n}",
+  "code": "static void schedule(int pol, int q, const Job *j, int n, Result *R)\n{\n    int rem[MAXN], queue[MAXT + MAXN], qh = 0, qt = 0;   /* qt <= пристигания + 1 добавяне на единица време */\n    int cur = -1, slice = 0, done = 0, t = 0, prev = -1;\n    memset(R, 0, sizeof *R);\n    for (int i = 0; i < n; i++) { rem[i] = j[i].burst; R->start[i] = -1; }\n    while (done < n && t < MAXT) {\n        for (int i = 0; i < n; i++)                     /* пристигания */\n            if (j[i].arr == t) queue[qt++] = i;\n        if (pol == RR && cur >= 0 && slice == q) {      /* изтекъл квант */\n            queue[qt++] = cur;\n            cur = -1;\n        }\n        int preempt = (pol == SRTF || pol == PPRIO);\n        if (cur < 0 || preempt) {\n            int best = cur, bi = -1;\n            for (int k = qh; k < qt; k++) {\n                int c = queue[k];\n                if (pol == FCFS || pol == RR) { if (bi < 0) { best = c; bi = k; } }\n                else if (better(pol, j, rem, c, best)) { best = c; bi = k; }\n            }\n            if (bi >= 0) {\n                if (cur >= 0) queue[qt++] = cur;        /* изпреварен */\n                for (int k = bi; k > qh; k--) queue[k] = queue[k - 1];\n                qh++;\n                cur = best;\n                slice = 0;\n                if (R->start[cur] < 0) R->start[cur] = t;\n            }\n        }\n        R->timeline[t] = cur;\n        if (cur >= 0) {\n            if (prev >= 0 && prev != cur) R->switches++;\n            prev = cur;\n            rem[cur]--; slice++;\n            if (rem[cur] == 0) {\n                R->finish[cur] = t + 1;\n                done++;\n                cur = -1;\n            }\n        }\n        t++;\n    }\n    R->T = t;\n    for (int i = 0; i < n; i++) {\n        int tat = R->finish[i] - j[i].arr;\n        R->tat_sum  += tat;                             /* обръщане */\n        R->wait_sum += tat - j[i].burst;                /* чакане   */\n        R->resp_sum += R->start[i] - j[i].arr;          /* отговор  */\n    }\n}",
   "tags": {
    "arrive": [
     9
@@ -339,7 +339,7 @@ window.CSRC = {
  },
  "s08_inode": {
   "file": "08_fs.c",
-  "code": "static void maybe_free(FS *fs, int ino)\n{\n    Inode *n = &fs->in[ino];\n    if (n->nlink == 0 && n->nopen == 0) {\n        n->used = 0;                             /* данните се освобождават */\n        fs->freed++;\n    }\n}\n\nstatic int fs_create(FS *fs, const char *name, const char *data)\n{\n    if (lookup(fs, name) >= 0) return -1;\n    int ino = new_inode(fs);\n    if (ino < 0) return -1;\n    snprintf(fs->in[ino].data, NAMEL, \"%s\", data);\n    fs->in[ino].nlink = 1;\n    add_name(fs, name, ino);\n    return ino;\n}\n\nstatic int fs_link(FS *fs, const char *old, const char *name)   /* твърда връзка */\n{\n    int e = lookup(fs, old);\n    if (e < 0 || lookup(fs, name) >= 0) return -1;\n    int ino = fs->d[e].ino;\n    fs->in[ino].nlink++;\n    add_name(fs, name, ino);\n    return ino;\n}\n\nstatic int fs_symlink(FS *fs, const char *target, const char *name)\n{\n    if (lookup(fs, name) >= 0) return -1;\n    int ino = new_inode(fs);\n    if (ino < 0) return -1;\n    fs->in[ino].is_symlink = 1;\n    fs->in[ino].nlink = 1;\n    snprintf(fs->in[ino].data, NAMEL, \"%s\", target);  /* пази ПЪТ, не inode */\n    add_name(fs, name, ino);\n    return ino;\n}\n\nstatic int fs_unlink(FS *fs, const char *name)\n{\n    int e = lookup(fs, name);\n    if (e < 0) return -1;\n    int ino = fs->d[e].ino;\n    fs->d[e] = fs->d[--fs->nd];\n    fs->in[ino].nlink--;\n    maybe_free(fs, ino);\n    return 0;\n}\n\n/* Отваряне: следва символна връзка (едно ниво). Връща дескриптор или -1. */\nstatic int fs_open(FS *fs, const char *name)\n{\n    int e = lookup(fs, name);\n    if (e < 0) return -1;\n    int ino = fs->d[e].ino;\n    if (fs->in[ino].is_symlink) {\n        e = lookup(fs, fs->in[ino].data);\n        if (e < 0) return -1;                    /* висяща връзка */\n        ino = fs->d[e].ino;\n    }\n    fs->in[ino].nopen++;\n    fs->fd_ino[fs->nfd] = ino;\n    return fs->nfd++;\n}\n\nstatic void fs_close(FS *fs, int fd)\n{\n    int ino = fs->fd_ino[fd];\n    if (ino < 0) return;\n    fs->fd_ino[fd] = -1;\n    fs->in[ino].nopen--;\n    maybe_free(fs, ino);\n}",
+  "code": "static void maybe_free(FS *fs, int ino)\n{\n    Inode *n = &fs->in[ino];\n    if (n->nlink == 0 && n->nopen == 0) {\n        n->used = 0;                             /* данните се освобождават */\n        fs->freed++;\n    }\n}\n\nstatic int fs_create(FS *fs, const char *name, const char *data)\n{\n    if (lookup(fs, name) >= 0 || fs->nd >= MAXD) return -1;\n    int ino = new_inode(fs);\n    if (ino < 0) return -1;\n    snprintf(fs->in[ino].data, NAMEL, \"%s\", data);\n    fs->in[ino].nlink = 1;\n    add_name(fs, name, ino);\n    return ino;\n}\n\nstatic int fs_link(FS *fs, const char *old, const char *name)   /* твърда връзка */\n{\n    int e = lookup(fs, old);\n    if (e < 0 || lookup(fs, name) >= 0 || fs->nd >= MAXD) return -1;\n    int ino = fs->d[e].ino;\n    fs->in[ino].nlink++;\n    add_name(fs, name, ino);\n    return ino;\n}\n\nstatic int fs_symlink(FS *fs, const char *target, const char *name)\n{\n    if (lookup(fs, name) >= 0 || fs->nd >= MAXD) return -1;\n    int ino = new_inode(fs);\n    if (ino < 0) return -1;\n    fs->in[ino].is_symlink = 1;\n    fs->in[ino].nlink = 1;\n    snprintf(fs->in[ino].data, NAMEL, \"%s\", target);  /* пази ПЪТ, не inode */\n    add_name(fs, name, ino);\n    return ino;\n}\n\nstatic int fs_unlink(FS *fs, const char *name)\n{\n    int e = lookup(fs, name);\n    if (e < 0) return -1;\n    int ino = fs->d[e].ino;\n    fs->d[e] = fs->d[--fs->nd];\n    fs->in[ino].nlink--;\n    maybe_free(fs, ino);\n    return 0;\n}\n\n/* Отваряне: следва символна връзка (едно ниво). Връща дескриптор или -1. */\nstatic int fs_open(FS *fs, const char *name)\n{\n    int e = lookup(fs, name);\n    if (e < 0 || fs->nfd >= MAXD) return -1;\n    int ino = fs->d[e].ino;\n    if (fs->in[ino].is_symlink) {\n        e = lookup(fs, fs->in[ino].data);\n        if (e < 0) return -1;                    /* висяща връзка */\n        ino = fs->d[e].ino;\n    }\n    fs->in[ino].nopen++;\n    fs->fd_ino[fs->nfd] = ino;\n    return fs->nfd++;\n}\n\nstatic void fs_close(FS *fs, int fd)\n{\n    int ino = fs->fd_ino[fd];\n    if (ino < 0) return;\n    fs->fd_ino[fd] = -1;\n    fs->in[ino].nopen--;\n    maybe_free(fs, ino);\n}",
   "tags": {
    "free": [
     4
