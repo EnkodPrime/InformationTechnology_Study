@@ -15,7 +15,7 @@
 | 7 | **Информационни системи** | [`Tema_07_Informacionni_sistemi/`](Tema_07_Informacionni_sistemi/) | готова |
 | 8 | **Интелигентни системи** | [`Tema_08_Inteligentni_sistemi/`](Tema_08_Inteligentni_sistemi/) | готова |
 | 9 | **Компютърна сигурност** | [`Tema_09_Sigurnost/`](Tema_09_Sigurnost/) | готова |
-| 10 | Основни понятия в криптографията | — | предстои |
+| 10 | **Основни понятия в криптографията** | [`Tema_10_Kriptografia/`](Tema_10_Kriptografia/) | готова |
 | 11 | Компютърни мрежи | — | предстои |
 
 ## Как се отваря
