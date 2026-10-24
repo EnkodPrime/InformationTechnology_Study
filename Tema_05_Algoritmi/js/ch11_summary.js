@@ -51,22 +51,6 @@
     { t: "Финално обобщение", sec: "karta", say: "Изчислимост — МОЖЕ ли? Сложност — КОЛКО? Парадигма — КАК? Коректност — ПРАВИЛЕН ли е и винаги ли завършва? P/NP класифицират задачи; O/Ω/Θ — асимптотични граници; парадигмите — подходи; езикът и платформата — реализация.", ex: "„Раница е NP-пълна, решава се с DP за O(nW), реализирана на C“ — четири различни равнища в едно изречение." },
   ];
 
-  const QUIZ = [
-    { q: "P ⊆ NP е…", options: ["открит въпрос", "доказан факт", "същото като P = NP", "вярно само за SAT"], correct: 1, why: "Всяка задача, решима полиномиално, има тривиален сертификат — самото решение се проверява полиномиално. Открит е въпросът P = NP." },
-    { q: "Буквата N в NP означава…", options: ["Non-polynomial", "Nondeterministic", "Number", "NP-hard"], correct: 1, why: "Nondeterministic Polynomial time. NP не означава „неполиномиално“." },
-    { q: "Тезата на Чърч–Тюринг е…", options: ["доказана теорема", "теза — не може да се докаже формално", "опровергана", "твърдение за сложност"], correct: 1, why: "„Ефективно изчислимо“ е интуитивно понятие, затова тезата не е теорема." },
-    { q: "Проблемът за спирането е…", options: ["разрешим, но бавен", "неразрешим, но полуразрешим", "NP-пълен", "в P"], correct: 1, why: "Няма алгоритъм за всички входове, но положителният отговор се потвърждава чрез симулация." },
-    { q: "За да докажеш, че нова задача B е NP-трудна, свеждаш…", options: ["B към известна NP-пълна A", "известна NP-пълна A към B", "B към P", "нищо — пускаш тестове"], correct: 1, why: "A ≤ₚ B: ако B се решаваше бързо, щеше да се реши и A." },
-    { q: "Раница 0/1 за O(nW) е…", options: ["полиномиален алгоритъм", "псевдополиномиален алгоритъм", "доказателство, че P = NP", "приближен алгоритъм"], correct: 1, why: "W е стойност, а входът съдържа ≈ log W бита за нея — O(nW) е експоненциално спрямо дължината на записа." },
-    { q: "Алчният алгоритъм за монети {1, 3, 4} и сума 6 дава…", options: ["2 монети — оптимум", "3 монети — не е оптимум", "грешка", "1 монета"], correct: 1, why: "4 + 1 + 1 = 3 монети; оптимумът е 3 + 3 = 2. Свойството на алчния избор не е изпълнено за тази система." },
-    { q: "T(n) = 2T(n/2) + Θ(n) има решение…", options: ["Θ(n)", "Θ(n log n)", "Θ(n²)", "Θ(log n)"], correct: 1, why: "log n нива по Θ(n) работа на всяко — Merge Sort." },
-    { q: "Разликата между DP и „разделяй и владей“ е, че при DP…", options: ["няма рекурсия", "подзадачите се припокриват и резултатите се съхраняват", "винаги има алчен избор", "сложността е винаги полиномиална"], correct: 1, why: "При D&C подзадачите обикновено са независими; при DP се повтарят и се пазят." },
-    { q: "Програма, която никога не спира, е…", options: ["пълно коректна", "тривиално частично коректна", "невярна по дефиниция за частична коректност", "в NP"], correct: 1, why: "„Ако спре, резултатът е верен“ — условието е тривиално изпълнено. Пълна коректност няма." },
-    { q: "Randomized Quick Sort е алгоритъм от тип…", options: ["Monte Carlo", "Las Vegas", "приближен", "недетерминиран (NP)"], correct: 1, why: "Винаги дава сортиран резултат; случайно е само времето." },
-    { q: "Разклоняването и ограничаването при минимизация отрязва клон, когато…", options: ["долната граница е < best", "долната граница е ≥ best", "клонът е допустим", "е изминато половината"], correct: 1, why: "Оптимистичната граница ≥ вече намерения минимум ⇒ клонът не може да го подобри." },
-    { q: "Θ(n log n) е характеристика на…", options: ["задачата за сортиране", "алгоритъма Merge Sort в модел", "C програмата на конкретен процесор", "класа P"], correct: 1, why: "Асимптотичната оценка е на алгоритъма. Задачата има много алгоритми; изпълнението дава измерване." },
-    { q: "Оптимизационният TSP е…", options: ["NP-пълен", "NP-трудна задача, но не задача за разпознаване", "в P", "неразрешим"], correct: 1, why: "NP-пълнотата се отнася до разпознаващата версия (обиколка ≤ K). Оптимизационната е NP-трудна." },
-  ];
 
   const SOURCES = [
     ["Конспект за кандидат-докторантски изпит „Информатика“, ШУ, 21.01.2025", "https://integrity.shu.bg/wp-content/uploads/file-manager-advanced/users/projects/news/2025/Kospekt_4.6..pdf"],
@@ -92,10 +76,11 @@
   <div class="key">Метод ≠ задача ≠ цена ≠ реализация. Методът казва <b>как</b>; сложността е на <b>алгоритъма</b>; класът е на <b>задачата</b>.</div>
 </div>
 
+
 <div class="block">
-  <h3>b) Класифицирай примера</h3>
-  <p class="muted">За всяка подчертана част избери равнище. После „Провери“.</p>
-  <div id="cls-game" style="display:grid;gap:14px"></div>
+  <h3>b) Едно изречение — няколко равнища</h3>
+  <p class="muted">Всяка оцветена част е на различно равнище. Етикетът след нея казва на кое.</p>
+  <div id="levels-ex" style="display:grid;gap:10px"></div>
 </div>
 
 <div class="block">
@@ -106,27 +91,16 @@
 
 <div class="block">
   <h3>d) Опорен план за устния изпит</h3>
-  <div class="row"><label class="field" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="pl-ex"> режим „упражнение“</label>
-    <label class="field" for="pl-min"><span>минути на точка</span><input type="number" id="pl-min" value="3" min="1" max="10" style="width:5em"></label>
-    <span class="muted" style="font-size:.85rem">В режим „упражнение“ отговорът е скрит; разкажи на глас, после „покажи подсказка“.</span></div>
   <div id="plan" style="display:grid;gap:8px"></div>
 </div>
 
-<div class="block">
-  <h3>e) Финален тест</h3>
-  <div id="final"></div>
-  <h3>Флашкарти от речника</h3>
-  <div class="viz" style="padding:14px 16px;display:grid;gap:12px" id="fc"></div>
-</div>
 
 <div class="block">
-  <h3>f) Източници</h3>
+  <h3>e) Източници</h3>
   <ol class="prose" id="src" style="padding-left:1.3em"></ol>
 </div>`;
 
   /* ---------- mount ---------- */
-  // разбърква опциите детерминирано (верният отговор не е винаги на едно място)
-  const mixQuiz = (items) => items.map((it, i) => { const r = (i * 3 + 1) % it.options.length; const o = it.options.map((_, k) => it.options[(k + r) % it.options.length]); return Object.assign({}, it, { options: o, correct: (it.correct - r + o.length) % o.length }); });
   function mount(root) {
     // a) таблица
     const tbl = root.querySelector("#m-tbl"), q = root.querySelector("#m-q"), fsel = root.querySelector("#m-f");
@@ -148,25 +122,17 @@
     }
     q.addEventListener("input", renderTbl); fsel.addEventListener("change", renderTbl); renderTbl();
 
-    // b) класификация
-    const game = root.querySelector("#cls-game");
-    SENT.forEach((Sx, si) => {
-      const sels = [];
-      const p = h("p", { style: { lineHeight: "2.4" } });
+
+    // b) равнища в едно изречение
+    const LCLS = { zad: "s-act", str: "s-piv", cost: "s-cmp", impl: "s-dim", cls: "s-done" };
+    const lx = root.querySelector("#levels-ex");
+    SENT.forEach((Sx) => {
+      const p = h("p", { style: { lineHeight: "2.1" } });
       Sx.parts.forEach(([txt, lab]) => {
         if (!lab) { p.append(txt); return; }
-        const sel = h("select", { "aria-label": "Равнище за " + txt, style: { minHeight: "28px", padding: "2px 4px", fontSize: "12px" } }, h("option", { value: "", text: "?" }), ...LABELS.map(([v, t]) => h("option", { value: v, text: t })));
-        sels.push([sel, lab]);
-        p.append(h("span", null, h("b", { text: txt }), " ", sel));
+        p.append(h("b", { text: txt }), " ", h("span", { class: "pill " + LCLS[lab], style: { opacity: 1 }, text: LABELS.find((l) => l[0] === lab)[1] }), " ");
       });
-      const out = h("div", { class: "why", hidden: true, style: { fontSize: ".88rem", color: "var(--ink-2)", borderLeft: "3px solid var(--line)", paddingLeft: "10px" } });
-      const btn = h("button", { class: "btn", text: "Провери", onclick: () => {
-        let ok = 0;
-        sels.forEach(([sel, lab]) => { const r = sel.value === lab; if (r) ok++; sel.style.borderColor = r ? "var(--st-done)" : "var(--st-swap)"; sel.style.background = r ? "var(--st-done-bg)" : "var(--st-swap-bg)"; });
-        out.hidden = false;
-        out.innerHTML = `<b>${ok}/${sels.length} верни.</b> ` + Sx.why + (ok < sels.length ? "<br>Верни: " + sels.map(([sel, lab]) => `${sel.parentElement.querySelector("b").textContent} → ${LABELS.find((l) => l[0] === lab)[1]}`).join("; ") : "");
-      } });
-      game.append(h("div", { class: "card" }, h("span", { class: "eyebrow", text: "Изречение " + (si + 1) }), p, h("div", { class: "row" }, btn), out));
+      lx.append(h("div", { class: "card" }, p, h("p", { html: Sx.why })));
     });
 
     // c) FAQ
@@ -174,65 +140,20 @@
     FAQ.forEach((F) => faq.append(h("details", { class: "hint" }, h("summary", { text: F.q }), h("div", { html: `<p>${F.a}</p>` }))));
 
     // d) план
-    const plan = root.querySelector("#plan"), ex = root.querySelector("#pl-ex"), mins = root.querySelector("#pl-min");
-    let timer = null;
-    function renderPlan() {
-      if (timer) { clearInterval(timer.id); timer = null; }
-      plan.innerHTML = "";
-      PLAN.forEach((P, i) => {
-        const body = h("div", null, h("p", null, h("b", { text: "Какво да кажа: " }), P.say), h("p", null, h("b", { text: "Пример: " }), P.ex),
-          h("p", null, h("a", { href: "#" + P.sec, text: "→ към раздела" })));
-        const d = h("details", { class: "hint" }, h("summary", { text: `${i + 1}. ${P.t}` }));
-        if (!ex.checked) { d.append(body); }
-        else {
-          const clock = h("span", { class: "pill", text: "—" });
-          body.hidden = true;
-          const hintB = h("button", { class: "btn ghost", text: "покажи подсказка", onclick: () => { body.hidden = false; hintB.disabled = true; } });
-          const start = h("button", { class: "btn primary", text: "старт таймер", onclick: () => {
-            if (timer) clearInterval(timer.id);
-            let left = Math.max(1, Math.min(10, +mins.value || 3)) * 60;
-            const tick = () => { clock.textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`; clock.className = "pill " + (left <= 0 ? "s-swap" : left <= 30 ? "s-cmp" : "s-act"); if (left <= 0) { clearInterval(timer.id); clock.textContent = "времето изтече"; } left--; };
-            tick(); timer = { id: setInterval(tick, 1000) };
-          } });
-          d.append(h("div", null, h("div", { class: "row" }, start, clock, hintB), body));
-        }
-        plan.append(d);
-      });
-    }
-    ex.addEventListener("change", renderPlan); renderPlan();
+    const plan = root.querySelector("#plan");
+    PLAN.forEach((P, i) => {
+      plan.append(h("details", { class: "hint" }, h("summary", { text: `${i + 1}. ${P.t}` }),
+        h("div", null, h("p", null, h("b", { text: "Какво да кажа: " }), P.say), h("p", null, h("b", { text: "Пример: " }), P.ex),
+          h("p", null, h("a", { href: "#" + P.sec, text: "→ към раздела" })))));
+    });
 
-    // e) тест
-    S.quiz(root.querySelector("#final"), mixQuiz(QUIZ), "Финален тест — цялата тема");
 
-    // флашкарти
-    const fc = root.querySelector("#fc"), G = window.GLOSSARY || {};
-    const cats = [...new Set(Object.values(G).map((g) => g.cat).filter(Boolean))];
-    const csel = h("select", { "aria-label": "Категория" }, h("option", { value: "", text: "всички категории" }), ...cats.map((c) => h("option", { value: c, text: c })));
-    const card = h("button", { class: "card", style: { minHeight: "150px", placeContent: "center", textAlign: "center", justifyItems: "center" }, "aria-live": "polite" });
-    const pos = h("span", { class: "mono muted", style: { fontSize: ".8rem" } });
-    let deck = [], k = 0, flipped = false;
-    function build() { deck = Object.values(G).filter((g) => !csel.value || g.cat === csel.value); for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; } k = 0; flipped = false; show(); }
-    function show() {
-      card.innerHTML = "";
-      if (!deck.length) { card.append(h("p", { text: "Няма понятия." })); return; }
-      const g = deck[k];
-      if (!flipped) card.append(h("span", { class: "eyebrow", text: g.cat || "" }), h("h3", { text: g.t }), g.en ? h("span", { class: "muted", text: g.en }) : null, h("span", { class: "muted", style: { fontSize: ".8rem" }, text: "щракни, за да обърнеш" }));
-      else card.append(h("b", { text: g.t }), h("p", { html: g.d, style: { fontSize: ".95rem", color: "var(--ink)" } }), g.more ? h("p", { class: "muted", html: g.more }) : null);
-      pos.textContent = `${k + 1} / ${deck.length}`;
-    }
-    card.addEventListener("click", () => { flipped = !flipped; show(); });
-    csel.addEventListener("change", build);
-    fc.append(h("div", { class: "row" }, csel, h("button", { class: "btn", text: "◀ предишна", onclick: () => { k = (k - 1 + deck.length) % deck.length; flipped = false; show(); } }),
-      h("button", { class: "btn primary", text: "следваща ▶", onclick: () => { k = (k + 1) % deck.length; flipped = false; show(); } }),
-      h("button", { class: "btn ghost", text: "разбъркай", onclick: build }), pos), card);
-    build();
-
-    // f) източници
+    // e) източници
     const src = root.querySelector("#src");
     SOURCES.forEach(([t, u]) => src.append(h("li", null, u ? h("a", { href: u, target: "_blank", rel: "noopener", text: t }) : t)));
   }
 
-  S.chapter({ id: "sistematizacia", order: 11, num: "11", group: "Обобщение", title: "Систематизация и изпитни въпроси",
-    lead: "Сравнителна таблица на методите, упражнение за равнищата (задача / стратегия / цена / реализация / клас), изяснени въпроси, опорен план за устния изпит, финален тест и флашкарти.",
+  S.chapter({ id: "sistematizacia", order: 11, num: "11", group: "Обобщение", title: "Систематизация",
+    lead: "Сравнителна таблица на методите, равнищата в едно изречение, изяснени въпроси и опорен план за устния изпит.",
     html, mount, algos: {} });
 })();

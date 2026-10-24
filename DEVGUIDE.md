@@ -57,7 +57,7 @@ Tema_05_Algoritmi/
 
 Състояния (CSS класове): `s-act` текущ, `s-cmp` сравнение, `s-swap` размяна/конфликт, `s-done` готово, `s-piv` опорен, `s-dim` изключен. Работят за `.cell`, `.bar`, `td` в `table.grid`, svg `.node` и `.edge`.
 
-Помощници: `S.drawArray(el, arr, {cls, ptr, dim, gapAt})`, `S.drawBars(el, arr, {cls, height, fmt})`, `S.svg(tag, attrs, ...деца)`, `S.codeView(el, ключ, етикети)`, `S.quiz(el, [{q, options, correct, why}])`.
+Помощници: `S.drawArray(el, arr, {cls, ptr, dim, gapAt})`, `S.drawBars(el, arr, {cls, height, fmt})`, `S.svg(tag, attrs, ...деца)`, `S.codeView(el, ключ, етикети)`.
 
 ## Съдържание
 
@@ -65,6 +65,7 @@ Tema_05_Algoritmi/
 * `<details class="hint">` — хинт „защо“; `<details class="trap">` — капан на изпита; `<div class="key">` — формула/извод за запомняне.
 * Материал извън конспекта: `<span class="extra-tag">извън конспекта</span>`.
 * Всеки пример казва при какво условие е валиден (напр. „при неотрицателни тегла“).
+* Материалите са за обучение и експериментиране — без тестове и проверка на знанията.
 
 ## Проверка
 
