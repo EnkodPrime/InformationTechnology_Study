@@ -4267,6 +4267,54 @@ CREATE TABLE Enrollment(sid VARCHAR(15) REFERENCES Student(sid) ON DELETE <пр�
     },
   ];
 
+  /* ---------- цветове: един цвят = един факт (зависимост) ---------- */
+  const FACTS = [
+    { k: "stu", var: "--st-act", t: "SID → Име, Програма" },
+    { k: "dean", var: "--st-cmp", t: "Програма → Декан" },
+    { k: "title", var: "--st-piv", t: "Курс → Заглавие" },
+    { k: "enr", var: "--st-done", t: "SID, Курс → Преподавател, Оценка" },
+    { k: "teach", var: "--tk-type", t: "Преподавател → Курс" },
+    { k: "phone", var: "--st-swap", t: "SID ↠ Телефон" },
+    { k: "offer", var: "--tk-pp", t: "Преподавател–Курс–Програма (5НФ)" },
+  ];
+  const BY_COL = { "Име": "stu", "Програма": "stu", "Декан": "dean", "Заглавие": "title", "Курсове": "enr", "Преподавател": "enr", "Оценка": "enr", "Телефон": "phone", "Телефони": "phone" };
+  /** Цвят на колона в таблица: ключовите колони са неутрални (освен телефона и 5НФ). */
+  function factOf(st, t, c) {
+    if (st.k === "5NF") return "offer";
+    if (t.name === "Teaches" && c === "Курс") return "teach";
+    if (c === "Телефон" || c === "Телефони") return "phone";
+    if (t.key.includes(c)) return null;
+    return BY_COL[c] || null;
+  }
+  /** Преходи към етапа: кои колони идват отнякъде и кои таблици са нови. */
+  const MOVES = {
+    "1NF": [{ cols: ["Курс", "Заглавие", "Преподавател", "Оценка"], from: "Student.Курсове", to: "Enrollment", how: "списъкът се разгъва в отделни колони и редове" }, { cols: ["Телефон"], from: "Student.Телефони", to: "Enrollment", how: "по един телефон на ред" }],
+    "2NF": [{ cols: ["Име", "Програма", "Декан"], from: "Enrollment", to: "Student", how: "зависят само от SID" }, { cols: ["Заглавие"], from: "Enrollment", to: "Course", how: "зависи само от Курс" }, { cols: ["Преподавател", "Оценка"], from: "Enrollment", to: "Enroll", how: "зависят от SID, Курс" }, { cols: ["Телефон"], from: "Enrollment", to: "EnrollPhone", how: "остатъкът от ключа" }],
+    "3NF": [{ cols: ["Декан"], from: "Student", to: "Programme", how: "Програма → Декан (транзитивна)" }],
+    "BCNF": [{ cols: ["Курс"], from: "Enroll", to: "Teaches", how: "Преподавател → Курс; детерминантът не е ключ" }],
+    "4NF": [{ cols: ["Телефон"], from: "EnrollPhone", to: "StudentPhone", how: "SID ↠ Телефон; EnrollPhone отпада" }],
+    "5NF": [{ cols: ["Преподавател", "Курс", "Програма"], from: "Offer", to: "Може_да_води, Преподава_в, Курс_в_програма", how: "зависимост на съединение" }],
+  };
+  const css = `
+table.t6 th.jr{background:color-mix(in srgb,var(--jc) 26%,var(--panel));box-shadow:inset 0 3px 0 var(--jc)}
+table.t6 td.jr{background:color-mix(in srgb,var(--jc) 11%,var(--panel))}
+table.t6 th.jr-in{outline:2px dashed var(--jc);outline-offset:-3px}
+table.t6 th.jr-out{background-image:repeating-linear-gradient(135deg,transparent 0 6px,color-mix(in srgb,var(--jc,var(--muted)) 22%,transparent) 6px 9px)}
+.jr-to{display:block;font:600 .64rem var(--f-body);color:var(--ink-2)}
+.jr-from{display:block;font:600 .64rem var(--f-body);color:var(--jc);letter-spacing:.02em}
+.t6-rel.jr-newt{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+.t6-rel .jr-badge{font:700 .66rem var(--f-body);color:var(--accent-ink);background:var(--accent);border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:1px}
+.jr-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:5px;border:1.5px solid var(--jc);background:color-mix(in srgb,var(--jc) 14%,var(--panel));font:600 .8rem var(--f-mono)}
+.jr-moves{display:grid;gap:6px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--panel-2)}
+.jr-move{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;font-size:.86rem}
+.jr-move .jr-arr{font:700 1rem var(--f-mono);color:var(--muted)}
+.jr-legend{display:flex;flex-wrap:wrap;gap:6px}
+@keyframes jrflash{from{box-shadow:inset 0 3px 0 var(--jc),0 0 0 4px color-mix(in srgb,var(--jc) 55%,transparent)}to{box-shadow:inset 0 3px 0 var(--jc),0 0 0 0 transparent}}
+table.t6 th.jr-in{animation:jrflash 1.2s ease-out 2}
+@media (prefers-reduced-motion:reduce){table.t6 th.jr-in{animation:none}}`;
+  if (typeof document !== "undefined") document.head.append(h("style", { html: css }));
+  const jvar = (k) => (FACTS.find((f) => f.k === k) || {}).var;
+
   /* ---------- измерими показатели (чисти функции) ---------- */
   const cells = (st) => st.tables.reduce((s, t) => s + t.rows.length * t.cols.length, 0);
   const rows = (st) => st.tables.reduce((s, t) => s + t.rows.length, 0);
@@ -4334,7 +4382,7 @@ CREATE TABLE Enrollment(sid VARCHAR(15) REFERENCES Student(sid) ON DELETE <пр�
     const ALL = STAGES.map(metrics);
     const yes = (b) => (b ? "да" : "не");
 
-    let jApi = null;
+    let jApi = null, showMoves = true;
     jApi = S.viz(root.querySelector("#jr-viz"), {
       id: "journey", title: "От сурови данни до 5НФ", sub: "Щракни бутон с нормалната форма или използвай стрелките отдолу.", code: false, speed: 0,
       build: () => ({ frames: STAGES.map((st, i) => ({ i, msg: `<b>${st.t}</b>` })) }),
@@ -4346,7 +4394,45 @@ CREATE TABLE Enrollment(sid VARCHAR(15) REFERENCES Student(sid) ON DELETE <пр�
             title: x.t, style: { minWidth: "64px", justifyContent: "center", fontWeight: "600" }, onclick: () => jApi && jApi.go(j) },
             j < f.i ? "✓ " + x.short : x.short)),
           h("span", { class: "muted", style: { fontSize: ".82rem", alignSelf: "center" }, text: "← щракни нормална форма" }));
-        const tables = h("div", { class: "t6-row" }, ...st.tables.map((t) => T6.table({ name: `${t.name} · ${t.rows.length} ред${t.rows.length === 1 ? "" : "а"}`, cols: t.cols, rows: t.rows }, { pk: t.key.map((c) => t.cols.indexOf(c)) })));
+        const prevSt = f.i > 0 ? STAGES[f.i - 1] : null;
+        const moves = MOVES[st.k] || [];
+        const prevNames = new Set(prevSt ? prevSt.tables.map((t) => t.name) : []);
+        const nextSt = STAGES[f.i + 1], nextMoves = nextSt && nextSt.k !== "5NF" ? MOVES[nextSt.k] || [] : [];
+        const tables = h("div", { class: "t6-row" }, ...st.tables.map((t) => {
+          const colCls = {}, arrived = {};
+          t.cols.forEach((c, j) => {
+            const fk = factOf(st, t, c);
+            const mv = showMoves && moves.find((m) => m.cols.includes(c) && m.to.split(", ").some((x) => t.name.startsWith(x)));
+            if (mv) arrived[j] = mv.from;
+            colCls[j] = (fk ? "jr" : "") + (mv && fk ? " jr-in" : "");
+          });
+          const w = T6.table({ name: `${t.name} · ${t.rows.length} ред${t.rows.length === 1 ? "" : "а"}`, cols: t.cols, rows: t.rows }, { pk: t.key.map((c) => t.cols.indexOf(c)), colCls });
+          // цвят на колоните чрез CSS променлива
+          const ths = w.querySelectorAll("tr:first-child th");
+          t.cols.forEach((c, j) => {
+            const fk = factOf(st, t, c); if (!fk) return;
+            const v = `var(${jvar(fk)})`;
+            ths[j].style.setProperty("--jc", v);
+            w.querySelectorAll(`tr td:nth-child(${j + 1})`).forEach((td) => td.style.setProperty("--jc", v));
+            if (arrived[j]) ths[j].append(h("span", { class: "jr-from", text: "← " + arrived[j].split(".")[0] }));
+          });
+          // колони, които ще напуснат таблицата на следващия етап
+          if (showMoves) t.cols.forEach((c, j) => {
+            const out = nextMoves.find((m) => m.from.split(".")[0] === t.name && (m.from.includes(".") ? m.from.split(".")[1] === c : m.cols.includes(c)));
+            if (!out || (st.k === "1NF" && t.key.includes(c) && c !== "Телефон")) return;
+            ths[j].classList.add("jr-out");
+            ths[j].append(h("span", { class: "jr-to", text: "→ " + out.to + " (" + nextSt.short + ")" }));
+          });
+          if (showMoves && prevSt && !prevNames.has(t.name)) { w.classList.add("jr-newt"); w.querySelector(".t6-rn").append(h("span", { class: "jr-badge", text: "НОВА" })); }
+          return w;
+        }));
+        const moveBox = !moves.length || !showMoves ? null : h("div", { class: "jr-moves" },
+          h("span", { class: "eyebrow", text: `Преход ${prevSt.short} → ${st.short}: какво се премества` }),
+          ...moves.map((m) => h("div", { class: "jr-move" },
+            ...m.cols.map((c) => { const fk = st.k === "5NF" ? "offer" : c === "Курс" && st.k === "BCNF" ? "teach" : BY_COL[c] || "enr"; const ch = h("span", { class: "jr-chip", text: c }); ch.style.setProperty("--jc", `var(${jvar(fk)})`); return ch; }),
+            h("span", { class: "mono", text: m.from }), h("span", { class: "jr-arr", text: "→" }), h("b", { class: "mono", text: m.to }), h("span", { class: "muted", text: "· " + m.how }))));
+        const prevGone = showMoves && prevSt ? prevSt.tables.filter((t) => !st.tables.some((x) => x.name === t.name)).map((t) => t.name) : [];
+        const gone = prevGone.length && st.k !== "5NF" ? h("div", { class: "muted", style: { fontSize: ".85rem" } }, "Таблици от предишния етап, които вече ги няма (разделени): ", h("span", { class: "mono", text: prevGone.join(", ") })) : null;
         const delta = (a, b) => (prev == null ? "" : a === b ? "" : a < b ? ` (−${b - a})` : ` (+${a - b})`);
         const cards = h("div", { class: "cards" },
           h("div", { class: "card" }, h("span", { class: "eyebrow", text: "Правило" }), h("p", { text: st.rule })),
@@ -4361,7 +4447,12 @@ CREATE TABLE Enrollment(sid VARCHAR(15) REFERENCES Student(sid) ON DELETE <пр�
             h("span", null, "„Ana“ записана: ", h("b", { text: m.anaCopies + delta(m.anaCopies, prev && prev.anaCopies) })),
             h("span", null, "нов телефон на Ana: ", h("b", { text: st.k === "UNF" ? "редакция на клетка" : m.newPhone + " ред(а)" })));
         stats.style.marginTop = "8px";
-        stage.append(steps, tables, stats, cards, next);
+        const legend = h("div", { class: "jr-legend" }, h("span", { class: "eyebrow", style: { alignSelf: "center", marginRight: "4px" }, text: "Цвят = факт:" }),
+          ...FACTS.filter((x) => x.k !== "offer" || st.k === "5NF").map((x) => { const ch = h("span", { class: "jr-chip", text: x.t }); ch.style.setProperty("--jc", `var(${x.var})`); return ch; }));
+        const toggle = h("label", { class: "field", style: { display: "flex", gap: "6px", alignItems: "center", fontSize: ".85rem" } },
+          h("input", { type: "checkbox", id: "jr-moves", checked: showMoves ? true : null, onchange: (e) => { showMoves = e.target.checked; jApi.go(f.i); } }), "покажи преходите: ← откъде е дошла колоната, → къде ще отиде (на райета)");
+        const goal = h("p", { class: "muted", style: { fontSize: ".85rem" }, text: "Целта на нормализацията: всяка таблица да съдържа един цвят — един факт. Таблица с няколко цвята смесва независими факти и води до повторения." });
+        stage.append(steps, legend, goal, toggle, ...(moveBox ? [moveBox] : []), ...(gone ? [gone] : []), tables, stats, cards, next);
         if (st.k === "1NF") stage.append(h("details", { class: "hint", open: true }, h("summary", { text: "Защо 1НФ има повече редове от UNF" }), h("div", null, h("p", { text: "Двата списъка (курсове и телефони) се разгъват едновременно — всеки курс с всеки телефон. Ana: 2 курса × 2 телефона = 4 реда. Това разгъване ще бъде премахнато чак в 4НФ." }))));
         if (st.k === "BCNF") stage.append(h("details", { class: "trap", open: true }, h("summary", { text: "Цената на BCNF" }), h("div", null, h("p", { text: "В 3НФ правилото „студентът има един преподавател за даден курс“ (SID, Курс → Преподавател) се проверява от ключа на Enroll. След разлагането то обхваща две таблици и вече не е ограничение на една таблица." }))));
       },
