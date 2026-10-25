@@ -155,6 +155,8 @@
   <p>Релационният модел представя данните чрез <dfn data-g="релация">релации</dfn> върху <dfn data-g="домейн">домейни</dfn>. В табличната интерпретация <dfn data-g="атрибут">атрибутът</dfn> съответства на колона, <dfn data-g="кортеж">кортежът</dfn> — на ред, а домейнът задава допустимите стойности. В математическата релация кортежите не се повтарят и нямат съществен ред. Редът на колоните също не носи предметен смисъл при идентифициране по име.</p>
 </div>
 
+<div class="block" id="r-anatomy"></div>
+
 <div class="block">
   <h3>Математическа релация срещу SQL таблица</h3>
   <div class="split" id="r-cmp"></div>
@@ -209,6 +211,7 @@ CREATE TABLE Enrollment(sid VARCHAR(15) REFERENCES Student(sid) ON DELETE <пр�
 
   function mount(root) {
     root.querySelector("#r-ddl").textContent = DDL;
+    if (window.T6.anatomy) window.T6.anatomy(root.querySelector("#r-anatomy"));
 
     /* математическа релация срещу SQL таблица */
     const cmp = root.querySelector("#r-cmp"), cd = root.querySelector("#r-cmp-d");
