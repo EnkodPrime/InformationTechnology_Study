@@ -4334,13 +4334,18 @@ CREATE TABLE Enrollment(sid VARCHAR(15) REFERENCES Student(sid) ON DELETE <пр�
     const ALL = STAGES.map(metrics);
     const yes = (b) => (b ? "да" : "не");
 
-    S.viz(root.querySelector("#jr-viz"), {
-      id: "journey", title: "От сурови данни до 5НФ", sub: "Всяка стъпка е един етап. Плъзгачът и стрелките сменят етапа.", code: false, speed: 0,
+    let jApi = null;
+    jApi = S.viz(root.querySelector("#jr-viz"), {
+      id: "journey", title: "От сурови данни до 5НФ", sub: "Щракни бутон с нормалната форма или използвай стрелките отдолу.", code: false, speed: 0,
       build: () => ({ frames: STAGES.map((st, i) => ({ i, msg: `<b>${st.t}</b>` })) }),
       draw(stage, f) {
         const st = STAGES[f.i], m = ALL[f.i], prev = f.i > 0 ? ALL[f.i - 1] : null;
         stage.innerHTML = "";
-        const steps = h("div", { class: "row", style: { marginBottom: "6px" } }, ...STAGES.map((x, j) => h("span", { class: "pill " + (j === f.i ? "s-act" : j < f.i ? "s-done" : ""), text: x.short })));
+        const steps = h("div", { class: "row", role: "tablist", "aria-label": "Нормална форма", style: { marginBottom: "10px", gap: "6px" } },
+          ...STAGES.map((x, j) => h("button", { type: "button", role: "tab", class: "btn" + (j === f.i ? " primary" : ""), "aria-selected": j === f.i ? "true" : "false",
+            title: x.t, style: { minWidth: "64px", justifyContent: "center", fontWeight: "600" }, onclick: () => jApi && jApi.go(j) },
+            j < f.i ? "✓ " + x.short : x.short)),
+          h("span", { class: "muted", style: { fontSize: ".82rem", alignSelf: "center" }, text: "← щракни нормална форма" }));
         const tables = h("div", { class: "t6-row" }, ...st.tables.map((t) => T6.table({ name: `${t.name} · ${t.rows.length} ред${t.rows.length === 1 ? "" : "а"}`, cols: t.cols, rows: t.rows }, { pk: t.key.map((c) => t.cols.indexOf(c)) })));
         const delta = (a, b) => (prev == null ? "" : a === b ? "" : a < b ? ` (−${b - a})` : ` (+${a - b})`);
         const cards = h("div", { class: "cards" },
