@@ -230,7 +230,7 @@ table.t6 th.jr-in{animation:jrflash 1.2s ease-out 2}
 <div id="jr-viz"></div>
 <div class="block">
   <h3>Целият път на един екран</h3>
-  <p class="prose">Всеки ред е една нормална форма, всяка кутия — таблица, оцветена по фактите в нея. Стрелките показват откъде идват колоните на новата таблица; цветът на стрелката е цветът на преместения факт, сивият пунктир значи „таблицата остава“. Тънките линии под кутиите са <b>връзките по ключове</b> вътре в етапа, като в UML/ER диаграма: от <i>външния ключ</i> (∗, много) до <u>първичния ключ</u> (1) на реферираната таблица. Цветът на линията е цветът на реферираната таблица. Посочи кутия, за да видиш целия ѝ произход и наследници; щракни я, за да отвориш етапа горе.</p>
+  <p class="prose">Всеки ред е една нормална форма, всяка кутия — таблица с нейните данни, оцветени по фактите. Стрелките показват откъде идват колоните на новата таблица; цветът на стрелката е цветът на преместения факт, сивият пунктир значи „таблицата остава“. Тънките линии под кутиите са <b>връзките по ключове</b> вътре в етапа, като в UML/ER диаграма: от <i>външния ключ</i> (∗, много) до <u>първичния ключ</u> (1) на реферираната таблица. Цветът на линията е цветът на реферираната таблица. Посочи кутия, за да видиш целия ѝ произход и наследници; щракни я, за да отвориш етапа горе.</p>
   <div class="tbl-wrap" id="jr-graph"></div>
 </div>
 <div class="block">
@@ -245,6 +245,43 @@ table.t6 th.jr-in{animation:jrflash 1.2s ease-out 2}
     <p>Всяка стъпка добавя таблици и съединения. При BCNF загубихме проверката SID, Курс → Преподавател в една таблица. Нормализацията се прави до формата, при която аномалиите, които имат значение за задачата, са премахнати; за отчети понякога съзнателно се денормализира.</p>
   </div></details>
 </div>`;
+
+  /** Чертае връзките по ключове под HTML таблиците на един етап. */
+  function drawUml(inner, tables, st, fks) {
+    if (!inner.isConnected) return;
+    const base = inner.getBoundingClientRect();
+    const wraps = [...tables.children];
+    const thOf = (name, col) => { const i = st.tables.findIndex((t) => t.name === name); const t = st.tables[i]; return wraps[i].querySelectorAll("tr:first-child th")[t.cols.indexOf(col)]; };
+    const boxOf = (name) => wraps[st.tables.findIndex((t) => t.name === name)].querySelector("table").getBoundingClientRect();
+    const REFC = { Student: "stu", Programme: "dean", Course: "title", Teaches: "teach", Enroll: "enr" };
+    const items = fks.map(([t, cs, rt, rcs]) => {
+      const cx = (name, c) => c.map((x) => { const r = thOf(name, x).getBoundingClientRect(); return r.left + r.width / 2 - base.left; }).reduce((a, b) => a + b, 0) / c.length;
+      return { t, cs, rt, rcs, xa: cx(t, cs), xb: cx(rt, rcs), ya: boxOf(t).bottom - base.top, yb: boxOf(rt).bottom - base.top, col: `var(${jvar(REFC[rt] || "enr")})` };
+    }).sort((p, q) => Math.abs(p.xa - p.xb) - Math.abs(q.xa - q.xb));
+    const levels = [];
+    items.forEach((it) => { const lo = Math.min(it.xa, it.xb), hi = Math.max(it.xa, it.xb); let L = 0; while ((levels[L] || []).some(([a, b]) => !(hi < a - 6 || lo > b + 6))) L++; (levels[L] = levels[L] || []).push([lo, hi]); it.L = L; });
+    const used = {};
+    const slot = (k, x) => { const key = k + "@" + Math.round(x); const n = (used[key] = (used[key] || 0) + 1) - 1; return x + (n ? (n % 2 ? 1 : -1) * Math.ceil(n / 2) * 6 : 0); };
+    items.forEach((it) => { it.xa = slot(it.t, it.xa); it.xb = slot(it.rt, it.xb); });
+    const maxBottom = Math.max(...wraps.map((w) => w.getBoundingClientRect().bottom - base.top));
+    const band = 18 + levels.length * 13;
+    inner.style.paddingBottom = band + 8 + "px";
+    const H = maxBottom + band + 8, W = inner.scrollWidth;
+    const svg = S.svg("svg", { width: W, height: H, style: `position:absolute;left:0;top:0;pointer-events:none;overflow:visible`, "aria-hidden": "true" });
+    const labeled = new Set();
+    items.forEach((it) => {
+      const yy = maxBottom + 14 + it.L * 13;
+      svg.append(S.svg("path", { d: `M${it.xa},${it.ya} L${it.xa},${yy} L${it.xb},${yy} L${it.xb},${it.yb}`, style: `fill:none;stroke:${it.col};stroke-width:2` }));
+      [[it.t, it.cs, it.xa, it.ya, "∗"], [it.rt, it.rcs, it.xb, it.yb, "1"]].forEach(([name, cs, x, y, txt]) => {
+        cs.forEach((c) => { const th = thOf(name, c); th.style.outline = `2px solid ${it.col}`; th.style.outlineOffset = "-2px"; });
+        svg.append(S.svg("circle", { cx: x, cy: y + 1, r: 3, style: `fill:${it.col}` }));
+        const key = name + "|" + cs.join(","); if (labeled.has(key)) return; labeled.add(key);
+        svg.append(S.svg("text", { x: x + 6, y: y + 13, style: "font:700 12px var(--f-mono);fill:var(--ink);paint-order:stroke;stroke:var(--panel);stroke-width:3px", text: txt }));
+      });
+      svg.append(S.svg("title", { text: `${it.t}(${it.cs.join(", ")}) → ${it.rt}(${it.rcs.join(", ")})` }));
+    });
+    inner.append(svg);
+  }
 
   function mount(root) {
     const T6 = window.T6;
@@ -321,38 +358,58 @@ table.t6 th.jr-in{animation:jrflash 1.2s ease-out 2}
         const toggle = h("label", { class: "field", style: { display: "flex", gap: "6px", alignItems: "center", fontSize: ".85rem" } },
           h("input", { type: "checkbox", id: "jr-moves", checked: showMoves ? true : null, onchange: (e) => { showMoves = e.target.checked; jApi.go(f.i); } }), "покажи преходите: ← откъде е дошла колоната, → къде ще отиде (на райета)");
         const goal = h("p", { class: "muted", style: { fontSize: ".85rem" }, text: "Целта на нормализацията: всяка таблица да съдържа един цвят — един факт. Таблица с няколко цвята смесва независими факти и води до повторения." });
-        stage.append(steps, legend, goal, toggle, ...(moveBox ? [moveBox] : []), ...(gone ? [gone] : []), tables, stats, cards, next);
+        // UML: таблиците в един ред, връзките по ключове се чертаят под тях
+        const fks = FKS[st.k] || [];
+        tables.style.flexWrap = "nowrap"; tables.style.alignItems = "flex-start";
+        const inner = h("div", { style: { position: "relative", width: "max-content", paddingBottom: fks.length ? "8px" : "0" } }, tables);
+        const scroller = h("div", { class: "tbl-wrap", style: { overflowX: "auto", maxWidth: "100%" } }, inner);
+        const umlNote = fks.length ? h("div", { class: "muted", style: { fontSize: ".82rem" }, html: `Линиите под таблиците са <b>връзките по ключове</b> (UML/ER): от <i>външния ключ</i> (∗, много) към <u>първичния ключ</u> (1). Колоните на ключовете са оградени в цвета на линията.` }) : null;
+        stage.append(steps, legend, goal, toggle, ...(moveBox ? [moveBox] : []), ...(gone ? [gone] : []), scroller, ...(umlNote ? [umlNote] : []), stats, cards, next);
+        if (fks.length) requestAnimationFrame(() => drawUml(inner, tables, st, fks));
         if (st.k === "1NF") stage.append(h("details", { class: "hint", open: true }, h("summary", { text: "Защо 1НФ има повече редове от UNF" }), h("div", null, h("p", { text: "Двата списъка (курсове и телефони) се разгъват едновременно — всеки курс с всеки телефон. Ana: 2 курса × 2 телефона = 4 реда. Това разгъване ще бъде премахнато чак в 4НФ." }))));
         if (st.k === "BCNF") stage.append(h("details", { class: "trap", open: true }, h("summary", { text: "Цената на BCNF" }), h("div", null, h("p", { text: "В 3НФ правилото „студентът има един преподавател за даден курс“ (SID, Курс → Преподавател) се проверява от ключа на Enroll. След разлагането то обхваща две таблици и вече не е ограничение на една таблица." }))));
       },
     });
 
     /* ---------- граф на целия път ---------- */
-    (function graph() {
+    const gstate = { data: true, lin: true, fk: true };
+    function graph() {
       const host = root.querySelector("#jr-graph");
-      const SV = S.svg, CW = 6.9, PADX = 10, GAP = 26, ROWH = 158, LEFT = 120, TOP = 26;
+      host.innerHTML = "";
+      const SV = S.svg, CW = 6.9, PADX = 10, GAP = 24, CGAP = 14, LEFT = 120, TOP = 26, GAPV = 118, RH = 15;
       const main = STAGES.filter((x) => x.k !== "5NF");
       const nodes = [], edges = [];
-      const width = (t) => Math.max(t.name.length * 7.6, t.cols.join("  ").length * CW) + 2 * PADX;
-      let W = 0;
+      const label = (t) => t.name.replace(" (един факт, не е в 5НФ)", "");
+      /** ширини на колоните и размер на кутията */
+      function layout(t) {
+        const cw = t.cols.map((c, j) => Math.max(c.length, ...(gstate.data ? t.rows.map((r) => String(r[j]).length) : [0])) * CW);
+        const off = []; let x = 0; cw.forEach((w, j) => { off.push(x); x += w + (j < cw.length - 1 ? CGAP : 0); });
+        const w = Math.max(label(t).length * 7.6, x) + 2 * PADX;
+        const hh = 44 + (gstate.data ? t.rows.length * RH + 8 : 0);
+        return { cw, off, w, h: hh };
+      }
+      let W = 0, y = TOP;
+      const rowY = [];
       main.forEach((st, i) => {
-        const ws = st.tables.map(width), total = ws.reduce((a, b) => a + b, 0) + GAP * (ws.length - 1);
+        const L = st.tables.map(layout), total = L.reduce((a, l) => a + l.w, 0) + GAP * (L.length - 1);
         W = Math.max(W, LEFT + total + 20);
+        rowY.push(y);
         let x = LEFT;
-        st.tables.forEach((t, j) => { nodes.push({ id: st.k + ":" + t.name, st, si: i, t, x, y: TOP + i * ROWH, w: ws[j], h: 48 }); x += ws[j] + GAP; });
+        st.tables.forEach((t, j) => { nodes.push({ id: st.k + ":" + t.name, st, si: i, t, x, y, w: L[j].w, h: L[j].h, L: L[j] }); x += L[j].w + GAP; });
+        y += Math.max(...L.map((l) => l.h)) + GAPV;
       });
       // 5НФ — отделен клон
-      const st5 = STAGES.find((x) => x.k === "5NF"), y5 = TOP + main.length * ROWH + 18;
-      let x5 = LEFT;
-      st5.tables.forEach((t, j) => { const w = width(t); nodes.push({ id: "5NF:" + t.name, st: st5, si: main.length, t, x: x5, y: j === 0 ? y5 : y5 + ROWH, w, h: 48 }); if (j > 0) x5 += w + GAP; });
-      // подравняване: 3-те таблици на 5НФ на долния ред
-      const n5 = nodes.filter((n) => n.st.k === "5NF");
-      let xx = LEFT; n5.slice(1).forEach((n) => { n.x = xx; xx += n.w + GAP; });
-      n5[0].x = LEFT + (xx - GAP - LEFT) / 2 - n5[0].w / 2;
+      const st5 = STAGES.find((x) => x.k === "5NF"), y5 = y + 18;
+      const L5 = st5.tables.map(layout);
+      const n5 = st5.tables.map((t, j) => ({ id: "5NF:" + t.name, st: st5, si: main.length, t, x: 0, y: 0, w: L5[j].w, h: L5[j].h, L: L5[j] }));
+      let xx = LEFT; n5.slice(1).forEach((n) => { n.x = xx; n.y = y5 + n5[0].h + 90; xx += n.w + GAP; });
+      n5[0].x = LEFT + (xx - GAP - LEFT) / 2 - n5[0].w / 2; n5[0].y = y5;
+      nodes.push(...n5);
       W = Math.max(W, xx + 20);
-      const H = y5 + ROWH + 60;
+      const H = n5[1].y + Math.max(...n5.slice(1).map((n) => n.h)) + 30;
       const byId = Object.fromEntries(nodes.map((n) => [n.id, n]));
-      // ребра
+      nodes.forEach((n) => { n.colX = {}; n.colR = {}; n.t.cols.forEach((c, j) => { const x1 = n.x + PADX + n.L.off[j]; n.colR[c] = [x1, x1 + c.length * CW]; n.colX[c] = x1 + (c.length * CW) / 2; }); });
+      // ребра на прехода
       main.forEach((st, i) => {
         if (!i) return;
         const prev = main[i - 1], mv = MOVES[st.k] || [];
@@ -369,27 +426,26 @@ table.t6 th.jr-in{animation:jrflash 1.2s ease-out 2}
         });
       });
       n5.slice(1).forEach((n) => edges.push({ a: n5[0], b: n, kind: "move", fk: "offer", label: "π" }));
-      // предшественици / наследници
       const up = (n, acc = new Set()) => { edges.filter((e) => e.b === n).forEach((e) => { if (!acc.has(e.a.id)) { acc.add(e.a.id); up(e.a, acc); } }); return acc; };
       const down = (n, acc = new Set()) => { edges.filter((e) => e.a === n).forEach((e) => { if (!acc.has(e.b.id)) { acc.add(e.b.id); down(e.b, acc); } }); return acc; };
 
       const svg = SV("svg", { class: "g jr-graph", viewBox: `0 0 ${W} ${H}`, width: W, role: "img", "aria-label": "Граф на нормализацията" });
-      const gE = SV("g"), gN = SV("g"), gL = SV("g");
-      svg.append(gL, gE, gN);
+      const gL = SV("g"), gE = SV("g"), gF = SV("g"), gN = SV("g");
+      svg.append(gL, gE, gF, gN);
       // етикети на редовете
       main.concat([st5]).forEach((st, i) => {
-        const y = i < main.length ? TOP + i * ROWH : y5;
+        const yy = i < main.length ? rowY[i] : y5;
         const g = SV("g", { style: "cursor:pointer", onclick: () => { jApi.go(STAGES.indexOf(st)); root.querySelector("#jr-viz").scrollIntoView({ behavior: "smooth", block: "start" }); } });
-        g.append(SV("text", { x: 8, y: y + 20, style: "font:700 15px var(--f-display);fill:var(--ink)", text: st.short }),
-          SV("text", { x: 8, y: y + 37, style: "font:11px var(--f-body);fill:var(--muted)", text: i < main.length ? `${st.tables.length} табл. · ${ALL[STAGES.indexOf(st)].rows} реда` : "нов вид факт" }));
-        if (i > 0 && i < main.length) gL.append(SV("line", { x1: 8, x2: W - 10, y1: y - 26, y2: y - 26, style: "stroke:var(--line-2);stroke-width:1" }));
+        g.append(SV("text", { x: 8, y: yy + 20, style: "font:700 15px var(--f-display);fill:var(--ink)", text: st.short }),
+          SV("text", { x: 8, y: yy + 37, style: "font:11px var(--f-body);fill:var(--muted)", text: i < main.length ? `${st.tables.length} табл. · ${ALL[STAGES.indexOf(st)].rows} реда` : "нов вид факт" }));
+        if (i > 0 && i < main.length) gL.append(SV("line", { x1: 8, x2: W - 10, y1: yy - 30, y2: yy - 30, style: "stroke:var(--line-2);stroke-width:1" }));
         gL.append(g);
       });
-      gL.append(SV("line", { x1: 8, x2: W - 10, y1: y5 - 24, y2: y5 - 24, style: "stroke:var(--line);stroke-width:1.5;stroke-dasharray:6 4" }));
-      gL.append(SV("text", { x: W - 12, y: y5 - 30, "text-anchor": "end", style: "font:11px var(--f-body);fill:var(--muted)", text: "схемата от 4НФ е и в 5НФ; отдолу — нов вид факт с циклично правило" }));
-      // паралелни ребра към една таблица: разместване и етикети едно над друго
+      gL.append(SV("line", { x1: 8, x2: W - 10, y1: y5 - 26, y2: y5 - 26, style: "stroke:var(--line);stroke-width:1.5;stroke-dasharray:6 4" }));
+      gL.append(SV("text", { x: W - 12, y: y5 - 32, "text-anchor": "end", style: "font:11px var(--f-body);fill:var(--muted)", text: "схемата от 4НФ е и в 5НФ; отдолу — нов вид факт с циклично правило" }));
+      // стрелки на прехода
       const into = {};
-      edges.forEach((e) => { if (e.kind === "move") { (into[e.b.id] = into[e.b.id] || []).push(e); } });
+      edges.forEach((e) => { if (e.kind === "move") (into[e.b.id] = into[e.b.id] || []).push(e); });
       Object.values(into).forEach((arr) => arr.forEach((e, k) => { e.k = k; e.n = arr.length; }));
       const edgeEls = edges.map((e) => {
         const off = e.n > 1 ? (e.k - (e.n - 1) / 2) * 16 : 0;
@@ -399,26 +455,36 @@ table.t6 th.jr-in{animation:jrflash 1.2s ease-out 2}
         g.append(SV("path", { d: `M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2 - 6}`, style: `fill:none;stroke:${col};stroke-width:${e.kind === "keep" ? 1.2 : 2.4};${e.kind === "keep" ? "stroke-dasharray:4 4;opacity:.55" : ""}` }),
           SV("path", { d: `M${x2 - 5},${y2 - 9} L${x2},${y2 - 1} L${x2 + 5},${y2 - 9}`, style: `fill:none;stroke:${col};stroke-width:${e.kind === "keep" ? 1.2 : 2.2}` }));
         if (e.kind === "move" && e.label !== "π") {
-          // етикетът стои над целевата кутия, вдясно от стрелката; няколко етикета — един над друг
           const ly = y2 - 12 - ((e.n || 1) - 1 - (e.k || 0)) * 13;
           g.append(SV("text", { x: e.b.x + e.b.w / 2 + ((e.n || 1) - 1) * 8 + 12, y: ly, "text-anchor": "start", style: `font:600 10.5px var(--f-mono);fill:${col};paint-order:stroke;stroke:var(--bg);stroke-width:4px`, text: e.label }));
         }
         gE.append(g); return { e, g };
       });
+      // кутии с колони и данни
       const nodeEls = nodes.map((n) => {
         const g = SV("g", { style: "cursor:pointer", tabindex: 0, role: "button", "aria-label": `${n.st.short}: ${n.t.name}` });
         const isNew = n.si > 0 && n.st.k !== "5NF" && !main[n.si - 1].tables.some((p) => p.name === n.t.name);
         g.append(SV("rect", { x: n.x, y: n.y, width: n.w, height: n.h, rx: 6, style: `fill:var(--panel);stroke:${isNew ? "var(--accent)" : "var(--line)"};stroke-width:${isNew ? 2 : 1.2}` }));
-        g.append(SV("text", { x: n.x + PADX, y: n.y + 18, style: "font:700 12.5px var(--f-mono);fill:var(--ink)", text: n.t.name.replace(" (един факт, не е в 5НФ)", "") }));
-        const tx = SV("text", { x: n.x + PADX, y: n.y + 37, style: "font:600 11.5px var(--f-mono)" });
-        n.t.cols.forEach((c, j) => {
+        g.append(SV("text", { x: n.x + PADX, y: n.y + 18, style: "font:700 12.5px var(--f-mono);fill:var(--ink)", text: label(n.t) + (gstate.data ? "" : "") }));
+        const colStyle = (c) => {
           const fk = factOf(n.st, n.t, c);
+          return { fk, fill: fk ? `var(${jvar(fk)})` : "var(--ink-2)" };
+        };
+        n.t.cols.forEach((c, j) => {
+          const { fill } = colStyle(c);
           const isFk = (FKS[n.st.k] || []).some((x) => x[0] === n.t.name && x[1].includes(c));
-          const ts = SV("tspan", { dx: j ? CW * 2 : 0, style: `fill:${fk ? `var(${jvar(fk)})` : "var(--ink-2)"};${n.t.key.includes(c) ? "text-decoration:underline;" : ""}${isFk ? "font-style:italic;" : ""}`, text: c });
-          (n.spans = n.spans || {})[c] = ts;
-          tx.append(ts);
+          g.append(SV("text", { x: n.colR[c][0], y: n.y + 37, style: `font:600 11.5px var(--f-mono);fill:${fill};${n.t.key.includes(c) ? "text-decoration:underline;" : ""}${isFk ? "font-style:italic;" : ""}`, text: c }));
         });
-        g.append(tx);
+        if (gstate.data) {
+          g.append(SV("line", { x1: n.x + 6, x2: n.x + n.w - 6, y1: n.y + 44, y2: n.y + 44, style: "stroke:var(--line);stroke-width:1" }));
+          n.t.rows.forEach((r, i) => {
+            if (i % 2) g.append(SV("rect", { x: n.x + 3, y: n.y + 46 + i * RH, width: n.w - 6, height: RH, style: "fill:var(--panel-2)" }));
+            n.t.cols.forEach((c, j) => {
+              const { fk, fill } = colStyle(c);
+              g.append(SV("text", { x: n.colR[c][0], y: n.y + 57 + i * RH, style: `font:11px var(--f-mono);fill:${fk ? fill : "var(--ink)"};${fk ? "opacity:.9" : ""}`, text: String(r[j]) }));
+            });
+          });
+        }
         const on = () => {
           const rel = new Set([n.id, ...up(n), ...down(n)]);
           nodeEls.forEach((o) => (o.g.style.opacity = rel.has(o.n.id) ? 1 : 0.25));
@@ -430,57 +496,49 @@ table.t6 th.jr-in{animation:jrflash 1.2s ease-out 2}
         g.addEventListener("click", () => { jApi.go(STAGES.indexOf(n.st)); root.querySelector("#jr-viz").scrollIntoView({ behavior: "smooth", block: "start" }); });
         gN.append(g); return { n, g };
       });
-      // переключватели на слоевете
-      let showLin = true, showFk = true;
-      const tg = (label, get, set) => { const b = h("button", { type: "button", class: "btn", "aria-pressed": "true", onclick: () => { set(!get()); b.setAttribute("aria-pressed", get() ? "true" : "false"); gE.style.display = showLin ? "" : "none"; gF.style.display = showFk ? "" : "none"; } }, label); return b; };
-      host.append(h("div", { class: "row", style: { marginBottom: "8px" } },
-        tg("Преходи между етапите", () => showLin, (v) => (showLin = v)), tg("Връзки по ключове (UML)", () => showFk, (v) => (showFk = v)),
-        h("span", { class: "muted", style: { fontSize: ".82rem" }, html: "<u>подчертано</u> = първичен ключ · <i>курсив</i> = външен ключ · 1 ── ∗ = един към много" })));
-      const gF = SV("g"); svg.insertBefore(gF, gN);
-      host.append(svg);
-      svg.style.minWidth = Math.min(W, 900) + "px";
-
       /* --- UML: външни ключове в рамките на всеки етап --- */
-      const sb = svg.getBoundingClientRect(), scale = W / (sb.width || W);
-      const colX = (n, cols) => {
-        const xs = cols.map((c) => { const r = n.spans[c].getBBox(); return r.x + r.width / 2; });
-        return xs.reduce((a, b) => a + b, 0) / xs.length;
-      };
-      const colRange = (n, cols) => { const bs = cols.map((c) => n.spans[c].getBBox()); return [Math.min(...bs.map((b) => b.x)), Math.max(...bs.map((b) => b.x + b.width))]; };
       Object.entries(FKS).forEach(([k, list]) => {
         const items = list.map(([t, cs, rt, rcs]) => {
           const a = byId[k + ":" + t], b = byId[k + ":" + rt];
-          return { a, b, cs, rcs, xa: colX(a, cs), xb: colX(b, rcs) };
+          const avg = (n, c) => c.reduce((s2, x) => s2 + n.colX[x], 0) / c.length;
+          return { a, b, cs, rcs, xa: avg(a, cs), xb: avg(b, rcs) };
         }).sort((p, q) => Math.abs(p.xa - p.xb) - Math.abs(q.xa - q.xb));
-        // нива: по-дългите дъги са по-дълбоко; дъги, които не се застъпват, споделят ниво
         const levels = [];
         items.forEach((it) => {
           const lo = Math.min(it.xa, it.xb), hi = Math.max(it.xa, it.xb);
-          let L = 0; while ((levels[L] || []).some(([a, b]) => !(hi < a - 6 || lo > b + 6))) L++;
-          (levels[L] = levels[L] || []).push([lo, hi]); it.L = L;
+          let Lv = 0; while ((levels[Lv] || []).some(([p, q]) => !(hi < p - 6 || lo > q + 6))) Lv++;
+          (levels[Lv] = levels[Lv] || []).push([lo, hi]); it.Lv = Lv;
         });
-        // няколко линии в една колона — леко разместване, за да не се сливат
         const used = {};
-        const slot = (n, x) => { const key = n.id + "@" + Math.round(x); const k = (used[key] = (used[key] || 0) + 1) - 1; return x + (k ? (k % 2 ? 1 : -1) * Math.ceil(k / 2) * 5 : 0); };
+        const slot = (n, x) => { const key = n.id + "@" + Math.round(x); const kk = (used[key] = (used[key] || 0) + 1) - 1; return x + (kk ? (kk % 2 ? 1 : -1) * Math.ceil(kk / 2) * 5 : 0); };
         items.forEach((it) => { it.xa = slot(it.a, it.xa); it.xb = slot(it.b, it.xb); });
         const labeled = new Set();
         const REFC = { Student: "stu", Programme: "dean", Course: "title", Teaches: "teach", Enroll: "enr" };
         items.forEach((it) => {
           const col = `var(${jvar(REFC[it.b.t.name] || "enr")})`;
-          const y0 = it.a.y + it.a.h, yb = it.b.y + it.b.h, d = 16 + it.L * 11;
+          const y0 = it.a.y + it.a.h, yb = it.b.y + it.b.h, d = 16 + it.Lv * 11;
           const yy = Math.max(y0, yb) + d;
           const g = SV("g", { class: "jr-fk" });
           g.append(SV("path", { d: `M${it.xa},${y0} L${it.xa},${yy} L${it.xb},${yy} L${it.xb},${yb}`, style: `fill:none;stroke:${col};stroke-width:1.7` }));
-          // подчертаване на колоните на двата края
-          [[it.a, it.cs], [it.b, it.rcs]].forEach(([n, cs]) => { const [x1, x2] = colRange(n, cs); g.append(SV("line", { x1, x2, y1: n.y + n.h - 5, y2: n.y + n.h - 5, style: `stroke:${col};stroke-width:2` })); });
-          const lab = (n, cs, x, y, t) => { const key = n.id + "|" + cs.join(","); if (labeled.has(key)) return; labeled.add(key); g.append(SV("text", { x: x + 5, y, style: "font:700 11px var(--f-mono);fill:var(--ink);paint-order:stroke;stroke:var(--bg);stroke-width:3px", text: t })); };
+          // подчертаване на колоните на двата края (под заглавието)
+          [[it.a, it.cs], [it.b, it.rcs]].forEach(([n, cs]) => cs.forEach((c) => { const [x1, x2] = n.colR[c]; g.append(SV("line", { x1, x2, y1: n.y + 41, y2: n.y + 41, style: `stroke:${col};stroke-width:2` })); }));
+          const lab = (n, cs, x, yv, t) => { const key = n.id + "|" + cs.join(","); if (labeled.has(key)) return; labeled.add(key); g.append(SV("text", { x: x + 5, y: yv, style: "font:700 11px var(--f-mono);fill:var(--ink);paint-order:stroke;stroke:var(--bg);stroke-width:3px", text: t })); };
           lab(it.a, it.cs, it.xa, y0 + 12, "∗"); lab(it.b, it.rcs, it.xb, yb + 12, "1");
           g.append(SV("title", { text: `${it.a.t.name}(${it.cs.join(", ")}) → ${it.b.t.name}(${it.rcs.join(", ")})` }));
           gF.append(g);
         });
       });
-      void scale;
-    })();
+      gE.style.display = gstate.lin ? "" : "none";
+      gF.style.display = gstate.fk ? "" : "none";
+      // превключватели
+      const tg = (labelTxt, key) => h("button", { type: "button", class: "btn", "aria-pressed": gstate[key] ? "true" : "false", onclick: () => { gstate[key] = !gstate[key]; graph(); } }, labelTxt);
+      host.append(h("div", { class: "row", style: { marginBottom: "8px" } },
+        tg("Данни в таблиците", "data"), tg("Преходи между етапите", "lin"), tg("Връзки по ключове (UML)", "fk"),
+        h("span", { class: "muted", style: { fontSize: ".82rem" }, html: "<u>подчертано</u> = първичен ключ · <i>курсив</i> = външен ключ · 1 ── ∗ = един към много" })));
+      host.append(svg);
+      svg.style.minWidth = Math.min(W, 900) + "px";
+    }
+    graph();
 
     // таблица с показатели
     const cols = STAGES.filter((s) => !s.extra);
