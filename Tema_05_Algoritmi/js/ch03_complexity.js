@@ -206,13 +206,10 @@
   </div></details>
 </div>
 
+<div id="asym-host" style="display:grid;gap:22px;min-width:0"></div>
+
 <div class="block">
-  <h3>O, Ω, Θ</h3>
-  <div class="split">
-    <div class="key"><b><dfn data-g="o">O(g)</dfn> — горна граница</b><p>T(n) ≤ c·g(n) за всички достатъчно големи n.</p></div>
-    <div class="key"><b><dfn data-g="omega">Ω(g)</dfn> — долна граница</b><p>T(n) ≥ c·g(n) за всички достатъчно големи n.</p></div>
-    <div class="key"><b><dfn data-g="theta">Θ(g)</dfn> — едновременно</b><p>c₁·g(n) ≤ T(n) ≤ c₂·g(n) за n ≥ n₀.</p></div>
-  </div>
+  <h3>Θ стъпка по стъпка: намиране на c₁, c₂ и n₀</h3>
   <p class="prose">Доказателство на живо: T(n) = 3n² + 5n + 7 = Θ(n²). Намери c₁, c₂ и n₀. Опитай c₁ = 3, c₂ = 4 — кое е минималното n₀?</p>
   <div id="theta-box"></div>
   <div id="v-theta"></div>
@@ -484,6 +481,9 @@
     const pr = h("input", { type: "range", min: -1, max: 9, value: 4, "aria-label": "позиция", style: { width: "200px" }, oninput: () => { lsApi.setValues({ pos: pr.value }); lsApi.apply(); lsApi.go(lsApi.frames.length - 1); } });
     lsApi.root.querySelector(".viz-inputs").prepend(h("label", { class: "field" }, h("span", { text: "плъзгач: позиция (−1 = липсва)" }), pr));
     lsApi.root.querySelector("#ls-n").addEventListener("change", (e) => { pr.max = Math.max(0, +e.target.value - 1); });
+
+    /* O, Ω, Θ, o, ω — лаборатория (js/ch03_asym.js) */
+    if (S.asymLab) S.asymLab(root.querySelector("#asym-host"));
 
     /* Θ */
     let thApi = null;
