@@ -112,12 +112,121 @@
     return null;
   }
   S.glossLookup = glossLookup;
+  // Подбрани външни справки за основните понятия. Българската Wikipedia е
+  // предпочетена, когато има подходяща статия; иначе се използва английската.
+  const TERM_SOURCES = Object.freeze({
+    // 1. Компютърни архитектури
+    "архитектура": "https://bg.wikipedia.org/wiki/Компютърна_архитектура",
+    "микроархитектура": "https://en.wikipedia.org/wiki/Microarchitecture",
+    "isa": "https://en.wikipedia.org/wiki/Instruction_set_architecture",
+    "фон нойман": "https://en.wikipedia.org/wiki/Von_Neumann_architecture",
+    "харвард": "https://en.wikipedia.org/wiki/Harvard_architecture",
+    "cpu": "https://en.wikipedia.org/wiki/Central_processing_unit",
+    // 2. Операционни системи
+    "операционна система": "https://bg.wikipedia.org/wiki/Операционна_система",
+    "ядро": "https://en.wikipedia.org/wiki/Kernel_(operating_system)",
+    "системно извикване": "https://en.wikipedia.org/wiki/System_call",
+    "процес": "https://en.wikipedia.org/wiki/Process_(computing)",
+    "нишка": "https://en.wikipedia.org/wiki/Thread_(computing)",
+    "виртуален адрес": "https://en.wikipedia.org/wiki/Virtual_address",
+    "взаимно блокиране": "https://en.wikipedia.org/wiki/Deadlock_(computer_science)",
+    // 3. ООП
+    "клас": "https://en.wikipedia.org/wiki/Class_(computer_programming)",
+    "обект": "https://en.wikipedia.org/wiki/Object_(computer_science)",
+    "абстракция": "https://en.wikipedia.org/wiki/Abstraction_(computer_science)",
+    "капсулиране": "https://en.wikipedia.org/wiki/Encapsulation_(computer_programming)",
+    "наследяване": "https://en.wikipedia.org/wiki/Inheritance_(object-oriented_programming)",
+    "полиморфизъм": "https://en.wikipedia.org/wiki/Polymorphism_(computer_science)",
+    // 4. Структури от данни
+    "абстрактен тип данни": "https://en.wikipedia.org/wiki/Abstract_data_type",
+    "структура от данни": "https://bg.wikipedia.org/wiki/Структура_от_данни",
+    "стек": "https://en.wikipedia.org/wiki/Stack_(abstract_data_type)",
+    "опашка": "https://en.wikipedia.org/wiki/Queue_(abstract_data_type)",
+    "едносвързан списък": "https://en.wikipedia.org/wiki/Linked_list",
+    // 5. Алгоритми
+    "алгоритъм": "https://bg.wikipedia.org/wiki/Алгоритъм",
+    "изчислимост": "https://en.wikipedia.org/wiki/Computability_theory",
+    "машина на тюринг": "https://en.wikipedia.org/wiki/Turing_machine",
+    "проблем за спирането": "https://en.wikipedia.org/wiki/Halting_problem",
+    "o": "https://en.wikipedia.org/wiki/Big_O_notation",
+    "рекурсия": "https://en.wikipedia.org/wiki/Recursion_(computer_science)",
+    "динамично програмиране": "https://en.wikipedia.org/wiki/Dynamic_programming",
+    // 6. Бази от данни
+    "база от данни": "https://bg.wikipedia.org/wiki/База_данни",
+    "субд": "https://en.wikipedia.org/wiki/Database_management_system",
+    "релация": "https://en.wikipedia.org/wiki/Relational_model",
+    "sql": "https://en.wikipedia.org/wiki/SQL",
+    "нормализация": "https://en.wikipedia.org/wiki/Database_normalization",
+    "транзакция": "https://en.wikipedia.org/wiki/Database_transaction",
+    // 7. Информационни системи
+    "информационна система": "https://bg.wikipedia.org/wiki/Информационна_система",
+    "erp": "https://en.wikipedia.org/wiki/Enterprise_resource_planning",
+    "crm": "https://en.wikipedia.org/wiki/Customer_relationship_management",
+    "dss": "https://en.wikipedia.org/wiki/Decision_support_system",
+    "жизнен цикъл": "https://en.wikipedia.org/wiki/Systems_development_life_cycle",
+    // 8. Интелигентни системи
+    "ai": "https://bg.wikipedia.org/wiki/Изкуствен_интелект",
+    "агент": "https://en.wikipedia.org/wiki/Intelligent_agent",
+    "евристика": "https://en.wikipedia.org/wiki/Heuristic_(computer_science)",
+    "a*": "https://en.wikipedia.org/wiki/A*_search_algorithm",
+    "bfs": "https://en.wikipedia.org/wiki/Breadth-first_search",
+    "dfs": "https://en.wikipedia.org/wiki/Depth-first_search",
+    "minimax": "https://en.wikipedia.org/wiki/Minimax",
+    "експертна система": "https://en.wikipedia.org/wiki/Expert_system",
+    // 9. Компютърна сигурност
+    "cia": "https://en.wikipedia.org/wiki/CIA_triad",
+    "уязвимост": "https://en.wikipedia.org/wiki/Vulnerability_(computing)",
+    "удостоверяване": "https://en.wikipedia.org/wiki/Authentication",
+    "оторизация": "https://en.wikipedia.org/wiki/Authorization",
+    "социално инженерство": "https://en.wikipedia.org/wiki/Social_engineering_(security)",
+    "phishing": "https://bg.wikipedia.org/wiki/Фишинг",
+    "spear phishing": "https://en.wikipedia.org/wiki/Phishing#Spear_phishing",
+    "vishing": "https://en.wikipedia.org/wiki/Phishing#Voice_phishing",
+    "smishing": "https://en.wikipedia.org/wiki/Phishing#SMS_phishing",
+    "pretexting": "https://en.wikipedia.org/wiki/Social_engineering_(security)#Pretexting",
+    "baiting": "https://en.wikipedia.org/wiki/Social_engineering_(security)#Baiting",
+    "tailgating": "https://en.wikipedia.org/wiki/Social_engineering_(security)#Tailgating_(piggybacking)",
+    "защитна стена": "https://en.wikipedia.org/wiki/Firewall_(computing)",
+    // 10. Криптография
+    "криптография": "https://bg.wikipedia.org/wiki/Криптография",
+    "криптоанализ": "https://en.wikipedia.org/wiki/Cryptanalysis",
+    "шифроване": "https://en.wikipedia.org/wiki/Encryption",
+    "цезаров шифър": "https://en.wikipedia.org/wiki/Caesar_cipher",
+    "виженер": "https://en.wikipedia.org/wiki/Vigen%C3%A8re_cipher",
+    "честотен анализ": "https://en.wikipedia.org/wiki/Frequency_analysis",
+    "цифров подпис": "https://en.wikipedia.org/wiki/Digital_signature",
+    // 11. Компютърни мрежи
+    "протокол": "https://en.wikipedia.org/wiki/Communication_protocol",
+    "lan": "https://en.wikipedia.org/wiki/Local_area_network",
+    "топология": "https://en.wikipedia.org/wiki/Network_topology",
+    "клиент–сървър": "https://en.wikipedia.org/wiki/Client%E2%80%93server_model",
+    "peer-to-peer": "https://en.wikipedia.org/wiki/Peer-to-peer",
+    "osi": "https://en.wikipedia.org/wiki/OSI_model",
+    "ip": "https://en.wikipedia.org/wiki/Internet_Protocol",
+    "tcp": "https://en.wikipedia.org/wiki/Transmission_Control_Protocol",
+    "udp": "https://en.wikipedia.org/wiki/User_Datagram_Protocol",
+    "dns": "https://en.wikipedia.org/wiki/Domain_Name_System",
+    "http": "https://en.wikipedia.org/wiki/HTTP",
+    "bluetooth": "https://en.wikipedia.org/wiki/Bluetooth"
+  });
+  function sourceFor(key) { return TERM_SOURCES[String(key).toLowerCase().trim()] || null; }
+  function sourceLabel(url) {
+    return url.includes("bg.wikipedia.org") ? "Уикипедия на български" : "Wikipedia in English";
+  }
+  function sourceLink(url, term) {
+    const title = sourceLabel(url);
+    return h("a", {
+      class: "term-source", href: url, target: "_blank", rel: "noopener noreferrer",
+      title, "aria-label": `${title}: ${term}`
+    }, "↗");
+  }
   function showTip(target) {
     const g = glossLookup(target.dataset.g);
     if (!g) { console.warn("Липсва в речника:", target.dataset.g); return; }
     hideTip();
+    const url = sourceFor(target.dataset.g);
     tipEl = h("div", { class: "gtip", role: "tooltip" },
-      h("b", { text: g.t }),
+      h("span", { class: "gtip-title" }, h("b", { text: g.t }), url ? sourceLink(url, g.t) : null),
       g.en ? h("span", { class: "en", text: g.en }) : null,
       h("span", { html: g.d }),
       g.more ? h("span", { class: "more", html: g.more }) : null);
@@ -142,8 +251,15 @@
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideTip(); closeDrawer(); } });
     window.addEventListener("scroll", hideTip, { passive: true });
   }
-  // направи всички dfn фокусируеми (клавиатура / таб)
-  function prepDfn(root) { root.querySelectorAll("dfn[data-g]").forEach((d) => d.setAttribute("tabindex", "0")); }
+  // Направи всички dfn фокусируеми и добави само икона към проверената справка.
+  function prepDfn(root) {
+    root.querySelectorAll("dfn[data-g]").forEach((d) => {
+      d.setAttribute("tabindex", "0");
+      const url = sourceFor(d.dataset.g);
+      if (!url || d.closest("button, a") || (d.nextElementSibling && d.nextElementSibling.classList.contains("term-source"))) return;
+      d.insertAdjacentElement("afterend", sourceLink(url, d.textContent.trim()));
+    });
+  }
 
   let drawer = null;
   function closeDrawer() { if (drawer) drawer.remove(); drawer = null; }

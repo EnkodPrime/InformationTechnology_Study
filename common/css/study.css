@@ -168,6 +168,16 @@ dfn[data-g] {
   font-style: normal; border-bottom: 1.5px dotted var(--accent); cursor: help; color: inherit;
 }
 dfn[data-g]:hover, dfn[data-g]:focus { background: var(--accent-soft); outline: none; }
+.term-source {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.05em; height: 1.05em; margin-left: .16em; vertical-align: .08em;
+  border: 1px solid var(--line); border-radius: 50%; color: var(--accent);
+  font-family: var(--mono); font-size: .72em; font-weight: 700; line-height: 1;
+  text-decoration: none;
+}
+.term-source:hover, .term-source:focus { background: var(--accent-soft); border-color: var(--accent); outline: none; }
+.gtip-title { display: inline-flex; align-items: center; gap: .28em; }
+.gtip-title .term-source { margin-left: 0; font-size: .8em; }
 .gtip {
   position: fixed; z-index: 60; max-width: min(360px, calc(100vw - 32px));
   background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r);
