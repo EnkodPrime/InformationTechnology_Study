@@ -224,9 +224,8 @@
     const g = glossLookup(target.dataset.g);
     if (!g) { console.warn("Липсва в речника:", target.dataset.g); return; }
     hideTip();
-    const url = sourceFor(target.dataset.g);
     tipEl = h("div", { class: "gtip", role: "tooltip" },
-      h("span", { class: "gtip-title" }, h("b", { text: g.t }), url ? sourceLink(url, g.t) : null),
+      h("b", { text: g.t }),
       g.en ? h("span", { class: "en", text: g.en }) : null,
       h("span", { html: g.d }),
       g.more ? h("span", { class: "more", html: g.more }) : null);
@@ -261,8 +260,22 @@
     root.querySelectorAll("dfn[data-g]").forEach((d) => {
       d.setAttribute("tabindex", "0");
       const url = sourceFor(d.dataset.g);
-      if (!url || d.closest("button, a") || (d.nextElementSibling && d.nextElementSibling.classList.contains("term-source"))) return;
-      d.insertAdjacentElement("afterend", sourceLink(url, d.textContent.trim()));
+      if (!url || d.closest("a")) return;
+      const button = d.closest("button");
+      if (button) {
+        let wrap = button.parentElement;
+        if (!wrap.classList.contains("term-source-card-wrap")) {
+          const parent = wrap;
+          wrap = h("span", { class: "term-source-card-wrap" });
+          parent.insertBefore(wrap, button);
+          wrap.append(button);
+        }
+        let links = wrap.querySelector(".term-source-card-links");
+        if (!links) { links = h("span", { class: "term-source-card-links" }); wrap.append(links); }
+        if (![...links.querySelectorAll("a")].some((a) => a.href === url)) links.append(sourceLink(url, d.textContent.trim()));
+        return;
+      }
+      if (!(d.nextElementSibling && d.nextElementSibling.classList.contains("term-source"))) d.insertAdjacentElement("afterend", sourceLink(url, d.textContent.trim()));
     });
   }
 

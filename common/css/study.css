@@ -176,8 +176,10 @@ dfn[data-g]:hover, dfn[data-g]:focus { background: var(--accent-soft); outline: 
   text-decoration: none;
 }
 .term-source:hover, .term-source:focus { background: var(--accent-soft); border-color: var(--accent); outline: none; }
-.gtip-title { display: inline-flex; align-items: center; gap: .28em; }
-.gtip-title .term-source { margin-left: 0; font-size: .8em; }
+.term-source-card-wrap { position: relative; display: block; min-width: 0; }
+.term-source-card-wrap > .card { width: 100%; height: 100%; padding-right: 38px; }
+.term-source-card-links { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; }
+.term-source-card-links .term-source { margin-left: 0; font-size: .78em; }
 .gtip {
   position: fixed; z-index: 60; max-width: min(360px, calc(100vw - 32px));
   background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r);
