@@ -21,9 +21,10 @@
 ├─ Криптоанализ
 │  └─ 7 Честотен анализ и еднократна лента ch07_chestoti.js       хистограми; честотно предположение; OTP; повторен ключ; изменение на бит
 ├─ Допълнение
-│  └─ 8 Съвременна криптография            ch08_savremenna.js     роли на ключа (шифроване/хеш/MAC/подпис/AEAD); колизии
+│  ├─ 8 Съвременна криптография            ch08_savremenna.js     роли на ключа (шифроване/хеш/MAC/подпис/AEAD); колизии
+│  └─ 9 Асиметрични ключове                ch09_asimetrichni.js   ключова двойка; RSA (Евклид, степенуване); Дифи–Хелман; MITM; разлагане
 └─ Систематизация
-   └─ 9 Систематизация и опорен план       ch09_sistematizacia.js
+   └─ 10 Систематизация и опорен план      ch10_sistematizacia.js
 ```
 
 `js/alpha.js` — обща азбука (латиница A–Z, m = 26 / българска А–Я, m = 30) и рисуване; огледало на `c/alpha.h`.
@@ -40,6 +41,7 @@ c/04_transposition.c    col_encrypt / col_decrypt, rail_*, route_*
 c/05_caesar_affine.c    caesar_*, chi2, caesar_bruteforce, mono_*, affine_*
 c/06_vigenere.c         vig_*, kasiski, kasiski_votes, ic, ic_period, vig_crack
 c/07_freq_otp.c         rank_letters, freq_guess, xor_bytes
+c/08_asym.c             mod_inverse (разширен Евклид), mod_pow, factor — RSA и Дифи–Хелман с малки числа
 ```
 
 Компилиране: `gcc -std=c11 -Wall -Wextra -Werror -O2 c/05_caesar_affine.c -o cz -lm && ./cz`
@@ -48,7 +50,7 @@ c/07_freq_otp.c         rank_letters, freq_guess, xor_bytes
 ## Проверка
 
 ```
-sh tools/run_tests.sh Tema_10_Kriptografia      # 218 сверки JS ↔ C, 0 разлики
+sh tools/run_tests.sh Tema_10_Kriptografia      # 306 сверки JS ↔ C, 0 разлики
 python3 tools/clickall.py Tema_10_Kriptografia  # 0 грешки
 ```
 

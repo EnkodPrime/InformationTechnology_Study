@@ -496,5 +496,71 @@ window.CSRC = {
     4
    ]
   }
+ },
+ "ch09_egcd": {
+  "file": "08_asym.c",
+  "code": "/* Разширен алгоритъм на Евклид: d = e^−1 mod φ.\n   Инвариант на всеки ред: r = e·s (mod φ). Когато r = 1, s е обратният. */\ni64 mod_inverse(i64 e, i64 phi)\n{\n    i64 r0 = phi, r1 = e;\n    i64 s0 = 0, s1 = 1;\n    while (r1 != 0) {\n        i64 q = r0 / r1;\n        i64 r2 = r0 - q * r1;  r0 = r1;  r1 = r2;\n        i64 s2 = s0 - q * s1;  s0 = s1;  s1 = s2;\n    }\n    if (r0 != 1) return -1;  /* НОД ≠ 1: няма */\n    return s0 < 0 ? s0 + phi : s0;\n}",
+  "tags": {
+   "init": [
+    5
+   ],
+   "loop": [
+    7
+   ],
+   "q": [
+    8
+   ],
+   "step": [
+    9
+   ],
+   "gcd": [
+    12
+   ],
+   "done": [
+    13
+   ]
+  }
+ },
+ "ch09_modpow": {
+  "file": "08_asym.c",
+  "code": "/* Бързо степенуване (квадрат и умножение), битовете на k отдясно наляво.\n   O(log k) умножения вместо k − 1. */\nu64 mod_pow(u64 b, u64 k, u64 n)\n{\n    u64 r = 1 % n;\n    b %= n;\n    while (k > 0) {\n        if (k & 1)\n            r = r * b % n;\n        b = b * b % n;\n        k >>= 1;\n    }\n    return r;\n}",
+  "tags": {
+   "init": [
+    5
+   ],
+   "loop": [
+    7
+   ],
+   "bit": [
+    8
+   ],
+   "mul": [
+    9
+   ],
+   "sq": [
+    10
+   ],
+   "done": [
+    13
+   ]
+  }
+ },
+ "ch09_factor": {
+  "file": "08_asym.c",
+  "code": "/* Нападателят знае само (n, e). Ако разложи n = p·q, пресмята φ и d.\n   Пробно делене: до √n опита — безнадеждно при n с 2048 бита. */\nu64 factor(u64 n)\n{\n    if (n % 2 == 0) return 2;\n    for (u64 f = 3; f * f <= n; f += 2)\n        if (n % f == 0)\n            return f;\n    return n;\n}",
+  "tags": {
+   "even": [
+    5
+   ],
+   "try": [
+    6
+   ],
+   "hit": [
+    7
+   ],
+   "prime": [
+    9
+   ]
+  }
  }
 };

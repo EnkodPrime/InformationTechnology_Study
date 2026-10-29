@@ -1,4 +1,4 @@
-/* Раздел 11 — Систематизация, изяснени въпроси и опорен опорен план. */
+/* Раздел 11 — Систематизация, изяснени въпроси и опорен план. */
 (function () {
   const S = window.Study, h = S.h;
 
@@ -91,7 +91,7 @@
 </div>
 
 <div class="block">
-  <h3>d) Опорен опорен план</h3>
+  <h3>d) Опорен план</h3>
   <p class="prose muted">Всяка точка задава понятията, разграниченията и примерите, които да бъдат развити със собствени думи. Реални примери: Microsoft SQL Server, MySQL, Oracle Database и PostgreSQL са RDBMS; SQL е език, а не продукт.</p>
   <div id="plan" style="display:grid;gap:8px"></div>
 </div>
