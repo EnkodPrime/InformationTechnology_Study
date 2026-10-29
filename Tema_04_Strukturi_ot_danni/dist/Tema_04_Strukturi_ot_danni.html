@@ -179,6 +179,18 @@ dfn[data-g] {
   font-style: normal; border-bottom: 1.5px dotted var(--accent); cursor: help; color: inherit;
 }
 dfn[data-g]:hover, dfn[data-g]:focus { background: var(--accent-soft); outline: none; }
+.term-source {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.05em; height: 1.05em; margin-left: .16em; vertical-align: .08em;
+  border: 1px solid var(--line); border-radius: 50%; color: var(--accent);
+  font-family: var(--mono); font-size: .72em; font-weight: 700; line-height: 1;
+  text-decoration: none;
+}
+.term-source:hover, .term-source:focus { background: var(--accent-soft); border-color: var(--accent); outline: none; }
+.term-source-card-wrap { position: relative; display: block; min-width: 0; }
+.term-source-card-wrap > .card { width: 100%; height: 100%; padding-right: 38px; }
+.term-source-card-links { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; }
+.term-source-card-links .term-source { margin-left: 0; font-size: .78em; }
 .gtip {
   position: fixed; z-index: 60; max-width: min(360px, calc(100vw - 32px));
   background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r);
@@ -492,6 +504,19 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     return null;
   }
   S.glossLookup = glossLookup;
+  // Справки в Уикипедия за понятията — по тема, в js/sources.js (window.TERM_SOURCES).
+  // Българската Уикипедия е предпочетена, когато има статия за същото понятие; иначе английската.
+  function sourceFor(key) { return (window.TERM_SOURCES || {})[String(key).toLowerCase().trim()] || null; }
+  function sourceLabel(url) {
+    return url.includes("bg.wikipedia.org") ? "Уикипедия на български" : "Wikipedia in English";
+  }
+  function sourceLink(url, term) {
+    const title = sourceLabel(url);
+    return h("a", {
+      class: "term-source", href: url, target: "_blank", rel: "noopener noreferrer",
+      title, "aria-label": `${title}: ${term}`
+    }, "↗");
+  }
   function showTip(target) {
     const g = glossLookup(target.dataset.g);
     if (!g) { console.warn("Липсва в речника:", target.dataset.g); return; }
@@ -512,9 +537,14 @@ canvas.chart { width: 100%; height: 320px; display: block; }
   function hideTip() { if (tipEl) tipEl.remove(); tipEl = null; tipFor = null; }
   function bindGlossary() {
     document.addEventListener("mouseover", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && d !== tipFor) showTip(d); });
-    document.addEventListener("mouseout", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && !d.contains(e.relatedTarget)) hideTip(); });
+    document.addEventListener("mouseout", (e) => {
+      const d = e.target.closest("dfn[data-g]");
+      if (d && !d.contains(e.relatedTarget) && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("focusin", (e) => { const d = e.target.closest("dfn[data-g]"); if (d) showTip(d); });
-    document.addEventListener("focusout", (e) => { if (e.target.closest("dfn[data-g]")) hideTip(); });
+    document.addEventListener("focusout", (e) => {
+      if (e.target.closest("dfn[data-g]") && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("click", (e) => {
       const d = e.target.closest("dfn[data-g]");
       if (d) { e.preventDefault(); if (tipFor === d) hideTip(); else showTip(d); } else if (!e.target.closest(".gtip")) hideTip();
@@ -522,8 +552,29 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideTip(); closeDrawer(); } });
     window.addEventListener("scroll", hideTip, { passive: true });
   }
-  // направи всички dfn фокусируеми (клавиатура / таб)
-  function prepDfn(root) { root.querySelectorAll("dfn[data-g]").forEach((d) => d.setAttribute("tabindex", "0")); }
+  // Направи всички dfn фокусируеми и добави само икона към проверената справка.
+  function prepDfn(root) {
+    root.querySelectorAll("dfn[data-g]").forEach((d) => {
+      d.setAttribute("tabindex", "0");
+      const url = sourceFor(d.dataset.g);
+      if (!url || d.closest("a")) return;
+      const button = d.closest("button");
+      if (button) {
+        let wrap = button.parentElement;
+        if (!wrap.classList.contains("term-source-card-wrap")) {
+          const parent = wrap;
+          wrap = h("span", { class: "term-source-card-wrap" });
+          parent.insertBefore(wrap, button);
+          wrap.append(button);
+        }
+        let links = wrap.querySelector(".term-source-card-links");
+        if (!links) { links = h("span", { class: "term-source-card-links" }); wrap.append(links); }
+        if (![...links.querySelectorAll("a")].some((a) => a.href === url)) links.append(sourceLink(url, d.textContent.trim()));
+        return;
+      }
+      if (!(d.nextElementSibling && d.nextElementSibling.classList.contains("term-source"))) d.insertAdjacentElement("afterend", sourceLink(url, d.textContent.trim()));
+    });
+  }
 
   let drawer = null;
   function closeDrawer() { if (drawer) drawer.remove(); drawer = null; }
@@ -987,6 +1038,68 @@ window.GLOSSARY = {
   "stl": { cat: "Съкращения", t: "STL", en: "Standard Template Library", d: "Стандартна библиотека от шаблони и свързаните контейнери, алгоритми и итератори.", more: "std::stack, std::queue и std::priority_queue са адаптери; std::forward_list е едносвързан, std::list — двусвързан, std::vector — динамичен масив." },
   "api": { cat: "Съкращения", t: "API", en: "Application Programming Interface", d: "Програмен интерфейс.", more: "Термин от справочника на ръководството. Името на API (напр. Python list) не доказва механизма: Python list е динамичен масив." },
   "rtos": { cat: "Съкращения", t: "RTOS", en: "Real Time Operating System", d: "Операционна система за работа в реално време.", more: "Термин от справочника на ръководството. FreeRTOS Queue добавя синхронизация, копиране на елементи и правила за изчакване — договорът е повече от масив с индекси." },
+};
+
+</script>
+<script>
+/* Справки в Уикипедия за понятията от речника на тема 4.
+   Ключът е същият като в glossary.js. Предпочита се българската Уикипедия, когато има
+   статия за същото понятие; иначе — английската (за подраздел — винаги английската). */
+window.TERM_SOURCES = {
+  "абстрактен тип данни": "https://en.wikipedia.org/wiki/Abstract_data_type",
+  "структура от данни": "https://bg.wikipedia.org/wiki/Структура_от_данни",
+  "инвариант": "https://en.wikipedia.org/wiki/Invariant_(mathematics)#Invariants_in_computer_science",
+  "амортизиран анализ": "https://en.wikipedia.org/wiki/Amortized_analysis",
+  "капацитет": "https://bg.wikipedia.org/wiki/Динамичен_масив",
+  "възел": "https://en.wikipedia.org/wiki/Node_(computer_science)",
+  "стек": "https://bg.wikipedia.org/wiki/Стек_(структура_от_данни)",
+  "lifo": "https://bg.wikipedia.org/wiki/Стек_(структура_от_данни)",
+  "push": "https://bg.wikipedia.org/wiki/Стек_(структура_от_данни)",
+  "pop": "https://bg.wikipedia.org/wiki/Стек_(структура_от_данни)",
+  "опашка": "https://bg.wikipedia.org/wiki/Опашка_(абстрактен_тип_данни)",
+  "fifo": "https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)",
+  "enqueue": "https://bg.wikipedia.org/wiki/Опашка_(абстрактен_тип_данни)",
+  "dequeue": "https://bg.wikipedia.org/wiki/Опашка_(абстрактен_тип_данни)",
+  "кръгов буфер": "https://en.wikipedia.org/wiki/Circular_buffer",
+  "дек": "https://en.wikipedia.org/wiki/Double-ended_queue",
+  "приоритетна опашка": "https://bg.wikipedia.org/wiki/Приоритетна_опашка",
+  "едносвързан списък": "https://en.wikipedia.org/wiki/Linked_list#Singly_linked_list",
+  "двусвързан списък": "https://bg.wikipedia.org/wiki/Двойносвързан_списък",
+  "кръгов списък": "https://en.wikipedia.org/wiki/Linked_list#Circularly_linked_list",
+  "сентинел": "https://en.wikipedia.org/wiki/Sentinel_value",
+  "корен": "https://en.wikipedia.org/wiki/Tree_(abstract_data_type)#Terminology",
+  "лист": "https://en.wikipedia.org/wiki/Tree_(abstract_data_type)#Terminology",
+  "поддърво": "https://en.wikipedia.org/wiki/Tree_(abstract_data_type)#Terminology",
+  "потомък": "https://en.wikipedia.org/wiki/Tree_(abstract_data_type)#Terminology",
+  "дълбочина": "https://en.wikipedia.org/wiki/Tree_(abstract_data_type)#Terminology",
+  "височина": "https://en.wikipedia.org/wiki/Tree_(abstract_data_type)#Terminology",
+  "двоично дърво": "https://bg.wikipedia.org/wiki/Двоично_дърво",
+  "bst": "https://bg.wikipedia.org/wiki/Двоично_дърво_за_търсене",
+  "предреден обход": "https://en.wikipedia.org/wiki/Tree_traversal#Pre-order,_NLR",
+  "симетричен обход": "https://en.wikipedia.org/wiki/Tree_traversal#In-order,_LNR",
+  "следреден обход": "https://en.wikipedia.org/wiki/Tree_traversal#Post-order,_LRN",
+  "обход по нива": "https://en.wikipedia.org/wiki/Tree_traversal#Breadth-first_search",
+  "full binary tree": "https://en.wikipedia.org/wiki/Binary_tree#Types_of_binary_trees",
+  "complete binary tree": "https://en.wikipedia.org/wiki/Binary_tree#Types_of_binary_trees",
+  "perfect binary tree": "https://en.wikipedia.org/wiki/Binary_tree#Types_of_binary_trees",
+  "ротация": "https://en.wikipedia.org/wiki/Tree_rotation",
+  "avl": "https://bg.wikipedia.org/wiki/АВЛ_Дърво",
+  "balance factor": "https://en.wikipedia.org/wiki/AVL_tree#Balance_factor",
+  "red-black tree": "https://bg.wikipedia.org/wiki/Червено-черно_дърво",
+  "binary heap": "https://en.wikipedia.org/wiki/Binary_heap",
+  "min-heap": "https://en.wikipedia.org/wiki/Heap_(data_structure)",
+  "max-heap": "https://en.wikipedia.org/wiki/Heap_(data_structure)",
+  "b-tree": "https://en.wikipedia.org/wiki/B-tree",
+  "b+ tree": "https://en.wikipedia.org/wiki/B+_tree",
+  "trie": "https://en.wikipedia.org/wiki/Trie",
+  "split": "https://en.wikipedia.org/wiki/B-tree#Insertion",
+  "nil": "https://en.wikipedia.org/wiki/Null_pointer",
+  "атд": "https://en.wikipedia.org/wiki/Abstract_data_type",
+  "bfs": "https://bg.wikipedia.org/wiki/Обхождане_в_ширина",
+  "dfs": "https://bg.wikipedia.org/wiki/Обхождане_в_дълбочина",
+  "stl": "https://bg.wikipedia.org/wiki/STL",
+  "api": "https://bg.wikipedia.org/wiki/Приложно-програмен_интерфейс",
+  "rtos": "https://bg.wikipedia.org/wiki/Реално-времева_операционна_система"
 };
 
 </script>

@@ -179,6 +179,18 @@ dfn[data-g] {
   font-style: normal; border-bottom: 1.5px dotted var(--accent); cursor: help; color: inherit;
 }
 dfn[data-g]:hover, dfn[data-g]:focus { background: var(--accent-soft); outline: none; }
+.term-source {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.05em; height: 1.05em; margin-left: .16em; vertical-align: .08em;
+  border: 1px solid var(--line); border-radius: 50%; color: var(--accent);
+  font-family: var(--mono); font-size: .72em; font-weight: 700; line-height: 1;
+  text-decoration: none;
+}
+.term-source:hover, .term-source:focus { background: var(--accent-soft); border-color: var(--accent); outline: none; }
+.term-source-card-wrap { position: relative; display: block; min-width: 0; }
+.term-source-card-wrap > .card { width: 100%; height: 100%; padding-right: 38px; }
+.term-source-card-links { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; }
+.term-source-card-links .term-source { margin-left: 0; font-size: .78em; }
 .gtip {
   position: fixed; z-index: 60; max-width: min(360px, calc(100vw - 32px));
   background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r);
@@ -492,6 +504,19 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     return null;
   }
   S.glossLookup = glossLookup;
+  // Справки в Уикипедия за понятията — по тема, в js/sources.js (window.TERM_SOURCES).
+  // Българската Уикипедия е предпочетена, когато има статия за същото понятие; иначе английската.
+  function sourceFor(key) { return (window.TERM_SOURCES || {})[String(key).toLowerCase().trim()] || null; }
+  function sourceLabel(url) {
+    return url.includes("bg.wikipedia.org") ? "Уикипедия на български" : "Wikipedia in English";
+  }
+  function sourceLink(url, term) {
+    const title = sourceLabel(url);
+    return h("a", {
+      class: "term-source", href: url, target: "_blank", rel: "noopener noreferrer",
+      title, "aria-label": `${title}: ${term}`
+    }, "↗");
+  }
   function showTip(target) {
     const g = glossLookup(target.dataset.g);
     if (!g) { console.warn("Липсва в речника:", target.dataset.g); return; }
@@ -512,9 +537,14 @@ canvas.chart { width: 100%; height: 320px; display: block; }
   function hideTip() { if (tipEl) tipEl.remove(); tipEl = null; tipFor = null; }
   function bindGlossary() {
     document.addEventListener("mouseover", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && d !== tipFor) showTip(d); });
-    document.addEventListener("mouseout", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && !d.contains(e.relatedTarget)) hideTip(); });
+    document.addEventListener("mouseout", (e) => {
+      const d = e.target.closest("dfn[data-g]");
+      if (d && !d.contains(e.relatedTarget) && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("focusin", (e) => { const d = e.target.closest("dfn[data-g]"); if (d) showTip(d); });
-    document.addEventListener("focusout", (e) => { if (e.target.closest("dfn[data-g]")) hideTip(); });
+    document.addEventListener("focusout", (e) => {
+      if (e.target.closest("dfn[data-g]") && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("click", (e) => {
       const d = e.target.closest("dfn[data-g]");
       if (d) { e.preventDefault(); if (tipFor === d) hideTip(); else showTip(d); } else if (!e.target.closest(".gtip")) hideTip();
@@ -522,8 +552,29 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideTip(); closeDrawer(); } });
     window.addEventListener("scroll", hideTip, { passive: true });
   }
-  // направи всички dfn фокусируеми (клавиатура / таб)
-  function prepDfn(root) { root.querySelectorAll("dfn[data-g]").forEach((d) => d.setAttribute("tabindex", "0")); }
+  // Направи всички dfn фокусируеми и добави само икона към проверената справка.
+  function prepDfn(root) {
+    root.querySelectorAll("dfn[data-g]").forEach((d) => {
+      d.setAttribute("tabindex", "0");
+      const url = sourceFor(d.dataset.g);
+      if (!url || d.closest("a")) return;
+      const button = d.closest("button");
+      if (button) {
+        let wrap = button.parentElement;
+        if (!wrap.classList.contains("term-source-card-wrap")) {
+          const parent = wrap;
+          wrap = h("span", { class: "term-source-card-wrap" });
+          parent.insertBefore(wrap, button);
+          wrap.append(button);
+        }
+        let links = wrap.querySelector(".term-source-card-links");
+        if (!links) { links = h("span", { class: "term-source-card-links" }); wrap.append(links); }
+        if (![...links.querySelectorAll("a")].some((a) => a.href === url)) links.append(sourceLink(url, d.textContent.trim()));
+        return;
+      }
+      if (!(d.nextElementSibling && d.nextElementSibling.classList.contains("term-source"))) d.insertAdjacentElement("afterend", sourceLink(url, d.textContent.trim()));
+    });
+  }
 
   let drawer = null;
   function closeDrawer() { if (drawer) drawer.remove(); drawer = null; }
@@ -986,6 +1037,66 @@ window.GLOSSARY = {
   "твърда връзка": { cat: "Файлови системи (от ръководството)", t: "Твърда връзка", en: "Hard link", d: "Друго име на същия файлов обект.", more: "Две твърди връзки могат да именуват един inode." },
   "символна връзка": { cat: "Файлови системи (от ръководството)", t: "Символна връзка", en: "Symbolic link", d: "Отделен обект, който съдържа път към цел.", more: "Може да сочи към вече несъществуващо име." },
   "файлов дескриптор": { cat: "Файлови системи (от ръководството)", t: "Дескриптор за отворен файл", en: "File descriptor", d: "Управляван от ОС идентификатор, свързан с достъп и състояние; не е самото съдържание на файла.", more: "Две отваряния на един файл могат да имат различни позиции за четене." },
+};
+
+</script>
+<script>
+/* Справки в Уикипедия за понятията от речника на тема 2.
+   Ключът е същият като в glossary.js. Предпочита се българската Уикипедия, когато има
+   статия за същото понятие; иначе — английската (за подраздел — винаги английската). */
+window.TERM_SOURCES = {
+  "операционна система": "https://bg.wikipedia.org/wiki/Операционна_система",
+  "ядро": "https://bg.wikipedia.org/wiki/Ядро_(операционна_система)",
+  "системно извикване": "https://en.wikipedia.org/wiki/System_call",
+  "api": "https://bg.wikipedia.org/wiki/Приложно-програмен_интерфейс",
+  "abi": "https://en.wikipedia.org/wiki/Application_binary_interface",
+  "posix": "https://bg.wikipedia.org/wiki/POSIX",
+  "os": "https://bg.wikipedia.org/wiki/Операционна_система",
+  "rtos": "https://bg.wikipedia.org/wiki/Реално-времева_операционна_система",
+  "cpu": "https://bg.wikipedia.org/wiki/Централен_процесор",
+  "ram": "https://bg.wikipedia.org/wiki/Памет_с_произволен_достъп",
+  "dma": "https://bg.wikipedia.org/wiki/Директен_достъп_до_паметта",
+  "mmu": "https://en.wikipedia.org/wiki/Memory_management_unit",
+  "привилегирован режим": "https://en.wikipedia.org/wiki/User_space_and_kernel_space",
+  "монолитно ядро": "https://en.wikipedia.org/wiki/Monolithic_kernel",
+  "микроядро": "https://bg.wikipedia.org/wiki/Микроядро",
+  "процес": "https://bg.wikipedia.org/wiki/Процес_(информатика)",
+  "нишка": "https://en.wikipedia.org/wiki/Thread_(computing)",
+  "pcb": "https://en.wikipedia.org/wiki/Process_control_block",
+  "контекст": "https://en.wikipedia.org/wiki/Context_switch",
+  "готов процес": "https://en.wikipedia.org/wiki/Process_state#Ready",
+  "блокиран процес": "https://en.wikipedia.org/wiki/Process_state#Blocked",
+  "квант": "https://en.wikipedia.org/wiki/Preemption_(computing)#Time_slice",
+  "изпреварване": "https://en.wikipedia.org/wiki/Preemption_(computing)",
+  "fcfs": "https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)",
+  "sjf": "https://en.wikipedia.org/wiki/Shortest_job_next",
+  "rr": "https://en.wikipedia.org/wiki/Round-robin_scheduling",
+  "критичен участък": "https://en.wikipedia.org/wiki/Critical_section",
+  "мютекс": "https://en.wikipedia.org/wiki/Lock_(computer_science)",
+  "семафор": "https://en.wikipedia.org/wiki/Semaphore_(programming)",
+  "условна променлива": "https://en.wikipedia.org/wiki/Monitor_(synchronization)#Condition_variables",
+  "взаимно блокиране": "https://en.wikipedia.org/wiki/Deadlock_(computer_science)",
+  "гладуване": "https://bg.wikipedia.org/wiki/Ресурсен_глад_(компютърни_науки)",
+  "състезание за данни": "https://en.wikipedia.org/wiki/Race_condition#Data_race",
+  "livelock": "https://en.wikipedia.org/wiki/Deadlock_(computer_science)#Livelock",
+  "безопасно състояние": "https://en.wikipedia.org/wiki/Banker's_algorithm#Safe_and_unsafe_states",
+  "виртуален адрес": "https://en.wikipedia.org/wiki/Virtual_address_space",
+  "страница": "https://en.wikipedia.org/wiki/Page_(computer_memory)",
+  "рамка": "https://en.wikipedia.org/wiki/Page_(computer_memory)",
+  "tlb": "https://en.wikipedia.org/wiki/Translation_lookaside_buffer",
+  "page fault": "https://en.wikipedia.org/wiki/Page_fault",
+  "copy-on-write": "https://en.wikipedia.org/wiki/Copy-on-write",
+  "фрагментация": "https://en.wikipedia.org/wiki/Fragmentation_(computing)",
+  "работно множество": "https://en.wikipedia.org/wiki/Working_set",
+  "thrashing": "https://en.wikipedia.org/wiki/Thrashing_(computer_science)",
+  "fifo": "https://en.wikipedia.org/wiki/Page_replacement_algorithm#First-in,_first-out",
+  "lru": "https://en.wikipedia.org/wiki/Page_replacement_algorithm#Least_recently_used",
+  "файлова система": "https://bg.wikipedia.org/wiki/Файлова_система",
+  "inode": "https://en.wikipedia.org/wiki/Inode",
+  "журнал": "https://bg.wikipedia.org/wiki/Журнална_файлова_система",
+  "твърда връзка": "https://en.wikipedia.org/wiki/Hard_link",
+  "символна връзка": "https://en.wikipedia.org/wiki/Symbolic_link",
+  "файлов дескриптор": "https://en.wikipedia.org/wiki/File_descriptor"
 };
 
 </script>

@@ -179,6 +179,18 @@ dfn[data-g] {
   font-style: normal; border-bottom: 1.5px dotted var(--accent); cursor: help; color: inherit;
 }
 dfn[data-g]:hover, dfn[data-g]:focus { background: var(--accent-soft); outline: none; }
+.term-source {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.05em; height: 1.05em; margin-left: .16em; vertical-align: .08em;
+  border: 1px solid var(--line); border-radius: 50%; color: var(--accent);
+  font-family: var(--mono); font-size: .72em; font-weight: 700; line-height: 1;
+  text-decoration: none;
+}
+.term-source:hover, .term-source:focus { background: var(--accent-soft); border-color: var(--accent); outline: none; }
+.term-source-card-wrap { position: relative; display: block; min-width: 0; }
+.term-source-card-wrap > .card { width: 100%; height: 100%; padding-right: 38px; }
+.term-source-card-links { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; }
+.term-source-card-links .term-source { margin-left: 0; font-size: .78em; }
 .gtip {
   position: fixed; z-index: 60; max-width: min(360px, calc(100vw - 32px));
   background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r);
@@ -492,6 +504,19 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     return null;
   }
   S.glossLookup = glossLookup;
+  // Справки в Уикипедия за понятията — по тема, в js/sources.js (window.TERM_SOURCES).
+  // Българската Уикипедия е предпочетена, когато има статия за същото понятие; иначе английската.
+  function sourceFor(key) { return (window.TERM_SOURCES || {})[String(key).toLowerCase().trim()] || null; }
+  function sourceLabel(url) {
+    return url.includes("bg.wikipedia.org") ? "Уикипедия на български" : "Wikipedia in English";
+  }
+  function sourceLink(url, term) {
+    const title = sourceLabel(url);
+    return h("a", {
+      class: "term-source", href: url, target: "_blank", rel: "noopener noreferrer",
+      title, "aria-label": `${title}: ${term}`
+    }, "↗");
+  }
   function showTip(target) {
     const g = glossLookup(target.dataset.g);
     if (!g) { console.warn("Липсва в речника:", target.dataset.g); return; }
@@ -512,9 +537,14 @@ canvas.chart { width: 100%; height: 320px; display: block; }
   function hideTip() { if (tipEl) tipEl.remove(); tipEl = null; tipFor = null; }
   function bindGlossary() {
     document.addEventListener("mouseover", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && d !== tipFor) showTip(d); });
-    document.addEventListener("mouseout", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && !d.contains(e.relatedTarget)) hideTip(); });
+    document.addEventListener("mouseout", (e) => {
+      const d = e.target.closest("dfn[data-g]");
+      if (d && !d.contains(e.relatedTarget) && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("focusin", (e) => { const d = e.target.closest("dfn[data-g]"); if (d) showTip(d); });
-    document.addEventListener("focusout", (e) => { if (e.target.closest("dfn[data-g]")) hideTip(); });
+    document.addEventListener("focusout", (e) => {
+      if (e.target.closest("dfn[data-g]") && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("click", (e) => {
       const d = e.target.closest("dfn[data-g]");
       if (d) { e.preventDefault(); if (tipFor === d) hideTip(); else showTip(d); } else if (!e.target.closest(".gtip")) hideTip();
@@ -522,8 +552,29 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideTip(); closeDrawer(); } });
     window.addEventListener("scroll", hideTip, { passive: true });
   }
-  // направи всички dfn фокусируеми (клавиатура / таб)
-  function prepDfn(root) { root.querySelectorAll("dfn[data-g]").forEach((d) => d.setAttribute("tabindex", "0")); }
+  // Направи всички dfn фокусируеми и добави само икона към проверената справка.
+  function prepDfn(root) {
+    root.querySelectorAll("dfn[data-g]").forEach((d) => {
+      d.setAttribute("tabindex", "0");
+      const url = sourceFor(d.dataset.g);
+      if (!url || d.closest("a")) return;
+      const button = d.closest("button");
+      if (button) {
+        let wrap = button.parentElement;
+        if (!wrap.classList.contains("term-source-card-wrap")) {
+          const parent = wrap;
+          wrap = h("span", { class: "term-source-card-wrap" });
+          parent.insertBefore(wrap, button);
+          wrap.append(button);
+        }
+        let links = wrap.querySelector(".term-source-card-links");
+        if (!links) { links = h("span", { class: "term-source-card-links" }); wrap.append(links); }
+        if (![...links.querySelectorAll("a")].some((a) => a.href === url)) links.append(sourceLink(url, d.textContent.trim()));
+        return;
+      }
+      if (!(d.nextElementSibling && d.nextElementSibling.classList.contains("term-source"))) d.insertAdjacentElement("afterend", sourceLink(url, d.textContent.trim()));
+    });
+  }
 
   let drawer = null;
   function closeDrawer() { if (drawer) drawer.remove(); drawer = null; }
@@ -1044,6 +1095,123 @@ window.GLOSSARY = {
   "lsb": { cat: "Допълнение", t: "LSB", en: "Least Significant Bit / Byte", d: "Най-малко значим бит или байт според контекста.", more: "" },
   "fpga": { cat: "Допълнение", t: "FPGA", en: "Field Programmable Gate Array", d: "Конфигурируема цифрова логика.", more: "" },
   "asic": { cat: "Допълнение", t: "ASIC", en: "Application Specific Integrated Circuit", d: "Интегрална схема за конкретно приложение.", more: "„Хардуерен ускорител“ описва ролята, а не една задължителна вътрешна архитектура." },
+};
+
+</script>
+<script>
+/* Справки в Уикипедия за понятията от речника на тема 1.
+   Ключът е същият като в glossary.js. Предпочита се българската Уикипедия, когато има
+   статия за същото понятие; иначе — английската (за подраздел — винаги английската). */
+window.TERM_SOURCES = {
+  "архитектура": "https://bg.wikipedia.org/wiki/Компютърна_архитектура",
+  "микроархитектура": "https://bg.wikipedia.org/wiki/Микроархитектура",
+  "isa": "https://bg.wikipedia.org/wiki/Набор_от_инструкции",
+  "фон нойман": "https://bg.wikipedia.org/wiki/Архитектура_на_фон_Нойман",
+  "харвард": "https://bg.wikipedia.org/wiki/Харвардска_архитектура",
+  "смесена организация": "https://en.wikipedia.org/wiki/Modified_Harvard_architecture",
+  "cpu": "https://bg.wikipedia.org/wiki/Централен_процесор",
+  "алу": "https://bg.wikipedia.org/wiki/Аритметично-логическо_устройство",
+  "уу": "https://en.wikipedia.org/wiki/Control_unit",
+  "регистър": "https://bg.wikipedia.org/wiki/Регистър_(компютър)",
+  "брояч на командите": "https://en.wikipedia.org/wiki/Program_counter",
+  "gpr": "https://en.wikipedia.org/wiki/Processor_register#Types",
+  "register file": "https://en.wikipedia.org/wiki/Register_file",
+  "ir": "https://en.wikipedia.org/wiki/Instruction_register",
+  "sp": "https://en.wikipedia.org/wiki/Stack_register",
+  "acc": "https://en.wikipedia.org/wiki/Accumulator_(computing)",
+  "mar": "https://en.wikipedia.org/wiki/Memory_address_register",
+  "mdr": "https://en.wikipedia.org/wiki/Memory_buffer_register",
+  "mux": "https://bg.wikipedia.org/wiki/Мултиплексор",
+  "datapath": "https://en.wikipedia.org/wiki/Datapath",
+  "opcode": "https://en.wikipedia.org/wiki/Opcode",
+  "lsu": "https://en.wikipedia.org/wiki/Load–store_unit",
+  "fpu": "https://en.wikipedia.org/wiki/Floating-point_unit",
+  "carry": "https://bg.wikipedia.org/wiki/Флаг_за_пренос",
+  "signed overflow": "https://en.wikipedia.org/wiki/Overflow_flag",
+  "флаг": "https://en.wikipedia.org/wiki/Status_register",
+  "mcu": "https://bg.wikipedia.org/wiki/Микроконтролер",
+  "soc": "https://bg.wikipedia.org/wiki/Едночипова_система",
+  "ядро": "https://bg.wikipedia.org/wiki/Многоядрен_процесор",
+  "nvic": "https://en.wikipedia.org/wiki/Programmable_interrupt_controller",
+  "ahb": "https://en.wikipedia.org/wiki/Advanced_Microcontroller_Bus_Architecture",
+  "amba": "https://en.wikipedia.org/wiki/Advanced_Microcontroller_Bus_Architecture",
+  "abi": "https://en.wikipedia.org/wiki/Application_binary_interface",
+  "адресна шина": "https://en.wikipedia.org/wiki/Bus_(computing)#Address_bus",
+  "шина за данни": "https://bg.wikipedia.org/wiki/Шина_(компютри)",
+  "управляваща шина": "https://en.wikipedia.org/wiki/Control_bus",
+  "sisd": "https://en.wikipedia.org/wiki/Single_instruction,_single_data",
+  "simd": "https://en.wikipedia.org/wiki/Single_instruction,_multiple_data",
+  "misd": "https://en.wikipedia.org/wiki/Multiple_instruction,_single_data",
+  "mimd": "https://en.wikipedia.org/wiki/Multiple_instruction,_multiple_data",
+  "simt": "https://en.wikipedia.org/wiki/Single_instruction,_multiple_threads",
+  "флин": "https://en.wikipedia.org/wiki/Flynn's_taxonomy",
+  "конкурентност": "https://bg.wikipedia.org/wiki/Конкурентно_програмиране",
+  "паралелност": "https://bg.wikipedia.org/wiki/Паралелни_изчисления",
+  "споделена памет": "https://en.wikipedia.org/wiki/Shared_memory",
+  "разпределена памет": "https://en.wikipedia.org/wiki/Distributed_memory",
+  "gpu": "https://bg.wikipedia.org/wiki/Графичен_процесор",
+  "numa": "https://en.wikipedia.org/wiki/Non-uniform_memory_access",
+  "операнд": "https://en.wikipedia.org/wiki/Operand",
+  "адресен режим": "https://en.wikipedia.org/wiki/Addressing_mode",
+  "ефективен адрес": "https://en.wikipedia.org/wiki/Addressing_mode",
+  "risc": "https://bg.wikipedia.org/wiki/РИСК_архитектура",
+  "cisc": "https://bg.wikipedia.org/wiki/ЦИСК_архитектура",
+  "load/store": "https://en.wikipedia.org/wiki/Load–store_architecture",
+  "зависимост по данни": "https://en.wikipedia.org/wiki/Hazard_(computer_architecture)#Data_hazards",
+  "конвейер": "https://en.wikipedia.org/wiki/Instruction_pipelining",
+  "if": "https://en.wikipedia.org/wiki/Classic_RISC_pipeline#Instruction_fetch",
+  "id": "https://en.wikipedia.org/wiki/Classic_RISC_pipeline#Instruction_decode",
+  "ex": "https://en.wikipedia.org/wiki/Classic_RISC_pipeline#Execute",
+  "mem": "https://en.wikipedia.org/wiki/Classic_RISC_pipeline#Memory_access",
+  "wb": "https://en.wikipedia.org/wiki/Classic_RISC_pipeline#Writeback",
+  "структурен конфликт": "https://en.wikipedia.org/wiki/Hazard_(computer_architecture)#Structural_hazards",
+  "конфликт по управление": "https://en.wikipedia.org/wiki/Hazard_(computer_architecture)#Control_hazards_(branch_hazards)",
+  "препращане": "https://en.wikipedia.org/wiki/Operand_forwarding",
+  "изчакване": "https://en.wikipedia.org/wiki/Pipeline_stall",
+  "предсказване на преходи": "https://en.wikipedia.org/wiki/Branch_predictor",
+  "суперскаларен": "https://en.wikipedia.org/wiki/Superscalar_processor",
+  "извън ред": "https://en.wikipedia.org/wiki/Out-of-order_execution",
+  "латентност": "https://en.wikipedia.org/wiki/Latency_(engineering)",
+  "пропускателна способност": "https://en.wikipedia.org/wiki/Network_throughput",
+  "йерархия на паметта": "https://en.wikipedia.org/wiki/Memory_hierarchy",
+  "кеш": "https://bg.wikipedia.org/wiki/Процесорен_кеш",
+  "кеш линия": "https://en.wikipedia.org/wiki/CPU_cache#Cache_entries",
+  "попадение": "https://en.wikipedia.org/wiki/CPU_cache#Cache_entries",
+  "пропуск": "https://en.wikipedia.org/wiki/CPU_cache#Cache_miss",
+  "времева локалност": "https://bg.wikipedia.org/wiki/Референтна_локалност",
+  "пространствена локалност": "https://bg.wikipedia.org/wiki/Референтна_локалност",
+  "директно съответствие": "https://en.wikipedia.org/wiki/Cache_placement_policies#Direct-mapped_cache",
+  "асоциативен кеш": "https://en.wikipedia.org/wiki/Cache_placement_policies#Set-associative_cache",
+  "write-through": "https://en.wikipedia.org/wiki/Cache_(computing)#Write_policies",
+  "write-back": "https://en.wikipedia.org/wiki/Cache_(computing)#Write_policies",
+  "кеш кохерентност": "https://en.wikipedia.org/wiki/Cache_coherence",
+  "модел на паметта": "https://en.wikipedia.org/wiki/Consistency_model",
+  "amat": "https://en.wikipedia.org/wiki/Average_memory_access_time",
+  "lru": "https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_Recently_Used_(LRU)",
+  "fifo": "https://en.wikipedia.org/wiki/Cache_replacement_policies#First_in_first_out_(FIFO)",
+  "ram": "https://bg.wikipedia.org/wiki/Памет_с_произволен_достъп",
+  "ssd": "https://bg.wikipedia.org/wiki/Полупроводниково_(статично)_дисково_устройство",
+  "hdd": "https://bg.wikipedia.org/wiki/Твърд_диск",
+  "прекъсване": "https://bg.wikipedia.org/wiki/Прекъсване_(компютри)",
+  "програмно запитване": "https://en.wikipedia.org/wiki/Polling_(computer_science)",
+  "dma": "https://bg.wikipedia.org/wiki/Директен_достъп_до_паметта",
+  "драйвер": "https://bg.wikipedia.org/wiki/Драйвер",
+  "контролер": "https://en.wikipedia.org/wiki/Controller_(computing)",
+  "memory-mapped i/o": "https://en.wikipedia.org/wiki/Memory-mapped_I/O_and_port-mapped_I/O",
+  "i/o": "https://bg.wikipedia.org/wiki/Вход-изход",
+  "uart": "https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter",
+  "adc": "https://bg.wikipedia.org/wiki/Аналогово-цифров_преобразувател",
+  "nvme": "https://en.wikipedia.org/wiki/NVM_Express",
+  "gpio": "https://en.wikipedia.org/wiki/General-purpose_input/output",
+  "cpi": "https://en.wikipedia.org/wiki/Cycles_per_instruction",
+  "ускорение": "https://en.wikipedia.org/wiki/Speedup",
+  "закон на амдал": "https://en.wikipedia.org/wiki/Amdahl's_law",
+  "хардуерна нишка": "https://en.wikipedia.org/wiki/Simultaneous_multithreading",
+  "endian": "https://en.wikipedia.org/wiki/Endianness",
+  "msb": "https://en.wikipedia.org/wiki/Bit_numbering#Bit_significance_and_indexing",
+  "lsb": "https://en.wikipedia.org/wiki/Bit_numbering#Bit_significance_and_indexing",
+  "fpga": "https://bg.wikipedia.org/wiki/FPGA",
+  "asic": "https://en.wikipedia.org/wiki/Application-specific_integrated_circuit"
 };
 
 </script>

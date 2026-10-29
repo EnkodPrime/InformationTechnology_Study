@@ -179,6 +179,18 @@ dfn[data-g] {
   font-style: normal; border-bottom: 1.5px dotted var(--accent); cursor: help; color: inherit;
 }
 dfn[data-g]:hover, dfn[data-g]:focus { background: var(--accent-soft); outline: none; }
+.term-source {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.05em; height: 1.05em; margin-left: .16em; vertical-align: .08em;
+  border: 1px solid var(--line); border-radius: 50%; color: var(--accent);
+  font-family: var(--mono); font-size: .72em; font-weight: 700; line-height: 1;
+  text-decoration: none;
+}
+.term-source:hover, .term-source:focus { background: var(--accent-soft); border-color: var(--accent); outline: none; }
+.term-source-card-wrap { position: relative; display: block; min-width: 0; }
+.term-source-card-wrap > .card { width: 100%; height: 100%; padding-right: 38px; }
+.term-source-card-links { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; }
+.term-source-card-links .term-source { margin-left: 0; font-size: .78em; }
 .gtip {
   position: fixed; z-index: 60; max-width: min(360px, calc(100vw - 32px));
   background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r);
@@ -492,6 +504,19 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     return null;
   }
   S.glossLookup = glossLookup;
+  // Справки в Уикипедия за понятията — по тема, в js/sources.js (window.TERM_SOURCES).
+  // Българската Уикипедия е предпочетена, когато има статия за същото понятие; иначе английската.
+  function sourceFor(key) { return (window.TERM_SOURCES || {})[String(key).toLowerCase().trim()] || null; }
+  function sourceLabel(url) {
+    return url.includes("bg.wikipedia.org") ? "Уикипедия на български" : "Wikipedia in English";
+  }
+  function sourceLink(url, term) {
+    const title = sourceLabel(url);
+    return h("a", {
+      class: "term-source", href: url, target: "_blank", rel: "noopener noreferrer",
+      title, "aria-label": `${title}: ${term}`
+    }, "↗");
+  }
   function showTip(target) {
     const g = glossLookup(target.dataset.g);
     if (!g) { console.warn("Липсва в речника:", target.dataset.g); return; }
@@ -512,9 +537,14 @@ canvas.chart { width: 100%; height: 320px; display: block; }
   function hideTip() { if (tipEl) tipEl.remove(); tipEl = null; tipFor = null; }
   function bindGlossary() {
     document.addEventListener("mouseover", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && d !== tipFor) showTip(d); });
-    document.addEventListener("mouseout", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && !d.contains(e.relatedTarget)) hideTip(); });
+    document.addEventListener("mouseout", (e) => {
+      const d = e.target.closest("dfn[data-g]");
+      if (d && !d.contains(e.relatedTarget) && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("focusin", (e) => { const d = e.target.closest("dfn[data-g]"); if (d) showTip(d); });
-    document.addEventListener("focusout", (e) => { if (e.target.closest("dfn[data-g]")) hideTip(); });
+    document.addEventListener("focusout", (e) => {
+      if (e.target.closest("dfn[data-g]") && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("click", (e) => {
       const d = e.target.closest("dfn[data-g]");
       if (d) { e.preventDefault(); if (tipFor === d) hideTip(); else showTip(d); } else if (!e.target.closest(".gtip")) hideTip();
@@ -522,8 +552,29 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideTip(); closeDrawer(); } });
     window.addEventListener("scroll", hideTip, { passive: true });
   }
-  // направи всички dfn фокусируеми (клавиатура / таб)
-  function prepDfn(root) { root.querySelectorAll("dfn[data-g]").forEach((d) => d.setAttribute("tabindex", "0")); }
+  // Направи всички dfn фокусируеми и добави само икона към проверената справка.
+  function prepDfn(root) {
+    root.querySelectorAll("dfn[data-g]").forEach((d) => {
+      d.setAttribute("tabindex", "0");
+      const url = sourceFor(d.dataset.g);
+      if (!url || d.closest("a")) return;
+      const button = d.closest("button");
+      if (button) {
+        let wrap = button.parentElement;
+        if (!wrap.classList.contains("term-source-card-wrap")) {
+          const parent = wrap;
+          wrap = h("span", { class: "term-source-card-wrap" });
+          parent.insertBefore(wrap, button);
+          wrap.append(button);
+        }
+        let links = wrap.querySelector(".term-source-card-links");
+        if (!links) { links = h("span", { class: "term-source-card-links" }); wrap.append(links); }
+        if (![...links.querySelectorAll("a")].some((a) => a.href === url)) links.append(sourceLink(url, d.textContent.trim()));
+        return;
+      }
+      if (!(d.nextElementSibling && d.nextElementSibling.classList.contains("term-source"))) d.insertAdjacentElement("afterend", sourceLink(url, d.textContent.trim()));
+    });
+  }
 
   let drawer = null;
   function closeDrawer() { if (drawer) drawer.remove(); drawer = null; }
@@ -1004,6 +1055,78 @@ window.GLOSSARY = {
   "среща по средата": { cat: "Допълнителни подходи", t: "Метод „среща по средата“", en: "Meet in the Middle", d: "Изчисляване на възможностите за две половини и комбинирането им.", more: "≈2ⁿ → ≈2·2^(n/2) за сметка на памет." },
   "онлайн алгоритъм": { cat: "Допълнителни подходи", t: "Онлайн алгоритъм", en: "Online algorithm", d: "Взема решения, без предварително да знае целия бъдещ вход.", more: "„Онлайн“ не означава интернет." },
   "поточен алгоритъм": { cat: "Допълнителни подходи", t: "Поточен алгоритъм", en: "Streaming algorithm", d: "Обработва постъпващ поток при ограничена памет и преминавания." },
+};
+
+</script>
+<script>
+/* Справки в Уикипедия за понятията от речника на тема 5.
+   Ключът е същият като в glossary.js. Предпочита се българската Уикипедия, когато има
+   статия за същото понятие; иначе — английската (за подраздел — винаги английската). */
+window.TERM_SOURCES = {
+  "алгоритъм": "https://bg.wikipedia.org/wiki/Алгоритъм",
+  "изчислителна задача": "https://en.wikipedia.org/wiki/Computational_problem",
+  "програма": "https://bg.wikipedia.org/wiki/Компютърна_програма",
+  "частична коректност": "https://en.wikipedia.org/wiki/Correctness_(computer_science)",
+  "пълна коректност": "https://en.wikipedia.org/wiki/Correctness_(computer_science)",
+  "инвариант на цикъл": "https://en.wikipedia.org/wiki/Loop_invariant",
+  "рангова функция": "https://en.wikipedia.org/wiki/Loop_variant",
+  "изчислимост": "https://bg.wikipedia.org/wiki/Изчислимост",
+  "машина на тюринг": "https://bg.wikipedia.org/wiki/Машина_на_Тюринг",
+  "теза на чърч–тюринг": "https://bg.wikipedia.org/wiki/Тезис_на_Чърч",
+  "задача за разпознаване": "https://en.wikipedia.org/wiki/Decision_problem",
+  "задача за търсене": "https://en.wikipedia.org/wiki/Search_problem",
+  "оптимизационна задача": "https://en.wikipedia.org/wiki/Optimization_problem",
+  "разрешима задача": "https://en.wikipedia.org/wiki/Decidability_(logic)",
+  "полуразрешима задача": "https://en.wikipedia.org/wiki/Recursively_enumerable_language",
+  "неразрешима задача": "https://bg.wikipedia.org/wiki/Нерешим_проблем",
+  "проблем за спирането": "https://bg.wikipedia.org/wiki/Стоп-проблем",
+  "недетерминирана машина": "https://en.wikipedia.org/wiki/Nondeterministic_Turing_machine",
+  "размер на входа": "https://bg.wikipedia.org/wiki/Анализ_на_алгоритми",
+  "времева сложност": "https://bg.wikipedia.org/wiki/Времева_сложност",
+  "пространствена сложност": "https://en.wikipedia.org/wiki/Space_complexity",
+  "o": "https://en.wikipedia.org/wiki/Big_O_notation",
+  "omega": "https://en.wikipedia.org/wiki/Big_O_notation#Family_of_Bachmann–Landau_notations",
+  "theta": "https://en.wikipedia.org/wiki/Big_O_notation#Family_of_Bachmann–Landau_notations",
+  "полиномиално време": "https://en.wikipedia.org/wiki/Time_complexity#Polynomial_time",
+  "експоненциално време": "https://en.wikipedia.org/wiki/Time_complexity#Exponential_time",
+  "псевдополиномиален алгоритъм": "https://en.wikipedia.org/wiki/Pseudo-polynomial_time",
+  "най-лош случай": "https://en.wikipedia.org/wiki/Best,_worst_and_average_case",
+  "p": "https://en.wikipedia.org/wiki/P_(complexity)",
+  "np": "https://bg.wikipedia.org/wiki/NP-сложност",
+  "сертификат": "https://en.wikipedia.org/wiki/Certificate_(complexity)",
+  "полиномиална сводимост": "https://en.wikipedia.org/wiki/Polynomial-time_reduction",
+  "np-трудна": "https://en.wikipedia.org/wiki/NP-hardness",
+  "np-пълна": "https://en.wikipedia.org/wiki/NP-completeness",
+  "sat": "https://en.wikipedia.org/wiki/Boolean_satisfiability_problem",
+  "хамилтонов цикъл": "https://en.wikipedia.org/wiki/Hamiltonian_path_problem",
+  "p срещу np": "https://en.wikipedia.org/wiki/P_versus_NP_problem",
+  "conp": "https://en.wikipedia.org/wiki/Co-NP",
+  "tsp": "https://en.wikipedia.org/wiki/Travelling_salesman_problem",
+  "рекурсия": "https://en.wikipedia.org/wiki/Recursion_(computer_science)",
+  "базов случай": "https://en.wikipedia.org/wiki/Recursion_(computer_science)#Base_case",
+  "рекурентно съотношение": "https://bg.wikipedia.org/wiki/Диференчно_уравнение",
+  "разделяй и владей": "https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm",
+  "алчен подход": "https://en.wikipedia.org/wiki/Greedy_algorithm",
+  "свойство на алчния избор": "https://en.wikipedia.org/wiki/Greedy_algorithm#Characterizations",
+  "оптимална подструктура": "https://en.wikipedia.org/wiki/Optimal_substructure",
+  "динамично програмиране": "https://bg.wikipedia.org/wiki/Динамично_оптимиране",
+  "припокриващи се подзадачи": "https://en.wikipedia.org/wiki/Overlapping_subproblems",
+  "мемоизация": "https://en.wikipedia.org/wiki/Memoization",
+  "таблично изчисление": "https://en.wikipedia.org/wiki/Dynamic_programming#Computer_science",
+  "стабилно сортиране": "https://en.wikipedia.org/wiki/Sorting_algorithm#Stability",
+  "изчерпателно търсене": "https://en.wikipedia.org/wiki/Brute-force_search",
+  "търсене с връщане назад": "https://bg.wikipedia.org/wiki/Бектрекинг",
+  "разклоняване и ограничаване": "https://en.wikipedia.org/wiki/Branch_and_bound",
+  "намаляване на размера": "https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm#Divide_and_conquer",
+  "вероятностен алгоритъм": "https://en.wikipedia.org/wiki/Randomized_algorithm",
+  "las vegas": "https://en.wikipedia.org/wiki/Las_Vegas_algorithm",
+  "monte carlo": "https://en.wikipedia.org/wiki/Monte_Carlo_algorithm",
+  "приближен алгоритъм": "https://en.wikipedia.org/wiki/Approximation_algorithm",
+  "евристика": "https://en.wikipedia.org/wiki/Heuristic_(computer_science)",
+  "метаевристика": "https://bg.wikipedia.org/wiki/Метаевристични_алгоритми",
+  "среща по средата": "https://en.wikipedia.org/wiki/Meet-in-the-middle_attack",
+  "онлайн алгоритъм": "https://en.wikipedia.org/wiki/Online_algorithm",
+  "поточен алгоритъм": "https://en.wikipedia.org/wiki/Streaming_algorithm"
 };
 
 </script>

@@ -179,6 +179,18 @@ dfn[data-g] {
   font-style: normal; border-bottom: 1.5px dotted var(--accent); cursor: help; color: inherit;
 }
 dfn[data-g]:hover, dfn[data-g]:focus { background: var(--accent-soft); outline: none; }
+.term-source {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.05em; height: 1.05em; margin-left: .16em; vertical-align: .08em;
+  border: 1px solid var(--line); border-radius: 50%; color: var(--accent);
+  font-family: var(--mono); font-size: .72em; font-weight: 700; line-height: 1;
+  text-decoration: none;
+}
+.term-source:hover, .term-source:focus { background: var(--accent-soft); border-color: var(--accent); outline: none; }
+.term-source-card-wrap { position: relative; display: block; min-width: 0; }
+.term-source-card-wrap > .card { width: 100%; height: 100%; padding-right: 38px; }
+.term-source-card-links { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; }
+.term-source-card-links .term-source { margin-left: 0; font-size: .78em; }
 .gtip {
   position: fixed; z-index: 60; max-width: min(360px, calc(100vw - 32px));
   background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r);
@@ -492,6 +504,19 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     return null;
   }
   S.glossLookup = glossLookup;
+  // Справки в Уикипедия за понятията — по тема, в js/sources.js (window.TERM_SOURCES).
+  // Българската Уикипедия е предпочетена, когато има статия за същото понятие; иначе английската.
+  function sourceFor(key) { return (window.TERM_SOURCES || {})[String(key).toLowerCase().trim()] || null; }
+  function sourceLabel(url) {
+    return url.includes("bg.wikipedia.org") ? "Уикипедия на български" : "Wikipedia in English";
+  }
+  function sourceLink(url, term) {
+    const title = sourceLabel(url);
+    return h("a", {
+      class: "term-source", href: url, target: "_blank", rel: "noopener noreferrer",
+      title, "aria-label": `${title}: ${term}`
+    }, "↗");
+  }
   function showTip(target) {
     const g = glossLookup(target.dataset.g);
     if (!g) { console.warn("Липсва в речника:", target.dataset.g); return; }
@@ -512,9 +537,14 @@ canvas.chart { width: 100%; height: 320px; display: block; }
   function hideTip() { if (tipEl) tipEl.remove(); tipEl = null; tipFor = null; }
   function bindGlossary() {
     document.addEventListener("mouseover", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && d !== tipFor) showTip(d); });
-    document.addEventListener("mouseout", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && !d.contains(e.relatedTarget)) hideTip(); });
+    document.addEventListener("mouseout", (e) => {
+      const d = e.target.closest("dfn[data-g]");
+      if (d && !d.contains(e.relatedTarget) && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("focusin", (e) => { const d = e.target.closest("dfn[data-g]"); if (d) showTip(d); });
-    document.addEventListener("focusout", (e) => { if (e.target.closest("dfn[data-g]")) hideTip(); });
+    document.addEventListener("focusout", (e) => {
+      if (e.target.closest("dfn[data-g]") && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("click", (e) => {
       const d = e.target.closest("dfn[data-g]");
       if (d) { e.preventDefault(); if (tipFor === d) hideTip(); else showTip(d); } else if (!e.target.closest(".gtip")) hideTip();
@@ -522,8 +552,29 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideTip(); closeDrawer(); } });
     window.addEventListener("scroll", hideTip, { passive: true });
   }
-  // направи всички dfn фокусируеми (клавиатура / таб)
-  function prepDfn(root) { root.querySelectorAll("dfn[data-g]").forEach((d) => d.setAttribute("tabindex", "0")); }
+  // Направи всички dfn фокусируеми и добави само икона към проверената справка.
+  function prepDfn(root) {
+    root.querySelectorAll("dfn[data-g]").forEach((d) => {
+      d.setAttribute("tabindex", "0");
+      const url = sourceFor(d.dataset.g);
+      if (!url || d.closest("a")) return;
+      const button = d.closest("button");
+      if (button) {
+        let wrap = button.parentElement;
+        if (!wrap.classList.contains("term-source-card-wrap")) {
+          const parent = wrap;
+          wrap = h("span", { class: "term-source-card-wrap" });
+          parent.insertBefore(wrap, button);
+          wrap.append(button);
+        }
+        let links = wrap.querySelector(".term-source-card-links");
+        if (!links) { links = h("span", { class: "term-source-card-links" }); wrap.append(links); }
+        if (![...links.querySelectorAll("a")].some((a) => a.href === url)) links.append(sourceLink(url, d.textContent.trim()));
+        return;
+      }
+      if (!(d.nextElementSibling && d.nextElementSibling.classList.contains("term-source"))) d.insertAdjacentElement("afterend", sourceLink(url, d.textContent.trim()));
+    });
+  }
 
   let drawer = null;
   function closeDrawer() { if (drawer) drawer.remove(); drawer = null; }
@@ -1015,6 +1066,86 @@ window.GLOSSARY = {
   "persistence": { cat: "Допълнение", t: "Persistence", en: "Persistence", d: "Устойчивост на съхраненото състояние отвъд живота на текущия процес или обект в оперативната памет.", more: "Не означава само кеширане." },
   "tsdb": { cat: "Съкращения", t: "TSDB", en: "Time Series Database", d: "База, специализирана за времеви серии.", more: "Времева колона в таблица не превръща системата в специализирана TSDB." },
   "hypertable": { cat: "Допълнение", t: "Hypertable", en: "Hypertable", d: "TimescaleDB таблица, организирана чрез chunks и правила за разделяне, обикновено по време." },
+};
+
+</script>
+<script>
+/* Справки в Уикипедия за понятията от речника на тема 6.
+   Ключът е същият като в glossary.js. Предпочита се българската Уикипедия, когато има
+   статия за същото понятие; иначе — английската (за подраздел — винаги английската). */
+window.TERM_SOURCES = {
+  "база от данни": "https://bg.wikipedia.org/wiki/База_данни",
+  "субд": "https://en.wikipedia.org/wiki/Database#Database_management_system",
+  "rdbms": "https://bg.wikipedia.org/wiki/Релационна_база_данни",
+  "ordbms": "https://en.wikipedia.org/wiki/Object–relational_database",
+  "схема": "https://en.wikipedia.org/wiki/Database_schema",
+  "метаданни": "https://bg.wikipedia.org/wiki/Метаданни",
+  "независимост на данните": "https://en.wikipedia.org/wiki/Data_independence",
+  "sql": "https://bg.wikipedia.org/wiki/SQL",
+  "ssms": "https://bg.wikipedia.org/wiki/SQL_Server_Management_Studio",
+  "релация": "https://en.wikipedia.org/wiki/Relation_(database)",
+  "атрибут": "https://en.wikipedia.org/wiki/Column_(database)",
+  "кортеж": "https://en.wikipedia.org/wiki/Row_(database)",
+  "домейн": "https://en.wikipedia.org/wiki/Data_domain",
+  "суперключ": "https://en.wikipedia.org/wiki/Superkey",
+  "кандидатен ключ": "https://en.wikipedia.org/wiki/Candidate_key",
+  "първичен ключ": "https://bg.wikipedia.org/wiki/Първичен_ключ",
+  "алтернативен ключ": "https://en.wikipedia.org/wiki/Primary_key",
+  "външен ключ": "https://bg.wikipedia.org/wiki/Външен_ключ",
+  "референтна цялост": "https://en.wikipedia.org/wiki/Referential_integrity",
+  "предметна връзка": "https://en.wikipedia.org/wiki/Entity–relationship_model",
+  "null": "https://en.wikipedia.org/wiki/Null_(SQL)",
+  "unknown": "https://en.wikipedia.org/wiki/Three-valued_logic",
+  "релационна алгебра": "https://en.wikipedia.org/wiki/Relational_algebra",
+  "селекция": "https://en.wikipedia.org/wiki/Relational_algebra#Selection",
+  "проекция": "https://en.wikipedia.org/wiki/Projection_(relational_algebra)",
+  "съединение": "https://en.wikipedia.org/wiki/Join_(SQL)",
+  "декартово произведение": "https://bg.wikipedia.org/wiki/Декартово_произведение",
+  "съвместими схеми": "https://en.wikipedia.org/wiki/Relational_algebra#Set_operators",
+  "декларативен език": "https://en.wikipedia.org/wiki/Declarative_programming",
+  "план за изпълнение": "https://en.wikipedia.org/wiki/Query_plan",
+  "изглед": "https://en.wikipedia.org/wiki/View_(SQL)",
+  "функционална зависимост": "https://en.wikipedia.org/wiki/Functional_dependency",
+  "затваряне на атрибути": "https://en.wikipedia.org/wiki/Functional_dependency#Closure",
+  "аномалия": "https://en.wikipedia.org/wiki/Database_normalization",
+  "беззагубно разлагане": "https://en.wikipedia.org/wiki/Lossless_join_decomposition",
+  "нормализация": "https://en.wikipedia.org/wiki/Database_normalization",
+  "1нф": "https://en.wikipedia.org/wiki/First_normal_form",
+  "2нф": "https://en.wikipedia.org/wiki/Second_normal_form",
+  "3нф": "https://en.wikipedia.org/wiki/Third_normal_form",
+  "bcnf": "https://en.wikipedia.org/wiki/Boyce–Codd_normal_form",
+  "денормализация": "https://en.wikipedia.org/wiki/Denormalization",
+  "4nf": "https://en.wikipedia.org/wiki/Fourth_normal_form",
+  "mvd": "https://en.wikipedia.org/wiki/Multivalued_dependency",
+  "транзакция": "https://en.wikipedia.org/wiki/Database_transaction",
+  "acid": "https://en.wikipedia.org/wiki/ACID",
+  "атомарност": "https://en.wikipedia.org/wiki/Atomicity_(database_systems)",
+  "съгласуваност": "https://en.wikipedia.org/wiki/Consistency_(database_systems)",
+  "изолация": "https://en.wikipedia.org/wiki/Isolation_(database_systems)",
+  "дълготрайност": "https://en.wikipedia.org/wiki/Durability_(database_systems)",
+  "serializable": "https://en.wikipedia.org/wiki/Isolation_(database_systems)#Serializable",
+  "mvcc": "https://en.wikipedia.org/wiki/Multiversion_concurrency_control",
+  "загубено обновяване": "https://en.wikipedia.org/wiki/Write–write_conflict",
+  "индекс": "https://en.wikipedia.org/wiki/Database_index",
+  "журнал": "https://en.wikipedia.org/wiki/Write-ahead_logging",
+  "реплика": "https://en.wikipedia.org/wiki/Replication_(computing)",
+  "резервно копие": "https://bg.wikipedia.org/wiki/Резервно_копие",
+  "cap": "https://en.wikipedia.org/wiki/CAP_theorem",
+  "nosql": "https://bg.wikipedia.org/wiki/NoSQL",
+  "key-value": "https://en.wikipedia.org/wiki/Key–value_database",
+  "ttl": "https://en.wikipedia.org/wiki/Time_to_live",
+  "embedding": "https://en.wikipedia.org/wiki/Word_embedding",
+  "ann": "https://en.wikipedia.org/wiki/Nearest_neighbor_search#Approximation_methods",
+  "hnsw": "https://en.wikipedia.org/wiki/Hierarchical_navigable_small_world",
+  "recall": "https://en.wikipedia.org/wiki/Precision_and_recall",
+  "multivalue": "https://en.wikipedia.org/wiki/MultiValue_database",
+  "rdf": "https://bg.wikipedia.org/wiki/Resource_Description_Framework",
+  "orm": "https://en.wikipedia.org/wiki/Object–relational_mapping",
+  "odbms": "https://en.wikipedia.org/wiki/Object_database",
+  "jpa": "https://en.wikipedia.org/wiki/Jakarta_Persistence",
+  "jdo": "https://en.wikipedia.org/wiki/Java_Data_Objects",
+  "persistence": "https://en.wikipedia.org/wiki/Persistence_(computer_science)",
+  "tsdb": "https://en.wikipedia.org/wiki/Time_series_database"
 };
 
 </script>

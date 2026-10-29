@@ -179,6 +179,18 @@ dfn[data-g] {
   font-style: normal; border-bottom: 1.5px dotted var(--accent); cursor: help; color: inherit;
 }
 dfn[data-g]:hover, dfn[data-g]:focus { background: var(--accent-soft); outline: none; }
+.term-source {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.05em; height: 1.05em; margin-left: .16em; vertical-align: .08em;
+  border: 1px solid var(--line); border-radius: 50%; color: var(--accent);
+  font-family: var(--mono); font-size: .72em; font-weight: 700; line-height: 1;
+  text-decoration: none;
+}
+.term-source:hover, .term-source:focus { background: var(--accent-soft); border-color: var(--accent); outline: none; }
+.term-source-card-wrap { position: relative; display: block; min-width: 0; }
+.term-source-card-wrap > .card { width: 100%; height: 100%; padding-right: 38px; }
+.term-source-card-links { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; }
+.term-source-card-links .term-source { margin-left: 0; font-size: .78em; }
 .gtip {
   position: fixed; z-index: 60; max-width: min(360px, calc(100vw - 32px));
   background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r);
@@ -493,6 +505,19 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     return null;
   }
   S.glossLookup = glossLookup;
+  // Справки в Уикипедия за понятията — по тема, в js/sources.js (window.TERM_SOURCES).
+  // Българската Уикипедия е предпочетена, когато има статия за същото понятие; иначе английската.
+  function sourceFor(key) { return (window.TERM_SOURCES || {})[String(key).toLowerCase().trim()] || null; }
+  function sourceLabel(url) {
+    return url.includes("bg.wikipedia.org") ? "Уикипедия на български" : "Wikipedia in English";
+  }
+  function sourceLink(url, term) {
+    const title = sourceLabel(url);
+    return h("a", {
+      class: "term-source", href: url, target: "_blank", rel: "noopener noreferrer",
+      title, "aria-label": `${title}: ${term}`
+    }, "↗");
+  }
   function showTip(target) {
     const g = glossLookup(target.dataset.g);
     if (!g) { console.warn("Липсва в речника:", target.dataset.g); return; }
@@ -513,9 +538,14 @@ canvas.chart { width: 100%; height: 320px; display: block; }
   function hideTip() { if (tipEl) tipEl.remove(); tipEl = null; tipFor = null; }
   function bindGlossary() {
     document.addEventListener("mouseover", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && d !== tipFor) showTip(d); });
-    document.addEventListener("mouseout", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && !d.contains(e.relatedTarget)) hideTip(); });
+    document.addEventListener("mouseout", (e) => {
+      const d = e.target.closest("dfn[data-g]");
+      if (d && !d.contains(e.relatedTarget) && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("focusin", (e) => { const d = e.target.closest("dfn[data-g]"); if (d) showTip(d); });
-    document.addEventListener("focusout", (e) => { if (e.target.closest("dfn[data-g]")) hideTip(); });
+    document.addEventListener("focusout", (e) => {
+      if (e.target.closest("dfn[data-g]") && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("click", (e) => {
       const d = e.target.closest("dfn[data-g]");
       if (d) { e.preventDefault(); if (tipFor === d) hideTip(); else showTip(d); } else if (!e.target.closest(".gtip")) hideTip();
@@ -523,8 +553,29 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideTip(); closeDrawer(); } });
     window.addEventListener("scroll", hideTip, { passive: true });
   }
-  // направи всички dfn фокусируеми (клавиатура / таб)
-  function prepDfn(root) { root.querySelectorAll("dfn[data-g]").forEach((d) => d.setAttribute("tabindex", "0")); }
+  // Направи всички dfn фокусируеми и добави само икона към проверената справка.
+  function prepDfn(root) {
+    root.querySelectorAll("dfn[data-g]").forEach((d) => {
+      d.setAttribute("tabindex", "0");
+      const url = sourceFor(d.dataset.g);
+      if (!url || d.closest("a")) return;
+      const button = d.closest("button");
+      if (button) {
+        let wrap = button.parentElement;
+        if (!wrap.classList.contains("term-source-card-wrap")) {
+          const parent = wrap;
+          wrap = h("span", { class: "term-source-card-wrap" });
+          parent.insertBefore(wrap, button);
+          wrap.append(button);
+        }
+        let links = wrap.querySelector(".term-source-card-links");
+        if (!links) { links = h("span", { class: "term-source-card-links" }); wrap.append(links); }
+        if (![...links.querySelectorAll("a")].some((a) => a.href === url)) links.append(sourceLink(url, d.textContent.trim()));
+        return;
+      }
+      if (!(d.nextElementSibling && d.nextElementSibling.classList.contains("term-source"))) d.insertAdjacentElement("afterend", sourceLink(url, d.textContent.trim()));
+    });
+  }
 
   let drawer = null;
   function closeDrawer() { if (drawer) drawer.remove(); drawer = null; }
@@ -987,6 +1038,65 @@ window.GLOSSARY = {
   "ml": { cat: "Общи", t: "ML — машинно обучение", en: "Machine Learning", d: "Машинно обучение.", more: "Моделът настройва параметри от данни спрямо цел. Това е друг подход и не изчерпва областта на интелигентните системи." },
   "интелигентна система": { cat: "Общи", t: "Интелигентна система", en: "Intelligent system", d: "Използва наблюдения, знания или модел, за да избира действия за постигане на цели.", more: "Класическият символен подход работи с формализирани знания, търсене и извод." },
   "p": { cat: "Общи", t: "P", en: "Polynomial Time", d: "Клас задачи за разпознаване с детерминирано полиномиално решение.", more: "Алфа-бета не прави търсенето полиномиално: в най-лошия случай остава експоненциално по дълбочината." },
+};
+
+</script>
+<script>
+/* Справки в Уикипедия за понятията от речника на тема 8.
+   Ключът е същият като в glossary.js. Предпочита се българската Уикипедия, когато има
+   статия за същото понятие; иначе — английската (за подраздел — винаги английската). */
+window.TERM_SOURCES = {
+  "агент": "https://bg.wikipedia.org/wiki/Интелигентен_агент",
+  "рационалност": "https://en.wikipedia.org/wiki/Rational_agent",
+  "състояние": "https://en.wikipedia.org/wiki/State_space_(computer_science)",
+  "пространство от състояния": "https://en.wikipedia.org/wiki/State_space_(computer_science)",
+  "граф на състоянията": "https://en.wikipedia.org/wiki/State-space_search",
+  "дърво на търсене": "https://en.wikipedia.org/wiki/Search_tree",
+  "евристика": "https://en.wikipedia.org/wiki/Heuristic_(computer_science)",
+  "допустима евристика": "https://en.wikipedia.org/wiki/Admissible_heuristic",
+  "съгласувана евристика": "https://en.wikipedia.org/wiki/Consistent_heuristic",
+  "a*": "https://bg.wikipedia.org/wiki/Алгоритъм_А*",
+  "bfs": "https://bg.wikipedia.org/wiki/Обхождане_в_ширина",
+  "dfs": "https://bg.wikipedia.org/wiki/Обхождане_в_дълбочина",
+  "uniform-cost search": "https://en.wikipedia.org/wiki/Dijkstra's_algorithm#Practical_optimizations_and_infinite_graphs",
+  "greedy best-first": "https://en.wikipedia.org/wiki/Best-first_search#Greedy_BeFS",
+  "стратегия": "https://en.wikipedia.org/wiki/Strategy_(game_theory)",
+  "печеливша стратегия": "https://en.wikipedia.org/wiki/Determinacy#Winning_strategies",
+  "minimax": "https://en.wikipedia.org/wiki/Minimax",
+  "алфа-бета отсичане": "https://en.wikipedia.org/wiki/Alpha–beta_pruning",
+  "оценъчна функция": "https://en.wikipedia.org/wiki/Evaluation_function",
+  "ефект на хоризонта": "https://en.wikipedia.org/wiki/Horizon_effect",
+  "expectiminimax": "https://en.wikipedia.org/wiki/Expectiminimax",
+  "представяне на знания": "https://bg.wikipedia.org/wiki/Представяне_на_знание",
+  "база от знания": "https://bg.wikipedia.org/wiki/База_знания",
+  "логика на съжденията": "https://bg.wikipedia.org/wiki/Пропозиционална_логика",
+  "предикатна логика": "https://en.wikipedia.org/wiki/First-order_logic",
+  "modus ponens": "https://bg.wikipedia.org/wiki/Модус_поненс",
+  "коректност на извода": "https://en.wikipedia.org/wiki/Soundness",
+  "пълнота на извода": "https://en.wikipedia.org/wiki/Completeness_(logic)",
+  "отворен свят": "https://en.wikipedia.org/wiki/Closed-world_assumption",
+  "затворен свят": "https://en.wikipedia.org/wiki/Closed-world_assumption",
+  "продукционно правило": "https://en.wikipedia.org/wiki/Production_system_(computer_science)",
+  "прав извод": "https://en.wikipedia.org/wiki/Forward_chaining",
+  "обратен извод": "https://en.wikipedia.org/wiki/Backward_chaining",
+  "семантична мрежа": "https://en.wikipedia.org/wiki/Semantic_network",
+  "е вид": "https://en.wikipedia.org/wiki/Is-a",
+  "фрейм": "https://en.wikipedia.org/wiki/Frame_(artificial_intelligence)",
+  "стойност по подразбиране": "https://en.wikipedia.org/wiki/Frame_(artificial_intelligence)",
+  "онтология": "https://en.wikipedia.org/wiki/Ontology_(information_science)",
+  "rdf": "https://bg.wikipedia.org/wiki/Resource_Description_Framework",
+  "owl": "https://en.wikipedia.org/wiki/Web_Ontology_Language",
+  "размита логика": "https://bg.wikipedia.org/wiki/Размита_логика",
+  "експертна система": "https://bg.wikipedia.org/wiki/Експертна_система",
+  "механизъм за извод": "https://en.wikipedia.org/wiki/Inference_engine",
+  "работна памет": "https://en.wikipedia.org/wiki/Production_system_(computer_science)",
+  "конфликтно множество": "https://en.wikipedia.org/wiki/Production_system_(computer_science)",
+  "инженер по знанията": "https://en.wikipedia.org/wiki/Knowledge_engineering",
+  "clips": "https://en.wikipedia.org/wiki/CLIPS",
+  "ai": "https://bg.wikipedia.org/wiki/Изкуствен_интелект",
+  "ml": "https://bg.wikipedia.org/wiki/Машинно_самообучение",
+  "интелигентна система": "https://bg.wikipedia.org/wiki/Интелигентен_агент",
+  "p": "https://en.wikipedia.org/wiki/P_(complexity)"
 };
 
 </script>

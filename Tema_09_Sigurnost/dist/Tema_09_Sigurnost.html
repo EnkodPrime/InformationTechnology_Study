@@ -179,6 +179,18 @@ dfn[data-g] {
   font-style: normal; border-bottom: 1.5px dotted var(--accent); cursor: help; color: inherit;
 }
 dfn[data-g]:hover, dfn[data-g]:focus { background: var(--accent-soft); outline: none; }
+.term-source {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.05em; height: 1.05em; margin-left: .16em; vertical-align: .08em;
+  border: 1px solid var(--line); border-radius: 50%; color: var(--accent);
+  font-family: var(--mono); font-size: .72em; font-weight: 700; line-height: 1;
+  text-decoration: none;
+}
+.term-source:hover, .term-source:focus { background: var(--accent-soft); border-color: var(--accent); outline: none; }
+.term-source-card-wrap { position: relative; display: block; min-width: 0; }
+.term-source-card-wrap > .card { width: 100%; height: 100%; padding-right: 38px; }
+.term-source-card-links { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; }
+.term-source-card-links .term-source { margin-left: 0; font-size: .78em; }
 .gtip {
   position: fixed; z-index: 60; max-width: min(360px, calc(100vw - 32px));
   background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r);
@@ -492,6 +504,19 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     return null;
   }
   S.glossLookup = glossLookup;
+  // Справки в Уикипедия за понятията — по тема, в js/sources.js (window.TERM_SOURCES).
+  // Българската Уикипедия е предпочетена, когато има статия за същото понятие; иначе английската.
+  function sourceFor(key) { return (window.TERM_SOURCES || {})[String(key).toLowerCase().trim()] || null; }
+  function sourceLabel(url) {
+    return url.includes("bg.wikipedia.org") ? "Уикипедия на български" : "Wikipedia in English";
+  }
+  function sourceLink(url, term) {
+    const title = sourceLabel(url);
+    return h("a", {
+      class: "term-source", href: url, target: "_blank", rel: "noopener noreferrer",
+      title, "aria-label": `${title}: ${term}`
+    }, "↗");
+  }
   function showTip(target) {
     const g = glossLookup(target.dataset.g);
     if (!g) { console.warn("Липсва в речника:", target.dataset.g); return; }
@@ -512,9 +537,14 @@ canvas.chart { width: 100%; height: 320px; display: block; }
   function hideTip() { if (tipEl) tipEl.remove(); tipEl = null; tipFor = null; }
   function bindGlossary() {
     document.addEventListener("mouseover", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && d !== tipFor) showTip(d); });
-    document.addEventListener("mouseout", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && !d.contains(e.relatedTarget)) hideTip(); });
+    document.addEventListener("mouseout", (e) => {
+      const d = e.target.closest("dfn[data-g]");
+      if (d && !d.contains(e.relatedTarget) && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("focusin", (e) => { const d = e.target.closest("dfn[data-g]"); if (d) showTip(d); });
-    document.addEventListener("focusout", (e) => { if (e.target.closest("dfn[data-g]")) hideTip(); });
+    document.addEventListener("focusout", (e) => {
+      if (e.target.closest("dfn[data-g]") && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("click", (e) => {
       const d = e.target.closest("dfn[data-g]");
       if (d) { e.preventDefault(); if (tipFor === d) hideTip(); else showTip(d); } else if (!e.target.closest(".gtip")) hideTip();
@@ -522,8 +552,29 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideTip(); closeDrawer(); } });
     window.addEventListener("scroll", hideTip, { passive: true });
   }
-  // направи всички dfn фокусируеми (клавиатура / таб)
-  function prepDfn(root) { root.querySelectorAll("dfn[data-g]").forEach((d) => d.setAttribute("tabindex", "0")); }
+  // Направи всички dfn фокусируеми и добави само икона към проверената справка.
+  function prepDfn(root) {
+    root.querySelectorAll("dfn[data-g]").forEach((d) => {
+      d.setAttribute("tabindex", "0");
+      const url = sourceFor(d.dataset.g);
+      if (!url || d.closest("a")) return;
+      const button = d.closest("button");
+      if (button) {
+        let wrap = button.parentElement;
+        if (!wrap.classList.contains("term-source-card-wrap")) {
+          const parent = wrap;
+          wrap = h("span", { class: "term-source-card-wrap" });
+          parent.insertBefore(wrap, button);
+          wrap.append(button);
+        }
+        let links = wrap.querySelector(".term-source-card-links");
+        if (!links) { links = h("span", { class: "term-source-card-links" }); wrap.append(links); }
+        if (![...links.querySelectorAll("a")].some((a) => a.href === url)) links.append(sourceLink(url, d.textContent.trim()));
+        return;
+      }
+      if (!(d.nextElementSibling && d.nextElementSibling.classList.contains("term-source"))) d.insertAdjacentElement("afterend", sourceLink(url, d.textContent.trim()));
+    });
+  }
 
   let drawer = null;
   function closeDrawer() { if (drawer) drawer.remove(); drawer = null; }
@@ -1012,6 +1063,90 @@ window.GLOSSARY = {
   "exploit": { cat: "Реагиране (ръководство)", t: "Exploit", en: "Exploit", d: "Начин за използване на конкретна слабост." },
   "patch": { cat: "Реагиране (ръководство)", t: "Patch (поправка)", en: "Patch", d: "Промяна, която премахва слабост.", more: "Може да премахне слабостта, без да премахне вече установено чуждо присъствие." },
   "zero trust": { cat: "Допълнение", t: "Zero trust", en: "Zero trust", d: "Подход, при който не се предоставя неявно доверие само заради мрежово местоположение.", more: "Архитектурна идея, не един продукт; не означава „всички са доказани нападатели“." },
+};
+
+</script>
+<script>
+/* Справки в Уикипедия за понятията от речника на тема 9.
+   Ключът е същият като в glossary.js. Предпочита се българската Уикипедия, когато има
+   статия за същото понятие; иначе — английската (за подраздел — винаги английската). */
+window.TERM_SOURCES = {
+  "конфиденциалност": "https://en.wikipedia.org/wiki/Confidentiality",
+  "цялост": "https://bg.wikipedia.org/wiki/Цялостност_на_данните",
+  "наличност": "https://en.wikipedia.org/wiki/Availability",
+  "cia": "https://en.wikipedia.org/wiki/Information_security#Security_Goals",
+  "актив": "https://en.wikipedia.org/wiki/Asset_(computer_security)",
+  "заплаха": "https://en.wikipedia.org/wiki/Threat_(computer_security)",
+  "уязвимост": "https://bg.wikipedia.org/wiki/Уязвимост_(компютри)",
+  "атака": "https://en.wikipedia.org/wiki/Cyberattack",
+  "риск": "https://en.wikipedia.org/wiki/IT_risk",
+  "идентификация": "https://en.wikipedia.org/wiki/Identity_and_access_management",
+  "удостоверяване": "https://bg.wikipedia.org/wiki/Автентикация",
+  "оторизация": "https://en.wikipedia.org/wiki/Authorization",
+  "отчетност": "https://en.wikipedia.org/wiki/Authentication,_authorization,_and_accounting",
+  "модел на заплахите": "https://en.wikipedia.org/wiki/Threat_model",
+  "повърхност за атака": "https://en.wikipedia.org/wiki/Attack_surface",
+  "граница на доверие": "https://en.wikipedia.org/wiki/Trust_boundary",
+  "пасивна атака": "https://en.wikipedia.org/wiki/Passive_attack",
+  "активна атака": "https://en.wikipedia.org/wiki/Cyberattack",
+  "защита в дълбочина": "https://en.wikipedia.org/wiki/Defense_in_depth_(computing)",
+  "минимални привилегии": "https://en.wikipedia.org/wiki/Principle_of_least_privilege",
+  "сегментиране": "https://en.wikipedia.org/wiki/Network_segmentation",
+  "подслушване": "https://en.wikipedia.org/wiki/Eavesdropping",
+  "spoofing": "https://en.wikipedia.org/wiki/Spoofing_attack",
+  "човек по средата": "https://en.wikipedia.org/wiki/Man-in-the-middle_attack",
+  "mitm": "https://en.wikipedia.org/wiki/Man-in-the-middle_attack",
+  "replay": "https://en.wikipedia.org/wiki/Replay_attack",
+  "arp": "https://bg.wikipedia.org/wiki/Address_Resolution_Protocol",
+  "dns": "https://bg.wikipedia.org/wiki/Domain_Name_System",
+  "dnssec": "https://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions",
+  "tls": "https://bg.wikipedia.org/wiki/TLS",
+  "https": "https://bg.wikipedia.org/wiki/HTTPS",
+  "ip": "https://bg.wikipedia.org/wiki/Internet_Protocol",
+  "tcp": "https://bg.wikipedia.org/wiki/TCP",
+  "dai": "https://en.wikipedia.org/wiki/ARP_spoofing#Defenses",
+  "dos": "https://bg.wikipedia.org/wiki/Атака_за_отказ_на_услуга",
+  "ddos": "https://en.wikipedia.org/wiki/Denial-of-service_attack#Distributed_DoS",
+  "syn": "https://en.wikipedia.org/wiki/Transmission_Control_Protocol#Connection_establishment",
+  "syn flood": "https://bg.wikipedia.org/wiki/SYN_флуд",
+  "отражателна атака": "https://en.wikipedia.org/wiki/Denial-of-service_attack#Reflected_attack",
+  "усилване": "https://en.wikipedia.org/wiki/Denial-of-service_attack#Amplification",
+  "ограничаване на честотата": "https://en.wikipedia.org/wiki/Rate_limiting",
+  "cpu": "https://bg.wikipedia.org/wiki/Централен_процесор",
+  "вирус": "https://bg.wikipedia.org/wiki/Компютърен_вирус",
+  "червей": "https://bg.wikipedia.org/wiki/Компютърен_червей",
+  "троянска програма": "https://bg.wikipedia.org/wiki/Троянски_кон_(компютри)",
+  "рансъмуер": "https://bg.wikipedia.org/wiki/Рансъмуер",
+  "sql": "https://bg.wikipedia.org/wiki/SQL",
+  "sql инжекция": "https://en.wikipedia.org/wiki/SQL_injection",
+  "параметризирана заявка": "https://en.wikipedia.org/wiki/Prepared_statement",
+  "xss": "https://en.wikipedia.org/wiki/Cross-site_scripting",
+  "csrf": "https://en.wikipedia.org/wiki/Cross-site_request_forgery",
+  "dom": "https://bg.wikipedia.org/wiki/Документен_обектен_модел",
+  "jdbc": "https://en.wikipedia.org/wiki/Java_Database_Connectivity",
+  "многофакторно удостоверяване": "https://en.wikipedia.org/wiki/Multi-factor_authentication",
+  "mfa": "https://en.wikipedia.org/wiki/Multi-factor_authentication",
+  "сесиен идентификатор": "https://en.wikipedia.org/wiki/Session_ID",
+  "сол": "https://bg.wikipedia.org/wiki/Сол_(криптография)",
+  "препълване на буфер": "https://en.wikipedia.org/wiki/Buffer_overflow",
+  "социално инженерство": "https://en.wikipedia.org/wiki/Social_engineering_(security)",
+  "phishing": "https://bg.wikipedia.org/wiki/Фишинг",
+  "spear phishing": "https://en.wikipedia.org/wiki/Phishing#Spear_phishing",
+  "vishing": "https://en.wikipedia.org/wiki/Voice_phishing",
+  "smishing": "https://en.wikipedia.org/wiki/Phishing#SMS_phishing",
+  "pretexting": "https://en.wikipedia.org/wiki/Social_engineering_(security)#Pretexting",
+  "baiting": "https://en.wikipedia.org/wiki/Social_engineering_(security)#Baiting",
+  "tailgating": "https://en.wikipedia.org/wiki/Tailgating",
+  "компрометиране на делова кореспонденция": "https://en.wikipedia.org/wiki/Email_spoofing#Business_email",
+  "защитна стена": "https://bg.wikipedia.org/wiki/Защитна_стена",
+  "ids": "https://en.wikipedia.org/wiki/Intrusion_detection_system",
+  "ips": "https://bg.wikipedia.org/wiki/Intrusion_prevention_system",
+  "фалшиво положителен": "https://en.wikipedia.org/wiki/False_positives_and_false_negatives",
+  "дневник": "https://en.wikipedia.org/wiki/Logging_(computing)",
+  "инцидент": "https://en.wikipedia.org/wiki/Computer_security_incident_management",
+  "exploit": "https://bg.wikipedia.org/wiki/Експлойт",
+  "patch": "https://bg.wikipedia.org/wiki/Ъпдейт",
+  "zero trust": "https://en.wikipedia.org/wiki/Zero_trust_architecture"
 };
 
 </script>

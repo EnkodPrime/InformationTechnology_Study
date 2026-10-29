@@ -179,6 +179,18 @@ dfn[data-g] {
   font-style: normal; border-bottom: 1.5px dotted var(--accent); cursor: help; color: inherit;
 }
 dfn[data-g]:hover, dfn[data-g]:focus { background: var(--accent-soft); outline: none; }
+.term-source {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.05em; height: 1.05em; margin-left: .16em; vertical-align: .08em;
+  border: 1px solid var(--line); border-radius: 50%; color: var(--accent);
+  font-family: var(--mono); font-size: .72em; font-weight: 700; line-height: 1;
+  text-decoration: none;
+}
+.term-source:hover, .term-source:focus { background: var(--accent-soft); border-color: var(--accent); outline: none; }
+.term-source-card-wrap { position: relative; display: block; min-width: 0; }
+.term-source-card-wrap > .card { width: 100%; height: 100%; padding-right: 38px; }
+.term-source-card-links { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; }
+.term-source-card-links .term-source { margin-left: 0; font-size: .78em; }
 .gtip {
   position: fixed; z-index: 60; max-width: min(360px, calc(100vw - 32px));
   background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r);
@@ -541,6 +553,19 @@ svg.dg .actor { fill: none; stroke: var(--c, var(--ink-2)); stroke-width: 1.8; }
     return null;
   }
   S.glossLookup = glossLookup;
+  // Справки в Уикипедия за понятията — по тема, в js/sources.js (window.TERM_SOURCES).
+  // Българската Уикипедия е предпочетена, когато има статия за същото понятие; иначе английската.
+  function sourceFor(key) { return (window.TERM_SOURCES || {})[String(key).toLowerCase().trim()] || null; }
+  function sourceLabel(url) {
+    return url.includes("bg.wikipedia.org") ? "Уикипедия на български" : "Wikipedia in English";
+  }
+  function sourceLink(url, term) {
+    const title = sourceLabel(url);
+    return h("a", {
+      class: "term-source", href: url, target: "_blank", rel: "noopener noreferrer",
+      title, "aria-label": `${title}: ${term}`
+    }, "↗");
+  }
   function showTip(target) {
     const g = glossLookup(target.dataset.g);
     if (!g) { console.warn("Липсва в речника:", target.dataset.g); return; }
@@ -561,9 +586,14 @@ svg.dg .actor { fill: none; stroke: var(--c, var(--ink-2)); stroke-width: 1.8; }
   function hideTip() { if (tipEl) tipEl.remove(); tipEl = null; tipFor = null; }
   function bindGlossary() {
     document.addEventListener("mouseover", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && d !== tipFor) showTip(d); });
-    document.addEventListener("mouseout", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && !d.contains(e.relatedTarget)) hideTip(); });
+    document.addEventListener("mouseout", (e) => {
+      const d = e.target.closest("dfn[data-g]");
+      if (d && !d.contains(e.relatedTarget) && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("focusin", (e) => { const d = e.target.closest("dfn[data-g]"); if (d) showTip(d); });
-    document.addEventListener("focusout", (e) => { if (e.target.closest("dfn[data-g]")) hideTip(); });
+    document.addEventListener("focusout", (e) => {
+      if (e.target.closest("dfn[data-g]") && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("click", (e) => {
       const d = e.target.closest("dfn[data-g]");
       if (d) { e.preventDefault(); if (tipFor === d) hideTip(); else showTip(d); } else if (!e.target.closest(".gtip")) hideTip();
@@ -571,8 +601,29 @@ svg.dg .actor { fill: none; stroke: var(--c, var(--ink-2)); stroke-width: 1.8; }
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideTip(); closeDrawer(); } });
     window.addEventListener("scroll", hideTip, { passive: true });
   }
-  // направи всички dfn фокусируеми (клавиатура / таб)
-  function prepDfn(root) { root.querySelectorAll("dfn[data-g]").forEach((d) => d.setAttribute("tabindex", "0")); }
+  // Направи всички dfn фокусируеми и добави само икона към проверената справка.
+  function prepDfn(root) {
+    root.querySelectorAll("dfn[data-g]").forEach((d) => {
+      d.setAttribute("tabindex", "0");
+      const url = sourceFor(d.dataset.g);
+      if (!url || d.closest("a")) return;
+      const button = d.closest("button");
+      if (button) {
+        let wrap = button.parentElement;
+        if (!wrap.classList.contains("term-source-card-wrap")) {
+          const parent = wrap;
+          wrap = h("span", { class: "term-source-card-wrap" });
+          parent.insertBefore(wrap, button);
+          wrap.append(button);
+        }
+        let links = wrap.querySelector(".term-source-card-links");
+        if (!links) { links = h("span", { class: "term-source-card-links" }); wrap.append(links); }
+        if (![...links.querySelectorAll("a")].some((a) => a.href === url)) links.append(sourceLink(url, d.textContent.trim()));
+        return;
+      }
+      if (!(d.nextElementSibling && d.nextElementSibling.classList.contains("term-source"))) d.insertAdjacentElement("afterend", sourceLink(url, d.textContent.trim()));
+    });
+  }
 
   let drawer = null;
   function closeDrawer() { if (drawer) drawer.remove(); drawer = null; }
@@ -1042,6 +1093,67 @@ window.GLOSSARY = {
   // справочни
   "p": { cat: "Справочни", t: "P", en: "Polynomial Time", d: "Клас задачи за разпознаване с детерминирано полиномиално решение.", more: "Споменава се само за контраст: класификациите на ИС не са формални класове като P и NP." },
   "np": { cat: "Справочни", t: "NP", en: "Nondeterministic Polynomial Time", d: "Клас задачи за разпознаване с недетерминирано полиномиално решение." },
+};
+
+</script>
+<script>
+/* Справки в Уикипедия за понятията от речника на тема 7.
+   Ключът е същият като в glossary.js. Предпочита се българската Уикипедия, когато има
+   статия за същото понятие; иначе — английската (за подраздел — винаги английската). */
+window.TERM_SOURCES = {
+  "информационна система": "https://bg.wikipedia.org/wiki/Информационна_система",
+  "данни": "https://bg.wikipedia.org/wiki/Данни",
+  "информация": "https://bg.wikipedia.org/wiki/Информация",
+  "обратна връзка": "https://bg.wikipedia.org/wiki/Обратна_връзка",
+  "tps": "https://en.wikipedia.org/wiki/Transaction_processing_system",
+  "mis": "https://en.wikipedia.org/wiki/Management_information_system",
+  "dss": "https://en.wikipedia.org/wiki/Decision_support_system",
+  "ess": "https://en.wikipedia.org/wiki/Executive_information_system",
+  "eis": "https://en.wikipedia.org/wiki/Executive_information_system",
+  "pos": "https://en.wikipedia.org/wiki/Point_of_sale",
+  "erp": "https://bg.wikipedia.org/wiki/Планиране_на_ресурсите_на_предприятието",
+  "crm": "https://bg.wikipedia.org/wiki/CRM_система",
+  "scm": "https://en.wikipedia.org/wiki/Supply_chain_management",
+  "oltp": "https://en.wikipedia.org/wiki/Online_transaction_processing",
+  "olap": "https://bg.wikipedia.org/wiki/Анализи_в_реално_време",
+  "семантична съвместимост": "https://en.wikipedia.org/wiki/Semantic_interoperability",
+  "pmis": "https://en.wikipedia.org/wiki/Project_management_information_system",
+  "project management": "https://bg.wikipedia.org/wiki/Управление_на_проекти",
+  "jira": "https://bg.wikipedia.org/wiki/JIRA",
+  "scrum": "https://bg.wikipedia.org/wiki/Scrum",
+  "kanban": "https://bg.wikipedia.org/wiki/Канбан_(разработка_на_софтуер)",
+  "жизнен цикъл": "https://en.wikipedia.org/wiki/Systems_development_life_cycle",
+  "sdlc": "https://en.wikipedia.org/wiki/Systems_development_life_cycle",
+  "осъществимост": "https://bg.wikipedia.org/wiki/Предпроектно_проучване",
+  "внедряване": "https://en.wikipedia.org/wiki/Software_deployment",
+  "миграция": "https://en.wikipedia.org/wiki/Data_migration",
+  "etl": "https://en.wikipedia.org/wiki/Extract,_transform,_load",
+  "elt": "https://en.wikipedia.org/wiki/Extract,_load,_transform",
+  "заинтересована страна": "https://en.wikipedia.org/wiki/Project_stakeholder",
+  "функционално изискване": "https://en.wikipedia.org/wiki/Functional_requirement",
+  "нефункционално изискване": "https://en.wikipedia.org/wiki/Non-functional_requirement",
+  "случай на употреба": "https://en.wikipedia.org/wiki/Use_case",
+  "проследимост": "https://en.wikipedia.org/wiki/Requirements_traceability",
+  "контекстна диаграма": "https://en.wikipedia.org/wiki/System_context_diagram",
+  "диаграма на потоците от данни": "https://en.wikipedia.org/wiki/Data-flow_diagram",
+  "uml": "https://bg.wikipedia.org/wiki/UML",
+  "bpmn": "https://en.wikipedia.org/wiki/Business_Process_Model_and_Notation",
+  "архитектура": "https://bg.wikipedia.org/wiki/Софтуерна_архитектура",
+  "слоеста архитектура": "https://en.wikipedia.org/wiki/Multitier_architecture",
+  "идемпотентност": "https://en.wikipedia.org/wiki/Idempotence",
+  "микросервиси": "https://en.wikipedia.org/wiki/Microservices",
+  "json": "https://bg.wikipedia.org/wiki/JSON",
+  "sql": "https://bg.wikipedia.org/wiki/SQL",
+  "прототип": "https://en.wikipedia.org/wiki/Software_prototyping",
+  "итерация": "https://en.wikipedia.org/wiki/Iterative_and_incremental_development",
+  "инкремент": "https://en.wikipedia.org/wiki/Iterative_and_incremental_development",
+  "каскаден модел": "https://en.wikipedia.org/wiki/Waterfall_model",
+  "спираловиден модел": "https://en.wikipedia.org/wiki/Spiral_model",
+  "гъвкави подходи": "https://bg.wikipedia.org/wiki/Гъвкава_методология_за_разработка_на_софтуер",
+  "верификация": "https://en.wikipedia.org/wiki/Software_verification_and_validation",
+  "валидация": "https://en.wikipedia.org/wiki/Software_verification_and_validation",
+  "p": "https://en.wikipedia.org/wiki/P_(complexity)",
+  "np": "https://bg.wikipedia.org/wiki/NP-сложност"
 };
 
 </script>

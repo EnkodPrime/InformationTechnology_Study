@@ -179,6 +179,18 @@ dfn[data-g] {
   font-style: normal; border-bottom: 1.5px dotted var(--accent); cursor: help; color: inherit;
 }
 dfn[data-g]:hover, dfn[data-g]:focus { background: var(--accent-soft); outline: none; }
+.term-source {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.05em; height: 1.05em; margin-left: .16em; vertical-align: .08em;
+  border: 1px solid var(--line); border-radius: 50%; color: var(--accent);
+  font-family: var(--mono); font-size: .72em; font-weight: 700; line-height: 1;
+  text-decoration: none;
+}
+.term-source:hover, .term-source:focus { background: var(--accent-soft); border-color: var(--accent); outline: none; }
+.term-source-card-wrap { position: relative; display: block; min-width: 0; }
+.term-source-card-wrap > .card { width: 100%; height: 100%; padding-right: 38px; }
+.term-source-card-links { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; }
+.term-source-card-links .term-source { margin-left: 0; font-size: .78em; }
 .gtip {
   position: fixed; z-index: 60; max-width: min(360px, calc(100vw - 32px));
   background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r);
@@ -545,6 +557,19 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     return null;
   }
   S.glossLookup = glossLookup;
+  // Справки в Уикипедия за понятията — по тема, в js/sources.js (window.TERM_SOURCES).
+  // Българската Уикипедия е предпочетена, когато има статия за същото понятие; иначе английската.
+  function sourceFor(key) { return (window.TERM_SOURCES || {})[String(key).toLowerCase().trim()] || null; }
+  function sourceLabel(url) {
+    return url.includes("bg.wikipedia.org") ? "Уикипедия на български" : "Wikipedia in English";
+  }
+  function sourceLink(url, term) {
+    const title = sourceLabel(url);
+    return h("a", {
+      class: "term-source", href: url, target: "_blank", rel: "noopener noreferrer",
+      title, "aria-label": `${title}: ${term}`
+    }, "↗");
+  }
   function showTip(target) {
     const g = glossLookup(target.dataset.g);
     if (!g) { console.warn("Липсва в речника:", target.dataset.g); return; }
@@ -565,9 +590,14 @@ canvas.chart { width: 100%; height: 320px; display: block; }
   function hideTip() { if (tipEl) tipEl.remove(); tipEl = null; tipFor = null; }
   function bindGlossary() {
     document.addEventListener("mouseover", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && d !== tipFor) showTip(d); });
-    document.addEventListener("mouseout", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && !d.contains(e.relatedTarget)) hideTip(); });
+    document.addEventListener("mouseout", (e) => {
+      const d = e.target.closest("dfn[data-g]");
+      if (d && !d.contains(e.relatedTarget) && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("focusin", (e) => { const d = e.target.closest("dfn[data-g]"); if (d) showTip(d); });
-    document.addEventListener("focusout", (e) => { if (e.target.closest("dfn[data-g]")) hideTip(); });
+    document.addEventListener("focusout", (e) => {
+      if (e.target.closest("dfn[data-g]") && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("click", (e) => {
       const d = e.target.closest("dfn[data-g]");
       if (d) { e.preventDefault(); if (tipFor === d) hideTip(); else showTip(d); } else if (!e.target.closest(".gtip")) hideTip();
@@ -575,8 +605,29 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideTip(); closeDrawer(); } });
     window.addEventListener("scroll", hideTip, { passive: true });
   }
-  // направи всички dfn фокусируеми (клавиатура / таб)
-  function prepDfn(root) { root.querySelectorAll("dfn[data-g]").forEach((d) => d.setAttribute("tabindex", "0")); }
+  // Направи всички dfn фокусируеми и добави само икона към проверената справка.
+  function prepDfn(root) {
+    root.querySelectorAll("dfn[data-g]").forEach((d) => {
+      d.setAttribute("tabindex", "0");
+      const url = sourceFor(d.dataset.g);
+      if (!url || d.closest("a")) return;
+      const button = d.closest("button");
+      if (button) {
+        let wrap = button.parentElement;
+        if (!wrap.classList.contains("term-source-card-wrap")) {
+          const parent = wrap;
+          wrap = h("span", { class: "term-source-card-wrap" });
+          parent.insertBefore(wrap, button);
+          wrap.append(button);
+        }
+        let links = wrap.querySelector(".term-source-card-links");
+        if (!links) { links = h("span", { class: "term-source-card-links" }); wrap.append(links); }
+        if (![...links.querySelectorAll("a")].some((a) => a.href === url)) links.append(sourceLink(url, d.textContent.trim()));
+        return;
+      }
+      if (!(d.nextElementSibling && d.nextElementSibling.classList.contains("term-source"))) d.insertAdjacentElement("afterend", sourceLink(url, d.textContent.trim()));
+    });
+  }
 
   let drawer = null;
   function closeDrawer() { if (drawer) drawer.remove(); drawer = null; }
@@ -1029,6 +1080,55 @@ window.GLOSSARY = {
   "правило на нулата": { cat: "От текста на ръководството", t: "Правило на нулата", en: "Rule of zero", d: "Класът не дефинира собствени специални операции за ресурсите, защото ги поверява на готови управляващи типове (std::vector, std::unique_ptr).", more: "Правилото на трите/петте (копиращ конструктор, копиращо присвояване, деструктор, + преместващ конструктор и присвояване) е общоизвестното съответствие за клас, който сам управлява ресурс." },
   "специализация": { cat: "От текста на ръководството", t: "Специализация (на шаблон)", en: "Specialization", d: "Конкретен вариант на шаблона с фиксирани параметри, напр. vector<int>.", more: "Различните специализации могат да имат различен размер на елементите и различно генериран код. Явната (пълна) специализация задава отделна реализация за конкретни параметри." },
   "обобщено програмиране": { cat: "От текста на ръководството", t: "Обобщено програмиране", en: "Generic programming", d: "Операцията се изразява чрез изисквания към типовете, а не чрез наследяване от общ базов клас." },
+};
+
+</script>
+<script>
+/* Справки в Уикипедия за понятията от речника на тема 3.
+   Ключът е същият като в glossary.js. Предпочита се българската Уикипедия, когато има
+   статия за същото понятие; иначе — английската (за подраздел — винаги английската). */
+window.TERM_SOURCES = {
+  "клас": "https://bg.wikipedia.org/wiki/Клас_(програмиране)",
+  "обект": "https://bg.wikipedia.org/wiki/Обект_(програмиране)",
+  "абстракция": "https://bg.wikipedia.org/wiki/Абстракция_(компютърни_науки)",
+  "капсулиране": "https://bg.wikipedia.org/wiki/Капсулиране_(програмиране)",
+  "инвариант": "https://en.wikipedia.org/wiki/Class_invariant",
+  "статичен член": "https://en.wikipedia.org/wiki/Static_(keyword)",
+  "конструктор": "https://bg.wikipedia.org/wiki/Конструктор_(обектно_ориентирано_програмиране)",
+  "деструктор": "https://en.wikipedia.org/wiki/Destructor_(computer_programming)",
+  "raii": "https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization",
+  "наследяване": "https://en.wikipedia.org/wiki/Inheritance_(object-oriented_programming)",
+  "базов клас": "https://en.wikipedia.org/wiki/Inheritance_(object-oriented_programming)#Subclasses_and_superclasses",
+  "производен клас": "https://en.wikipedia.org/wiki/Inheritance_(object-oriented_programming)#Subclasses_and_superclasses",
+  "композиция": "https://en.wikipedia.org/wiki/Object_composition",
+  "отрязване на обект": "https://en.wikipedia.org/wiki/Object_slicing",
+  "полиморфизъм": "https://bg.wikipedia.org/wiki/Полиморфизъм_(информатика)",
+  "динамичен тип": "https://en.wikipedia.org/wiki/Type_system#Dynamic_type_checking_and_runtime_type_information",
+  "виртуален метод": "https://en.wikipedia.org/wiki/Virtual_function",
+  "чисто виртуален метод": "https://en.wikipedia.org/wiki/Virtual_function#Abstract_classes_and_pure_virtual_functions",
+  "абстрактен клас": "https://en.wikipedia.org/wiki/Abstract_type",
+  "override": "https://en.wikipedia.org/wiki/Method_overriding",
+  "final": "https://en.wikipedia.org/wiki/Final_(Java)",
+  "претоварване": "https://en.wikipedia.org/wiki/Function_overloading",
+  "предефиниране на метод": "https://en.wikipedia.org/wiki/Method_overriding",
+  "претоварване на оператор": "https://bg.wikipedia.org/wiki/Предефиниране_на_оператор",
+  "шаблон": "https://en.wikipedia.org/wiki/Template_(C++)",
+  "инстанциране": "https://en.wikipedia.org/wiki/Instance_(computer_science)",
+  "oop": "https://bg.wikipedia.org/wiki/Обектно_ориентирано_програмиране",
+  "stl": "https://bg.wikipedia.org/wiki/STL",
+  "api": "https://bg.wikipedia.org/wiki/Приложно-програмен_интерфейс",
+  "статичен тип": "https://en.wikipedia.org/wiki/Type_system#Static_type_checking",
+  "скриване на име": "https://en.wikipedia.org/wiki/Name_resolution_(programming_languages)#Name_masking",
+  "статично свързване": "https://en.wikipedia.org/wiki/Static_dispatch",
+  "динамично свързване": "https://en.wikipedia.org/wiki/Dynamic_dispatch",
+  "виртуална таблица": "https://en.wikipedia.org/wiki/Virtual_method_table",
+  "принцип на заместване": "https://en.wikipedia.org/wiki/Liskov_substitution_principle",
+  "виртуално наследяване": "https://en.wikipedia.org/wiki/Virtual_inheritance",
+  "копиране": "https://bg.wikipedia.org/wiki/Конструктор_за_копиране",
+  "преместване": "https://en.wikipedia.org/wiki/C++11#Rvalue_references_and_move_constructors",
+  "правило на нулата": "https://bg.wikipedia.org/wiki/Голямата_тройка_(C++)",
+  "специализация": "https://en.wikipedia.org/wiki/Template_(C++)#Explicit_template_specialization",
+  "обобщено програмиране": "https://bg.wikipedia.org/wiki/Шаблонни_типове"
 };
 
 </script>

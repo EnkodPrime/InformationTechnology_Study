@@ -179,6 +179,18 @@ dfn[data-g] {
   font-style: normal; border-bottom: 1.5px dotted var(--accent); cursor: help; color: inherit;
 }
 dfn[data-g]:hover, dfn[data-g]:focus { background: var(--accent-soft); outline: none; }
+.term-source {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.05em; height: 1.05em; margin-left: .16em; vertical-align: .08em;
+  border: 1px solid var(--line); border-radius: 50%; color: var(--accent);
+  font-family: var(--mono); font-size: .72em; font-weight: 700; line-height: 1;
+  text-decoration: none;
+}
+.term-source:hover, .term-source:focus { background: var(--accent-soft); border-color: var(--accent); outline: none; }
+.term-source-card-wrap { position: relative; display: block; min-width: 0; }
+.term-source-card-wrap > .card { width: 100%; height: 100%; padding-right: 38px; }
+.term-source-card-links { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; }
+.term-source-card-links .term-source { margin-left: 0; font-size: .78em; }
 .gtip {
   position: fixed; z-index: 60; max-width: min(360px, calc(100vw - 32px));
   background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r);
@@ -492,6 +504,19 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     return null;
   }
   S.glossLookup = glossLookup;
+  // Справки в Уикипедия за понятията — по тема, в js/sources.js (window.TERM_SOURCES).
+  // Българската Уикипедия е предпочетена, когато има статия за същото понятие; иначе английската.
+  function sourceFor(key) { return (window.TERM_SOURCES || {})[String(key).toLowerCase().trim()] || null; }
+  function sourceLabel(url) {
+    return url.includes("bg.wikipedia.org") ? "Уикипедия на български" : "Wikipedia in English";
+  }
+  function sourceLink(url, term) {
+    const title = sourceLabel(url);
+    return h("a", {
+      class: "term-source", href: url, target: "_blank", rel: "noopener noreferrer",
+      title, "aria-label": `${title}: ${term}`
+    }, "↗");
+  }
   function showTip(target) {
     const g = glossLookup(target.dataset.g);
     if (!g) { console.warn("Липсва в речника:", target.dataset.g); return; }
@@ -512,9 +537,14 @@ canvas.chart { width: 100%; height: 320px; display: block; }
   function hideTip() { if (tipEl) tipEl.remove(); tipEl = null; tipFor = null; }
   function bindGlossary() {
     document.addEventListener("mouseover", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && d !== tipFor) showTip(d); });
-    document.addEventListener("mouseout", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && !d.contains(e.relatedTarget)) hideTip(); });
+    document.addEventListener("mouseout", (e) => {
+      const d = e.target.closest("dfn[data-g]");
+      if (d && !d.contains(e.relatedTarget) && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("focusin", (e) => { const d = e.target.closest("dfn[data-g]"); if (d) showTip(d); });
-    document.addEventListener("focusout", (e) => { if (e.target.closest("dfn[data-g]")) hideTip(); });
+    document.addEventListener("focusout", (e) => {
+      if (e.target.closest("dfn[data-g]") && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
     document.addEventListener("click", (e) => {
       const d = e.target.closest("dfn[data-g]");
       if (d) { e.preventDefault(); if (tipFor === d) hideTip(); else showTip(d); } else if (!e.target.closest(".gtip")) hideTip();
@@ -522,8 +552,29 @@ canvas.chart { width: 100%; height: 320px; display: block; }
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideTip(); closeDrawer(); } });
     window.addEventListener("scroll", hideTip, { passive: true });
   }
-  // направи всички dfn фокусируеми (клавиатура / таб)
-  function prepDfn(root) { root.querySelectorAll("dfn[data-g]").forEach((d) => d.setAttribute("tabindex", "0")); }
+  // Направи всички dfn фокусируеми и добави само икона към проверената справка.
+  function prepDfn(root) {
+    root.querySelectorAll("dfn[data-g]").forEach((d) => {
+      d.setAttribute("tabindex", "0");
+      const url = sourceFor(d.dataset.g);
+      if (!url || d.closest("a")) return;
+      const button = d.closest("button");
+      if (button) {
+        let wrap = button.parentElement;
+        if (!wrap.classList.contains("term-source-card-wrap")) {
+          const parent = wrap;
+          wrap = h("span", { class: "term-source-card-wrap" });
+          parent.insertBefore(wrap, button);
+          wrap.append(button);
+        }
+        let links = wrap.querySelector(".term-source-card-links");
+        if (!links) { links = h("span", { class: "term-source-card-links" }); wrap.append(links); }
+        if (![...links.querySelectorAll("a")].some((a) => a.href === url)) links.append(sourceLink(url, d.textContent.trim()));
+        return;
+      }
+      if (!(d.nextElementSibling && d.nextElementSibling.classList.contains("term-source"))) d.insertAdjacentElement("afterend", sourceLink(url, d.textContent.trim()));
+    });
+  }
 
   let drawer = null;
   function closeDrawer() { if (drawer) drawer.remove(); drawer = null; }
@@ -987,6 +1038,69 @@ window.GLOSSARY = {
   "потоков шифър": { cat: "От ръководството", t: "Потоков шифър", en: "Stream cipher", d: "Генерира псевдослучайна ключова последователност от по-къс секретен ключ и параметри.", more: "Може да използва XOR, но не получава информационнотеоретичната гаранция на истинската еднократна лента." },
   "блоков шифър": { cat: "От ръководството", t: "Блоков шифър", en: "Block cipher", d: "Обработва блокове; режимът определя обработката на цялото съобщение." },
   "nonce": { cat: "От ръководството", t: "Nonce", d: "Параметър с изисквания за уникалност; обикновено не е тайна.", more: "Повторен nonce може да наруши защитата без изчерпване на ключа." },
+};
+
+</script>
+<script>
+/* Справки в Уикипедия за понятията от речника на тема 10.
+   Ключът е същият като в glossary.js. Предпочита се българската Уикипедия, когато има
+   статия за същото понятие; иначе — английската (за подраздел — винаги английската). */
+window.TERM_SOURCES = {
+  "криптография": "https://bg.wikipedia.org/wiki/Криптография",
+  "криптоанализ": "https://bg.wikipedia.org/wiki/Криптоанализ",
+  "криптология": "https://bg.wikipedia.org/wiki/Криптография",
+  "открит текст": "https://en.wikipedia.org/wiki/Plaintext",
+  "шифротекст": "https://en.wikipedia.org/wiki/Ciphertext",
+  "ключ": "https://bg.wikipedia.org/wiki/Ключ_(криптография)",
+  "шифроване": "https://bg.wikipedia.org/wiki/Шифроване",
+  "дешифриране": "https://bg.wikipedia.org/wiki/Шифроване",
+  "ключово пространство": "https://en.wikipedia.org/wiki/Key_size",
+  "принцип на керкхофс": "https://en.wikipedia.org/wiki/Kerckhoffs's_principle",
+  "транспозиция": "https://en.wikipedia.org/wiki/Transposition_cipher",
+  "заместване": "https://en.wikipedia.org/wiki/Substitution_cipher",
+  "моноазбучен шифър": "https://en.wikipedia.org/wiki/Substitution_cipher",
+  "полиазбучен шифър": "https://en.wikipedia.org/wiki/Polyalphabetic_cipher",
+  "цезаров шифър": "https://bg.wikipedia.org/wiki/Шифър_на_Цезар",
+  "афинен шифър": "https://en.wikipedia.org/wiki/Affine_cipher",
+  "модулна аритметика": "https://bg.wikipedia.org/wiki/Модулна_аритметика",
+  "обратен елемент": "https://en.wikipedia.org/wiki/Modular_multiplicative_inverse",
+  "виженер": "https://bg.wikipedia.org/wiki/Шифър_на_Виженер",
+  "честотен анализ": "https://en.wikipedia.org/wiki/Frequency_analysis",
+  "грубо изчерпване": "https://en.wikipedia.org/wiki/Brute-force_attack",
+  "еднократна лента": "https://en.wikipedia.org/wiki/One-time_pad",
+  "съвършена секретност": "https://en.wikipedia.org/wiki/Information-theoretic_security",
+  "симетрична криптография": "https://en.wikipedia.org/wiki/Symmetric-key_algorithm",
+  "асиметрична криптография": "https://bg.wikipedia.org/wiki/Асиметричен_шифър",
+  "хеш": "https://bg.wikipedia.org/wiki/Хеш_функция",
+  "mac": "https://en.wikipedia.org/wiki/Message_authentication_code",
+  "цифров подпис": "https://en.wikipedia.org/wiki/Digital_signature",
+  "aes": "https://bg.wikipedia.org/wiki/Advanced_Encryption_Standard",
+  "rsa": "https://bg.wikipedia.org/wiki/RSA",
+  "sha": "https://bg.wikipedia.org/wiki/SHA",
+  "hmac": "https://en.wikipedia.org/wiki/HMAC",
+  "otp": "https://en.wikipedia.org/wiki/One-time_pad",
+  "xor": "https://en.wikipedia.org/wiki/Exclusive_or",
+  "tls": "https://bg.wikipedia.org/wiki/TLS",
+  "aead": "https://en.wikipedia.org/wiki/Authenticated_encryption",
+  "https": "https://bg.wikipedia.org/wiki/HTTPS",
+  "np": "https://bg.wikipedia.org/wiki/NP-сложност",
+  "криптографски хеш": "https://en.wikipedia.org/wiki/Cryptographic_hash_function",
+  "кодиране": "https://en.wikipedia.org/wiki/Base64",
+  "компресиране": "https://bg.wikipedia.org/wiki/Компресиране_на_данни",
+  "стеганография": "https://bg.wikipedia.org/wiki/Стеганография",
+  "конфиденциалност": "https://en.wikipedia.org/wiki/Confidentiality",
+  "цялост": "https://bg.wikipedia.org/wiki/Цялостност_на_данните",
+  "удостоверяване": "https://bg.wikipedia.org/wiki/Автентикация",
+  "модел на атака": "https://en.wikipedia.org/wiki/Attack_model",
+  "колонна транспозиция": "https://en.wikipedia.org/wiki/Transposition_cipher#Columnar_transposition",
+  "железопътна ограда": "https://en.wikipedia.org/wiki/Rail_fence_cipher",
+  "маршрутно разместване": "https://en.wikipedia.org/wiki/Transposition_cipher#Route_cipher",
+  "продуктова конструкция": "https://en.wikipedia.org/wiki/Product_cipher",
+  "метод на касиски": "https://en.wikipedia.org/wiki/Kasiski_examination",
+  "индекс на съвпадение": "https://en.wikipedia.org/wiki/Index_of_coincidence",
+  "потоков шифър": "https://en.wikipedia.org/wiki/Stream_cipher",
+  "блоков шифър": "https://en.wikipedia.org/wiki/Block_cipher",
+  "nonce": "https://en.wikipedia.org/wiki/Cryptographic_nonce"
 };
 
 </script>

@@ -39,6 +39,7 @@ topic_key = "t" + num.zfill(2)
 
 <script src="../common/js/study.js"></script>
 <script src="js/glossary.js"></script>
+<script src="js/sources.js"></script>
 <script src="js/csrc.js"></script>
 <!-- CHAPTERS -->
 <script src="js/ch00_map.js"></script>
@@ -48,6 +49,7 @@ topic_key = "t" + num.zfill(2)
 </html>
 """, encoding="utf-8")
 (T / "js" / "glossary.js").write_text(f"/* Речник за тема {int(num)}. Основните определения (d) са от „Тема {int(num)}. Речник на понятията“. */\nwindow.GLOSSARY = {{\n}};\n", encoding="utf-8")
+(T / "js" / "sources.js").write_text(f"/* Справки в Уикипедия за понятията от речника на тема {int(num)} (ключ като в glossary.js). */\nwindow.TERM_SOURCES = {{\n}};\n", encoding="utf-8")
 (T / "js" / "csrc.js").write_text("window.CSRC = {};\n", encoding="utf-8")
 (T / "README.md").write_text(f"# Тема {int(num)}. {title}\n\nКонспект: *{konspekt}*\n\nОтвори `index.html` в браузър.\n", encoding="utf-8")
 print("Създадена", T)
