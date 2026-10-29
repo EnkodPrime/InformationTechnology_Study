@@ -917,7 +917,7 @@ body { padding-bottom: var(--dock-h, 0px); }
     bNext.onclick = () => { stop(); go(i + 1); };
     bLast.onclick = () => { stop(); go(frames.length - 1); };
     bPlay.onclick = play;
-    scrub.addEventListener("input", () => { stop(); go(+scrub.value); });
+    scrub.addEventListener("input", () => { const k = +scrub.value; stop(); go(k); });
     root.addEventListener("keydown", (e) => {
       if (e.target.closest("input:not([type=range]),select,textarea")) return;
       if (e.key === "ArrowRight") { e.preventDefault(); stop(); go(i + 1); }

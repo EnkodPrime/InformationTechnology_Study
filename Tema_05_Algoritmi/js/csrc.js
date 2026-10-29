@@ -958,6 +958,193 @@ window.CSRC = {
    ]
   }
  },
+ "ch07_shell": {
+  "file": "07_sorting.c",
+  "code": "/* Shell (стъпки на Кнут 1, 4, 13, 40, …): вмъкване между елементи на\n   разстояние h, после h намалява до 1. Последният проход е обикновено\n   вмъкване, но върху почти подреден масив. Не е стабилно. */\nvoid shell_sort(item a[], int n)\n{\n    int h = 1;\n    while (h < n / 3) h = 3 * h + 1;\n    for (; h >= 1; h /= 3)\n        for (int i = h; i < n; i++) {\n            item x = a[i];\n            int j = i;\n            while (j >= h && less(x, a[j - h])) {\n                a[j] = a[j - h]; g_wr++;\n                j -= h;\n            }\n            a[j] = x; g_wr++;\n        }\n}",
+  "tags": {
+   "gap": [
+    8
+   ],
+   "outer": [
+    9
+   ],
+   "take": [
+    10
+   ],
+   "cmp": [
+    12
+   ],
+   "shift": [
+    13
+   ],
+   "put": [
+    16
+   ]
+  }
+ },
+ "ch07_cocktail": {
+  "file": "07_sorting.c",
+  "code": "/* Шейкър (двупосочно мехурче): проход напред изкарва максимума вдясно,\n   проход назад — минимума вляво. Стабилно, Θ(n²) най-лошо, Θ(n) най-добро. */\nvoid cocktail_sort(item a[], int n)\n{\n    int lo = 0, hi = n - 1;\n    for (;;) {\n        int swapped = 0;\n        for (int j = lo; j < hi; j++)\n            if (less(a[j + 1], a[j])) {\n                swap(&a[j], &a[j + 1]);\n                swapped = 1;\n            }\n        hi--;\n        if (!swapped) break;\n        swapped = 0;\n        for (int j = hi; j > lo; j--)\n            if (less(a[j], a[j - 1])) {\n                swap(&a[j - 1], &a[j]);\n                swapped = 1;\n            }\n        lo++;\n        if (!swapped) break;\n    }\n}",
+  "tags": {
+   "fwd": [
+    7
+   ],
+   "cmp": [
+    9
+   ],
+   "swap": [
+    10
+   ],
+   "stop": [
+    14
+   ],
+   "back": [
+    15
+   ],
+   "cmpb": [
+    17
+   ],
+   "swapb": [
+    18
+   ],
+   "stopb": [
+    22
+   ]
+  }
+ },
+ "ch07_comb": {
+  "file": "07_sorting.c",
+  "code": "/* Comb (гребен): мехурче с разстояние gap, което намалява ×10/13.\n   Далечните размени бързо махат малки стойности от края. Не е стабилно. */\nvoid comb_sort(item a[], int n)\n{\n    int gap = n, sorted = 0;\n    while (!sorted) {\n        gap = gap * 10 / 13;\n        if (gap <= 1) { gap = 1; sorted = 1; }\n        for (int i = 0; i + gap < n; i++)\n            if (less(a[i + gap], a[i])) {\n                swap(&a[i], &a[i + gap]);\n                sorted = 0;\n            }\n    }\n}",
+  "tags": {
+   "gap": [
+    7
+   ],
+   "cmp": [
+    10
+   ],
+   "swap": [
+    11
+   ]
+  }
+ },
+ "ch07_gnome": {
+  "file": "07_sorting.c",
+  "code": "/* Gnome (градинарско джудже): върви напред, докато двойката е наред;\n   иначе разменя и се връща една позиция. Стабилно, Θ(n²) най-лошо. */\nvoid gnome_sort(item a[], int n)\n{\n    int pos = 0;\n    while (pos < n) {\n        if (pos == 0 || !less(a[pos], a[pos - 1]))\n            pos++;\n        else {\n            swap(&a[pos], &a[pos - 1]);\n            pos--;\n        }\n    }\n}",
+  "tags": {
+   "cmp": [
+    7
+   ],
+   "fwd": [
+    8
+   ],
+   "swap": [
+    10
+   ]
+  }
+ },
+ "ch07_counting": {
+  "file": "07_sorting.c",
+  "code": "/* Броене: k = max − min + 1 брояча; без сравнения между елементите\n   при подреждането (сравненията са само за min/max). Θ(n + k), стабилно. */\nvoid counting_sort(item a[], int n)\n{\n    int mn, mx;\n    key_range(a, n, &mn, &mx);\n    int k = mx - mn + 1;\n    int *cnt = calloc((size_t)k, sizeof *cnt);\n    item *tmp = malloc((size_t)n * sizeof *tmp);\n    if (!cnt || !tmp) { free(cnt); free(tmp); return; }\n    for (int i = 0; i < n; i++)\n        cnt[a[i].key - mn]++;\n    for (int v = 1; v < k; v++)\n        cnt[v] += cnt[v - 1];\n    for (int i = n - 1; i >= 0; i--) {              /* отзад напред: стабилност */\n        tmp[--cnt[a[i].key - mn]] = a[i]; g_wr++;\n    }\n    for (int i = 0; i < n; i++) { a[i] = tmp[i]; g_wr++; }\n    free(cnt); free(tmp);\n}",
+  "tags": {
+   "range": [
+    6
+   ],
+   "count": [
+    12
+   ],
+   "prefix": [
+    14
+   ],
+   "place": [
+    16
+   ],
+   "back": [
+    18
+   ]
+  }
+ },
+ "ch07_radix": {
+  "file": "07_sorting.c",
+  "code": "/* Поразредно LSD (основа 10) върху key − min: за всяка цифра от\n   младшата към старшата — стабилно броене по тази цифра. Θ(d·(n + 10)). */\nvoid radix_sort(item a[], int n)\n{\n    int mn, mx;\n    key_range(a, n, &mn, &mx);\n    int range = mx - mn;\n    item *tmp = malloc((size_t)n * sizeof *tmp);\n    if (!tmp) return;\n    for (int e = 1; ; e *= 10) {\n        int cnt[10] = {0};\n        for (int i = 0; i < n; i++)\n            cnt[(a[i].key - mn) / e % 10]++;\n        for (int d = 1; d < 10; d++)\n            cnt[d] += cnt[d - 1];\n        for (int i = n - 1; i >= 0; i--) {\n            tmp[--cnt[(a[i].key - mn) / e % 10]] = a[i]; g_wr++;\n        }\n        for (int i = 0; i < n; i++) { a[i] = tmp[i]; g_wr++; }\n        if (range / e < 10) break;\n    }\n    free(tmp);\n}",
+  "tags": {
+   "range": [
+    6
+   ],
+   "digit": [
+    10
+   ],
+   "count": [
+    13
+   ],
+   "place": [
+    17
+   ],
+   "back": [
+    19
+   ],
+   "last": [
+    20
+   ]
+  }
+ },
+ "ch07_merge_bu": {
+  "file": "07_sorting.c",
+  "code": "/* Сливане отдолу нагоре (итеративно): серии с дължина 1, 2, 4, …\n   се сливат по двойки. Без рекурсия; същите сравнения като top-down\n   при n = 2^k. Стабилно, Θ(n) памет. */\nvoid merge_bu_sort(item a[], int n)\n{\n    item *tmp = malloc((size_t)(n > 0 ? n : 1) * sizeof *tmp);\n    if (!tmp) return;\n    for (int w = 1; w < n; w *= 2)\n        for (int lo = 0; lo < n - w; lo += 2 * w) {\n            int mid = lo + w, hi = lo + 2 * w < n ? lo + 2 * w : n;\n            int i = lo, j = mid, k = lo;\n            while (i < mid && j < hi) {\n                if (!less(a[j], a[i]))\n                    tmp[k++] = a[i++];\n                else\n                    tmp[k++] = a[j++];\n                g_wr++;\n            }\n            while (i < mid) { tmp[k++] = a[i++]; g_wr++; }\n            while (j < hi)  { tmp[k++] = a[j++]; g_wr++; }\n            for (k = lo; k < hi; k++) { a[k] = tmp[k]; g_wr++; }\n        }\n    free(tmp);\n}",
+  "tags": {
+   "width": [
+    8
+   ],
+   "minit": [
+    11
+   ],
+   "cmp": [
+    13
+   ],
+   "takeL": [
+    14
+   ],
+   "takeR": [
+    16
+   ],
+   "rest": [
+    19,
+    20
+   ],
+   "back": [
+    21
+   ]
+  }
+ },
+ "ch07_quick3": {
+  "file": "07_sorting.c",
+  "code": "/* Бързо с трипосочно разделяне (Дейкстра): < p | = p | > p.\n   Равните на опорния не влизат в рекурсията — при много повторения\n   работата пада до Θ(n·броя различни ключове). Не е стабилно. */\nstatic void q3_rec(item a[], int lo, int hi)\n{\n    if (lo >= hi) return;\n    item p = a[lo + (hi - lo) / 2];\n    int lt = lo, i = lo, gt = hi;\n    while (i <= gt) {\n        if (less(a[i], p)) {\n            swap(&a[lt], &a[i]);\n            lt++; i++;\n        } else if (less(p, a[i])) {\n            swap(&a[i], &a[gt]);\n            gt--;\n        } else\n            i++;\n    }\n    q3_rec(a, lo, lt - 1);\n    q3_rec(a, gt + 1, hi);\n}\nvoid quick3_sort(item a[], int n) { q3_rec(a, 0, n - 1); }",
+  "tags": {
+   "base": [
+    6
+   ],
+   "pivot": [
+    7
+   ],
+   "cmp": [
+    10
+   ],
+   "swl": [
+    11
+   ],
+   "cmp2": [
+    13
+   ],
+   "swg": [
+    14
+   ],
+   "eq": [
+    17
+   ],
+   "rec": [
+    19
+   ]
+  }
+ },
  "ch08_iv_end": {
   "file": "08_greedy.c",
   "code": "/* Оптимален алчен избор: сортираме по нарастващ край и вземаме\n   всеки интервал, чието начало е >= края на последния избран. */\nstatic int cmp_end(const void *pa, const void *pb)\n{\n    const Interval *a = pa, *b = pb;\n    if (a->e != b->e) return a->e < b->e ? -1 : 1;\n    return a->id - b->id;\n}\n\nint select_by_end(const Interval in[], int n, int chosen[])\n{\n    Interval v[MAXN];\n    memcpy(v, in, (size_t)n * sizeof v[0]);\n    qsort(v, (size_t)n, sizeof v[0], cmp_end);\n    int m = 0;\n    int last_end = INT_MIN;\n    for (int i = 0; i < n; i++) {\n        if (v[i].s < last_end)\n            continue;        /* пресича последния */\n        chosen[m++] = v[i].id;\n        last_end = v[i].e;\n    }\n    return m;\n}",

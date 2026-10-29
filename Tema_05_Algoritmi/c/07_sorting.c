@@ -146,6 +146,201 @@ void heap_sort(item a[], int n)
 }
 //#end
 
+//#viz ch07_shell
+/* Shell (стъпки на Кнут 1, 4, 13, 40, …): вмъкване между елементи на
+   разстояние h, после h намалява до 1. Последният проход е обикновено
+   вмъкване, но върху почти подреден масив. Не е стабилно. */
+void shell_sort(item a[], int n)
+{
+    int h = 1;
+    while (h < n / 3) h = 3 * h + 1;
+    for (; h >= 1; h /= 3)                          //@gap
+        for (int i = h; i < n; i++) {               //@outer
+            item x = a[i];                          //@take
+            int j = i;
+            while (j >= h && less(x, a[j - h])) {   //@cmp
+                a[j] = a[j - h]; g_wr++;            //@shift
+                j -= h;
+            }
+            a[j] = x; g_wr++;                       //@put
+        }
+}
+//#end
+
+//#viz ch07_cocktail
+/* Шейкър (двупосочно мехурче): проход напред изкарва максимума вдясно,
+   проход назад — минимума вляво. Стабилно, Θ(n²) най-лошо, Θ(n) най-добро. */
+void cocktail_sort(item a[], int n)
+{
+    int lo = 0, hi = n - 1;
+    for (;;) {
+        int swapped = 0;                            //@fwd
+        for (int j = lo; j < hi; j++)
+            if (less(a[j + 1], a[j])) {             //@cmp
+                swap(&a[j], &a[j + 1]);             //@swap
+                swapped = 1;
+            }
+        hi--;
+        if (!swapped) break;                        //@stop
+        swapped = 0;                                //@back
+        for (int j = hi; j > lo; j--)
+            if (less(a[j], a[j - 1])) {             //@cmpb
+                swap(&a[j - 1], &a[j]);             //@swapb
+                swapped = 1;
+            }
+        lo++;
+        if (!swapped) break;                        //@stopb
+    }
+}
+//#end
+
+//#viz ch07_comb
+/* Comb (гребен): мехурче с разстояние gap, което намалява ×10/13.
+   Далечните размени бързо махат малки стойности от края. Не е стабилно. */
+void comb_sort(item a[], int n)
+{
+    int gap = n, sorted = 0;
+    while (!sorted) {
+        gap = gap * 10 / 13;                        //@gap
+        if (gap <= 1) { gap = 1; sorted = 1; }
+        for (int i = 0; i + gap < n; i++)
+            if (less(a[i + gap], a[i])) {           //@cmp
+                swap(&a[i], &a[i + gap]);           //@swap
+                sorted = 0;
+            }
+    }
+}
+//#end
+
+//#viz ch07_gnome
+/* Gnome (градинарско джудже): върви напред, докато двойката е наред;
+   иначе разменя и се връща една позиция. Стабилно, Θ(n²) най-лошо. */
+void gnome_sort(item a[], int n)
+{
+    int pos = 0;
+    while (pos < n) {
+        if (pos == 0 || !less(a[pos], a[pos - 1]))  //@cmp
+            pos++;                                  //@fwd
+        else {
+            swap(&a[pos], &a[pos - 1]);             //@swap
+            pos--;
+        }
+    }
+}
+//#end
+
+/* min и max на ключовете — общо за броенето и поразредното */
+static void key_range(const item a[], int n, int *mn, int *mx)
+{
+    int imin = 0, imax = 0;
+    for (int i = 1; i < n; i++) {
+        if (less(a[i], a[imin])) imin = i;
+        else if (less(a[imax], a[i])) imax = i;
+    }
+    *mn = a[imin].key; *mx = a[imax].key;
+}
+
+//#viz ch07_counting
+/* Броене: k = max − min + 1 брояча; без сравнения между елементите
+   при подреждането (сравненията са само за min/max). Θ(n + k), стабилно. */
+void counting_sort(item a[], int n)
+{
+    int mn, mx;
+    key_range(a, n, &mn, &mx);                      //@range
+    int k = mx - mn + 1;
+    int *cnt = calloc((size_t)k, sizeof *cnt);
+    item *tmp = malloc((size_t)n * sizeof *tmp);
+    if (!cnt || !tmp) { free(cnt); free(tmp); return; }
+    for (int i = 0; i < n; i++)
+        cnt[a[i].key - mn]++;                       //@count
+    for (int v = 1; v < k; v++)
+        cnt[v] += cnt[v - 1];                       //@prefix
+    for (int i = n - 1; i >= 0; i--) {              /* отзад напред: стабилност */
+        tmp[--cnt[a[i].key - mn]] = a[i]; g_wr++;   //@place
+    }
+    for (int i = 0; i < n; i++) { a[i] = tmp[i]; g_wr++; }  //@back
+    free(cnt); free(tmp);
+}
+//#end
+
+//#viz ch07_radix
+/* Поразредно LSD (основа 10) върху key − min: за всяка цифра от
+   младшата към старшата — стабилно броене по тази цифра. Θ(d·(n + 10)). */
+void radix_sort(item a[], int n)
+{
+    int mn, mx;
+    key_range(a, n, &mn, &mx);                      //@range
+    int range = mx - mn;
+    item *tmp = malloc((size_t)n * sizeof *tmp);
+    if (!tmp) return;
+    for (int e = 1; ; e *= 10) {                    //@digit
+        int cnt[10] = {0};
+        for (int i = 0; i < n; i++)
+            cnt[(a[i].key - mn) / e % 10]++;        //@count
+        for (int d = 1; d < 10; d++)
+            cnt[d] += cnt[d - 1];
+        for (int i = n - 1; i >= 0; i--) {
+            tmp[--cnt[(a[i].key - mn) / e % 10]] = a[i]; g_wr++;  //@place
+        }
+        for (int i = 0; i < n; i++) { a[i] = tmp[i]; g_wr++; }    //@back
+        if (range / e < 10) break;                  //@last
+    }
+    free(tmp);
+}
+//#end
+
+//#viz ch07_merge_bu
+/* Сливане отдолу нагоре (итеративно): серии с дължина 1, 2, 4, …
+   се сливат по двойки. Без рекурсия; същите сравнения като top-down
+   при n = 2^k. Стабилно, Θ(n) памет. */
+void merge_bu_sort(item a[], int n)
+{
+    item *tmp = malloc((size_t)(n > 0 ? n : 1) * sizeof *tmp);
+    if (!tmp) return;
+    for (int w = 1; w < n; w *= 2)                  //@width
+        for (int lo = 0; lo < n - w; lo += 2 * w) {
+            int mid = lo + w, hi = lo + 2 * w < n ? lo + 2 * w : n;
+            int i = lo, j = mid, k = lo;            //@minit
+            while (i < mid && j < hi) {
+                if (!less(a[j], a[i]))              //@cmp
+                    tmp[k++] = a[i++];              //@takeL
+                else
+                    tmp[k++] = a[j++];              //@takeR
+                g_wr++;
+            }
+            while (i < mid) { tmp[k++] = a[i++]; g_wr++; }  //@rest
+            while (j < hi)  { tmp[k++] = a[j++]; g_wr++; }  //@rest
+            for (k = lo; k < hi; k++) { a[k] = tmp[k]; g_wr++; }  //@back
+        }
+    free(tmp);
+}
+//#end
+
+//#viz ch07_quick3
+/* Бързо с трипосочно разделяне (Дейкстра): < p | = p | > p.
+   Равните на опорния не влизат в рекурсията — при много повторения
+   работата пада до Θ(n·броя различни ключове). Не е стабилно. */
+static void q3_rec(item a[], int lo, int hi)
+{
+    if (lo >= hi) return;                           //@base
+    item p = a[lo + (hi - lo) / 2];                 //@pivot
+    int lt = lo, i = lo, gt = hi;
+    while (i <= gt) {
+        if (less(a[i], p)) {                        //@cmp
+            swap(&a[lt], &a[i]);                    //@swl
+            lt++; i++;
+        } else if (less(p, a[i])) {                 //@cmp2
+            swap(&a[i], &a[gt]);                    //@swg
+            gt--;
+        } else
+            i++;                                    //@eq
+    }
+    q3_rec(a, lo, lt - 1);                          //@rec
+    q3_rec(a, gt + 1, hi);
+}
+void quick3_sort(item a[], int n) { q3_rec(a, 0, n - 1); }
+//#end
+
 #ifndef NO_MAIN
 /* Генератор на входове — същият като в JS (LCG). */
 static uint32_t seed;
@@ -172,13 +367,16 @@ static void gen(item a[], int n, int type, uint32_t s)
 }
 
 typedef void (*sorter)(item[], int);
-static const char *NAMES[] = {"selection", "bubble", "insertion", "merge", "quick", "heap"};
-static const sorter FNS[] = {selection_sort, bubble_sort, insertion_sort, merge_sort, quick_sort, heap_sort};
+static const char *NAMES[] = {"selection", "bubble", "insertion", "merge", "quick", "heap",
+                               "shell", "cocktail", "comb", "gnome", "counting", "radix", "merge_bu", "quick3"};
+static const sorter FNS[] = {selection_sort, bubble_sort, insertion_sort, merge_sort, quick_sort, heap_sort,
+                             shell_sort, cocktail_sort, comb_sort, gnome_sort, counting_sort, radix_sort, merge_bu_sort, quick3_sort};
+#define NSORT ((int)(sizeof FNS / sizeof FNS[0]))
 
 static void run(const char *tag, const item in[], int n, int print_arr)
 {
     static item a[4096];
-    for (int s = 0; s < 6; s++) {
+    for (int s = 0; s < NSORT; s++) {
         for (int i = 0; i < n; i++) a[i] = in[i];
         g_cmp = g_swp = g_wr = 0;
         FNS[s](a, n);
@@ -204,6 +402,9 @@ int main(void)
     for (int i = 0; i < 4; i++) { in[i].key = fixed[1][i]; in[i].id = i; }
     run("f2", in, 4, 1);
     run("f0", in, 1, 1);
+    const int neg[] = {-3, 7, 0, -3, 12, 5, -10, 7};
+    for (int i = 0; i < 8; i++) { in[i].key = neg[i]; in[i].id = i; }
+    run("f3", in, 8, 1);
     int ns[] = {20, 40, 200, 1000};
     for (int t = 0; t < 5; t++)
         for (int k = 0; k < 4; k++) {
