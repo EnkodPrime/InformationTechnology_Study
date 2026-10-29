@@ -5,7 +5,8 @@
 ```
 common/
 ├─ css/study.css          обща визия, цветови токени (светла/тъмна тема)
-└─ js/study.js            рамка: Study.viz, Study.quiz, Study.drawArray, речник, навигация
+├─ js/study.js            рамка: Study.viz, Study.quiz, Study.drawArray, речник, навигация
+└─ js/aichat.js           панел „AI помощ“ отдолу (ChatGPT линк + OpenAI API с личен ключ)
 tools/gen_csrc.py         C регионите -> js/csrc.js
 Tema_05_Algoritmi/
 ├─ index.html             зарежда рамката и главите (ch00…ch11)
@@ -75,3 +76,10 @@ Tema_05_Algoritmi/
 sh Tema_05_Algoritmi/tests/run_all.sh                 # C компилация + сверка JS/C
 python3 Tema_05_Algoritmi/tests/shot.py <id-на-глава> # headless снимка + конзолни грешки
 ```
+
+## AI помощ
+
+Бутон „AI помощ“ в горната лента отваря панел отдолу. Контекстът на въпроса е: тема, текуща глава, понятие (от подсказката → „Попитай AI за това“) и маркиран текст (маркирай → „Попитай AI“).
+
+* „Отвори в ChatGPT ↗“ — нов таб `chatgpt.com/?q=…` с въпроса и контекста (до 3000 знака). Без ключ.
+* Отговор в панела — OpenAI Chat Completions API (по подразбиране `gpt-5-mini`, сменя се в „Настройки“). Ключът се въвежда в „Настройки“, пази се само в localStorage на браузъра и се праща само към `api.openai.com`. Ключ не се слага в репото.

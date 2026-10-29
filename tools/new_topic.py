@@ -38,6 +38,7 @@ topic_key = "t" + num.zfill(2)
 </div>
 
 <script src="../common/js/study.js"></script>
+<script src="../common/js/aichat.js"></script>
 <script src="js/glossary.js"></script>
 <script src="js/sources.js"></script>
 <script src="js/csrc.js"></script>

@@ -361,3 +361,47 @@ canvas.chart { width: 100%; height: 320px; display: block; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ---------- AI помощ (панел отдолу) ---------- */
+body { padding-bottom: var(--dock-h, 0px); }
+.sidenav { max-height: calc(100vh - 60px - var(--dock-h, 0px)); }
+.ai-dock[hidden], .ai-set[hidden], .ai-selbtn[hidden] { display: none !important; }
+.ai-dock {
+  position: fixed; z-index: 40; left: 0; right: 0; bottom: 0; height: min(42vh, 440px); min-height: 180px;
+  background: var(--paper); border-top: 1px solid var(--line); box-shadow: 0 -4px 18px rgba(20, 30, 45, .08);
+  display: grid; grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px);
+}
+.ai-grip { height: 8px; cursor: ns-resize; touch-action: none; position: relative; }
+.ai-grip::after { content: ""; position: absolute; left: 50%; top: 3px; width: 44px; height: 3px; margin-left: -22px; border-radius: 2px; background: var(--line); }
+.ai-head { display: flex; align-items: center; gap: 8px; padding: 2px 16px 8px; flex-wrap: wrap; border-bottom: 1px solid var(--line-2); }
+.ai-head > b { font: 600 1rem/1.2 var(--f-display); }
+.ai-head .sp { flex: 1; }
+.ai-ctx { display: flex; gap: 6px; flex-wrap: wrap; min-width: 0; }
+.ai-tag { font-size: .76rem; color: var(--ink-2); background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 8px; display: inline-flex; gap: 4px; align-items: center; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ai-tag button { border: 0; background: none; color: var(--muted); cursor: pointer; padding: 0 2px; font-size: .9rem; line-height: 1; }
+.ai-set { display: grid; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--line-2); background: var(--panel-2); font-size: .85rem; }
+.ai-set label { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 8px; align-items: center; }
+.ai-set input { font: 400 .85rem var(--f-mono); padding: 6px 8px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); color: var(--ink); min-width: 0; }
+.ai-set-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ai-set p { margin: 0; }
+.ai-list { overflow: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+.ai-empty { font-size: .86rem; }
+.ai-msg { max-width: min(860px, 92%); padding: 8px 12px; border-radius: var(--r); font-size: .9rem; line-height: 1.5; overflow-wrap: anywhere; }
+.ai-msg p { margin: 0 0 .5em; } .ai-msg p:last-child { margin-bottom: 0; }
+.ai-msg.me { align-self: flex-end; background: var(--accent-soft); white-space: pre-wrap; }
+.ai-msg.bot { align-self: flex-start; background: var(--panel); border: 1px solid var(--line-2); }
+.ai-msg.err { align-self: flex-start; background: var(--st-swap-bg); color: var(--ink); }
+.ai-msg code { font-family: var(--f-mono); font-size: .85em; background: var(--code-bg); padding: 0 3px; border-radius: 3px; }
+.ai-code { background: var(--code-bg); color: var(--code-ink); padding: 8px 10px; border-radius: var(--r); overflow: auto; margin: .4em 0; }
+.ai-code code { background: none; padding: 0; }
+.ai-foot { display: flex; gap: 8px; padding: 8px 16px 12px; border-top: 1px solid var(--line-2); align-items: flex-end; }
+.ai-in { flex: 1; min-width: 0; resize: none; font: 400 .9rem/1.4 var(--f-body); padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); color: var(--ink); }
+.ai-in:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+.ai-selbtn { position: fixed; z-index: 70; box-shadow: var(--shadow); }
+.ai-tipbtn { justify-self: start; margin-top: 4px; min-height: 28px; padding: 5px 10px; font-size: .8rem; }
+@media (max-width: 520px) {
+  .ai-head { padding-inline: 10px; } .ai-list, .ai-foot { padding-inline: 10px; }
+  .ai-set label { grid-template-columns: minmax(0, 1fr); }
+}

@@ -134,6 +134,7 @@
       g.en ? h("span", { class: "en", text: g.en }) : null,
       h("span", { html: g.d }),
       g.more ? h("span", { class: "more", html: g.more }) : null);
+    if (S.onTip) try { S.onTip(tipEl, g, target); } catch (e) { console.error(e); }
     document.body.append(tipEl);
     tipFor = target;
     const r = target.getBoundingClientRect(), tr = tipEl.getBoundingClientRect();
@@ -142,6 +143,7 @@
     if (y + tr.height > window.innerHeight - 8) y = r.top - tr.height - 6;
     tipEl.style.left = x + "px"; tipEl.style.top = Math.max(8, y) + "px";
   }
+  S.hideTip = () => hideTip();
   function hideTip() { if (tipEl) tipEl.remove(); tipEl = null; tipFor = null; }
   function bindGlossary() {
     document.addEventListener("mouseover", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && d !== tipFor) showTip(d); });
@@ -561,6 +563,8 @@
       if (S._booted) window.scrollTo(0, 0);
       S._booted = true;
       document.title = c.title + " · " + opt.title;
+      S.current = { chapter: c, section: mounted[c.id], topic: opt };
+      document.dispatchEvent(new CustomEvent("study:chapter", { detail: S.current }));
     }
     window.addEventListener("hashchange", show);
     document.getElementById("btn-gloss").onclick = () => S.openGlossary();
