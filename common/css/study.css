@@ -399,8 +399,11 @@ body { padding-bottom: var(--dock-h, 0px); }
 .ai-foot { display: flex; gap: 8px; padding: 8px 16px 12px; border-top: 1px solid var(--line-2); align-items: flex-end; }
 .ai-in { flex: 1; min-width: 0; resize: none; font: 400 .9rem/1.4 var(--f-body); padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); color: var(--ink); }
 .ai-in:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
-.ai-selbtn { position: fixed; z-index: 70; box-shadow: var(--shadow); }
-.ai-tipbtn { justify-self: start; margin-top: 4px; min-height: 28px; padding: 5px 10px; font-size: .8rem; }
+.ai-ask { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.ai-ask .btn { min-height: 28px; padding: 5px 10px; font-size: .8rem; }
+.ai-ask-l { font-size: .76rem; color: var(--muted); }
+.ai-selbtn { position: fixed; z-index: 70; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); padding: 6px 8px; }
+.ai-tipbtn { justify-self: start; margin-top: 4px; border-top: 1px solid var(--line-2); padding-top: 8px; }
 @media (max-width: 520px) {
   .ai-head { padding-inline: 10px; } .ai-list, .ai-foot { padding-inline: 10px; }
   .ai-set label { grid-template-columns: minmax(0, 1fr); }

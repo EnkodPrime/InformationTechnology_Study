@@ -1,13 +1,14 @@
 /* AI помощ — панел отдолу за въпроси по текущата глава.
    Два пътя за един и същ въпрос с контекст:
-   1) „Отвори в ChatGPT“ — нов таб chatgpt.com с попълнен въпрос (без ключ; ползва абонамента в ChatGPT).
+   1) „ChatGPT ↗“ / „Claude ↗“ — нов таб chatgpt.com или claude.ai с попълнен въпрос (без ключ; ползва абонамента).
+      Бързият път е директно от маркиран текст или от подсказката на понятие — без да се отваря панелът.
    2) Отговор в панела — OpenAI Chat Completions API с личен ключ. Ключът се пази само в този браузър
       (localStorage) и се праща само към api.openai.com. Не се записва в репото.
    Контекстът е: тема, глава, термин от речника (по избор) и маркиран текст (по избор). */
 (function () {
   const S = window.Study, h = S.h;
   const API = "https://api.openai.com/v1/chat/completions";
-  const CHATGPT = "https://chatgpt.com/";
+  const SITES = { chatgpt: { name: "ChatGPT", url: "https://chatgpt.com/?q=" }, claude: { name: "Claude", url: "https://claude.ai/new?q=" } };
   const DEF_MODEL = "gpt-5-mini";
   const MAX_SEL = 4000;        // знака маркиран текст в контекста
   const MAX_URL_PROMPT = 3000; // знака въпрос в адреса към chatgpt.com
@@ -19,16 +20,17 @@
   const strip = (html) => { const d = document.createElement("div"); d.innerHTML = html || ""; return d.textContent.replace(/\s+/g, " ").trim(); };
 
   /* ---------- контекст ---------- */
-  function contextText() {
+  function contextText(ctx) {
+    ctx = ctx || { term: st.ctxTerm, sel: st.ctxSel };
     const cur = S.current || {}, c = cur.chapter || {}, t = cur.topic || {};
     const lines = [];
     if (t.title) lines.push("Тема: " + t.title);
     if (c.title) lines.push("Глава: " + (c.num ? c.num + ". " : "") + c.title + (c.lead ? " — " + strip(c.lead) : ""));
-    if (st.ctxTerm) {
-      const g = st.ctxTerm;
+    if (ctx.term) {
+      const g = ctx.term;
       lines.push("Понятие: " + g.t + (g.en ? " (" + g.en + ")" : "") + " — " + strip(g.d) + (g.more ? " " + strip(g.more) : ""));
     }
-    if (st.ctxSel) lines.push("Маркиран текст от страницата:\n\"\"\"\n" + st.ctxSel + "\n\"\"\"");
+    if (ctx.sel) lines.push("Маркиран текст от страницата:\n\"\"\"\n" + ctx.sel + "\n\"\"\"");
     return lines.join("\n");
   }
   function systemPrompt() {
@@ -78,7 +80,8 @@
       h("div", { class: "ai-grip", title: "Влачи за височина", onpointerdown: grip }),
       h("div", { class: "ai-head" },
         h("b", { text: "AI помощ" }), chip, h("span", { class: "sp" }),
-        h("button", { class: "btn", type: "button", text: "Отвори в ChatGPT ↗", title: "Нов таб chatgpt.com с въпроса и контекста", onclick: openChatGPT }),
+        h("button", { class: "btn", type: "button", text: "ChatGPT ↗", title: "Нов таб chatgpt.com с въпроса и контекста", onclick: () => openSite("chatgpt") }),
+        h("button", { class: "btn", type: "button", text: "Claude ↗", title: "Нов таб claude.ai с въпроса и контекста", onclick: () => openSite("claude") }),
         h("button", { class: "btn ghost", type: "button", text: "Нов разговор", onclick: reset }),
         h("button", { class: "btn ghost", type: "button", text: "Настройки", onclick: () => { st.settings = !st.settings; setBox.hidden = !st.settings; } }),
         h("button", { class: "btn ghost icon", type: "button", text: "✕", "aria-label": "Затвори", onclick: () => toggle(false) })),
@@ -90,8 +93,8 @@
     const gl = document.getElementById("btn-gloss");
     if (gl) gl.before(topBtn);
 
-    selBtn = h("button", { class: "btn primary ai-selbtn", type: "button", text: "Попитай AI", hidden: true,
-      onmousedown: (e) => e.preventDefault(), onclick: () => { st.ctxSel = pendingSel; selBtn.hidden = true; toggle(true); renderChip(); input.focus(); } });
+    selBtn = askButtons(() => ({ sel: pendingSel }), () => { st.ctxSel = pendingSel; selBtn.hidden = true; toggle(true); renderChip(); input.focus(); }, "ai-selbtn");
+    selBtn.hidden = true;
     document.body.append(selBtn);
 
     const hh = S.store.get("ai:h", 0); if (hh) dock.style.height = hh + "px";
@@ -122,7 +125,7 @@
   function renderList() {
     list.innerHTML = "";
     if (!st.msgs.length) {
-      list.append(h("div", { class: "ai-empty muted", html: "Питай за текущата глава. Маркирай текст на страницата или посочи понятие → „Попитай AI“, за да го добавиш в контекста." +
+      list.append(h("div", { class: "ai-empty muted", html: "Питай за текущата глава. Маркирай текст на страницата или посочи понятие → „Панел“, за да го добавиш в контекста. Бутоните ChatGPT ↗ / Claude ↗ там отварят въпроса направо в нов таб." +
         (getKey() ? "" : "<br>Без API ключ отговорът се отваря в ChatGPT. Ключ се добавя от „Настройки“.") }));
       return;
     }
@@ -151,14 +154,29 @@
   }
   function reset() { stop(); st.msgs = []; renderList(); }
 
-  function chatgptUrl(q) {
-    let p = contextText() + "\n\nВъпрос: " + (q || "Обясни накратко.") + "\n\nОтговори на български.";
+  function siteUrl(site, q, ctx) {
+    let p = contextText(ctx) + "\n\nВъпрос: " + (q || "Обясни накратко.") + "\n\nОтговори на български.";
     if (p.length > MAX_URL_PROMPT) p = p.slice(0, MAX_URL_PROMPT) + "…";
-    return CHATGPT + "?q=" + encodeURIComponent(p);
+    return SITES[site].url + encodeURIComponent(p);
   }
-  function openChatGPT() {
+  const chatgptUrl = (q) => siteUrl("chatgpt", q);
+  function openSite(site) {
     const q = input.value.trim() || (st.msgs.filter((m) => m.role === "user").pop() || {}).content || "";
-    window.open(chatgptUrl(q), "_blank", "noopener");
+    window.open(siteUrl(site, q), "_blank", "noopener");
+  }
+  // Бърз път: директно в нов таб, без панела; контекстът е само за този въпрос.
+  function quick(site, ctx) {
+    const q = ctx.term && !ctx.sel ? "Обясни „" + ctx.term.t + "“ с пример." : "Обясни маркирания текст.";
+    window.open(siteUrl(site, q, ctx), "_blank", "noopener");
+  }
+  function askButtons(ctx, onPanel, cls) {
+    const b = (text, title, fn, prim) => h("button", { class: "btn" + (prim ? " primary" : ""), type: "button", text, title,
+      onmousedown: (e) => e.preventDefault(), onclick: (e) => { e.stopPropagation(); fn(); } });
+    return h("span", { class: "ai-ask " + (cls || "") },
+      h("span", { class: "ai-ask-l", text: "Попитай:" }),
+      b("ChatGPT ↗", "Нов таб chatgpt.com с въпроса", () => quick("chatgpt", ctx()), true),
+      b("Claude ↗", "Нов таб claude.ai с въпроса", () => quick("claude", ctx()), true),
+      b("Панел", "В панела „AI помощ“ отдолу", onPanel));
   }
 
   function stop() { if (st.ctrl) st.ctrl.abort(); }
@@ -223,15 +241,14 @@
     pendingSel = txt.slice(0, MAX_SEL);
     const r = s.getRangeAt(0).getBoundingClientRect();
     selBtn.hidden = false;
-    const bw = selBtn.offsetWidth || 110;
+    const bw = selBtn.offsetWidth || 300;
     selBtn.style.left = Math.max(8, Math.min(window.innerWidth - bw - 8, r.left + r.width / 2 - bw / 2)) + "px";
     selBtn.style.top = (r.top > 48 ? r.top - 42 : r.bottom + 8) + "px";
   }
 
   /* ---------- закачане ---------- */
   S.onTip = function (tipEl, g) {
-    tipEl.append(h("button", { class: "btn ai-tipbtn", type: "button", text: "Попитай AI за това",
-      onclick: (e) => { e.stopPropagation(); st.ctxTerm = g; S.hideTip(); toggle(true); renderChip(); if (!input.value) input.value = "Обясни „" + g.t + "“ с пример."; input.focus(); } }));
+    tipEl.append(askButtons(() => ({ term: g }), () => { st.ctxTerm = g; S.hideTip(); toggle(true); renderChip(); if (!input.value) input.value = "Обясни „" + g.t + "“ с пример."; input.focus(); }, "ai-tipbtn"));
   };
 
   function init() {
