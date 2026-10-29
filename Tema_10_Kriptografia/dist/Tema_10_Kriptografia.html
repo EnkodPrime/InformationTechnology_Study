@@ -4140,7 +4140,78 @@ window.CSRC = {
     return { p, q, e, n, phi };
   }
 
+  /* ---------- данни за графиките ---------- */
+  /** всички M ∈ [0, n): C = M^e mod n; D(C) = C^d mod n */
+  function rsaPoints({ p, q, e }) {
+    const K = keyInputs({ p, q, e });
+    if (K.n > 10000) throw new Error(`За графиката n ≤ 10 000 (сега n = ${K.n}). Пробвай 61 · 53.`);
+    const d = modInverse(K.e, K.phi, null);
+    if (d < 0) throw new Error(`НОД(e, φ) ≠ 1 — с e = ${K.e} няма частен ключ.`);
+    const enc = new Array(K.n), dec = new Array(K.n);
+    for (let m = 0; m < K.n; m++) enc[m] = modPow(m, K.e, K.n, null, "");
+    for (let m = 0; m < K.n; m++) dec[m] = modPow(enc[m], d, K.n, null, "");
+    const fixed = enc.reduce((s, c, m) => s + (c === m ? 1 : 0), 0);
+    return Object.assign(K, { d, enc, dec, fixed });
+  }
+  /** g^x mod p за x = 0 … p − 2 и редът на g */
+  function powPoints({ p, g }) {
+    p = S.int(p, 5, 5000, "p (за графиката ≤ 5000)");
+    if (!isPrime(p)) throw new Error(`p = ${p} не е просто.`);
+    g = S.int(g, 2, p - 2, "g");
+    const y = [];
+    let v = 1, ord = 0;
+    for (let x = 0; x < p - 1; x++) { y.push(v); v = (v * g) % p; if (!ord && v === 1) ord = x + 1; }
+    return { p, g, y, ord, gen: ord === p - 1, distinct: new Set(y).size };
+  }
+  /** приблизителна цена в елементарни операции (log₂) при дължина на n от k бита — без константи */
+  const COST = {
+    enc: (k) => Math.log2(17) + 2 * Math.log2(k),               // e = 65537: 17 умножения × k² битови операции
+    dec: (k) => Math.log2(1.5 * k) + 2 * Math.log2(k),          // ≈ 1,5·k умножения × k²
+    trial: (k) => k / 2 - 1,                                     // √n / 2 нечетни делители
+    gnfs: (k) => { const ln = k * Math.LN2; return Math.cbrt(64 / 9) * Math.cbrt(ln) * Math.pow(Math.log(ln), 2 / 3) / Math.LN2; }, // L_n[1/3, (64/9)^(1/3)] без o(1)
+  };
+
+  /** анимация на канала: кадри с позиция на пратката */
+  function channel(inp) {
+    const K = keyInputs(inp);
+    const m = S.int(inp.m, 0, K.n - 1, `M (0 ≤ M < n = ${K.n})`);
+    const d = modInverse(K.e, K.phi, null);
+    if (d < 0) throw new Error(`НОД(e, φ) ≠ 1 — с e = ${K.e} няма частен ключ.`);
+    const sig = inp.mode === "sig", F = [];
+    const own = sig ? "alice" : "bob", other = sig ? "bob" : "alice";
+    const who = { alice: "Алиса", bob: "Боб" };
+    const hold = { alice: [], bob: [], eve: [] };
+    const snap = (o) => F.push(Object.assign({ hold: JSON.parse(JSON.stringify(hold)), sig }, o));
+    hold[own].push(["частен d", d, "sec"], ["публичен (n, e)", `(${K.n}, ${K.e})`, "pub"]);
+    snap({ step: 1, msg: `${who[own]} генерира ключова двойка. d остава у ${sig ? "нея" : "него"}; публичният ключ (n, e) = (${K.n}, ${K.e}) ще бъде изпратен.` });
+    for (let t = 1; t <= 6; t++) snap({ step: 2, pkt: { from: own, t: t / 6, text: `(n, e) = (${K.n}, ${K.e})`, cls: "pub" }, msg: t === 1 ? `Публичният ключ пътува по открития канал — наблюдателят също го копира.${sig ? "" : " Тук е мястото на подмяна, ако ключът не е удостоверен."}` : null });
+    hold[other].push([`публичен (${who[own]})`, `(${K.n}, ${K.e})`, "pub"]); hold.eve.push(["публичен ключ", `(${K.n}, ${K.e})`, "pub"]);
+    if (!sig) {
+      hold.alice.push(["съобщение M", m, "msg"]);
+      const c = modPow(m, K.e, K.n, null, "");
+      hold.alice.push(["C = Mᵉ mod n", c, "ct"]);
+      snap({ step: 3, msg: `Алиса шифрова с <b>публичния ключ на Боб</b>: C = ${m}^${K.e} mod ${K.n} = <b>${c}</b>.` });
+      for (let t = 1; t <= 6; t++) snap({ step: 4, pkt: { from: "alice", t: t / 6, text: `C = ${c}`, cls: "ct" }, msg: t === 1 ? "По канала минава само C. Наблюдателят го вижда, но без d не може да го обърне." : null });
+      hold.bob.push(["получен C", c, "ct"]); hold.eve.push(["C", c, "ct"], ["M = ?", "нужно е d (или p, q)", "bad"]);
+      const back = modPow(c, d, K.n, null, "");
+      hold.bob.push(["M = Cᵈ mod n", back, "ok"]);
+      snap({ step: 5, fin: true, msg: `Боб дешифрира със своя <b>частен</b> ключ: ${c}^${d} mod ${K.n} = <b>${back}</b>. Наблюдателят има (n, e) и C — за M му трябва d, т.е. разлагане на n.` });
+      return { frames: F, c, back, result: `C = ${c} → M = ${back}` };
+    }
+    hold.alice.push(["съобщение M", m, "msg"]);
+    const s = modPow(m, d, K.n, null, "");
+    hold.alice.push(["σ = Mᵈ mod n", s, "ct"]);
+    snap({ step: 3, msg: `Алиса подписва със своя <b>частен</b> ключ: σ = ${m}^${d} mod ${K.n} = <b>${s}</b>.` });
+    for (let t = 1; t <= 6; t++) snap({ step: 4, pkt: { from: "alice", t: t / 6, text: `M = ${m}, σ = ${s}`, cls: "msg" }, msg: t === 1 ? "По канала минават M и σ. Подписът не скрива съобщението — наблюдателят чете M." : null });
+    hold.bob.push(["получени M, σ", `${m}, ${s}`, "msg"]); hold.eve.push(["M (открито)", m, "msg"], ["σ", s, "ct"], ["нов подпис?", "нужно е d", "bad"]);
+    const v = modPow(s, K.e, K.n, null, "");
+    hold.bob.push(["σᵉ mod n", v, v === m ? "ok" : "bad"]);
+    snap({ step: 5, fin: true, msg: `Боб проверява с <b>публичния ключ на Алиса</b>: ${s}^${K.e} mod ${K.n} = ${v} ${v === m ? "= M ✓ — подписът е валиден" : "≠ M ✗"}. Наблюдателят може да провери, но не и да подпише друго M.` });
+    return { frames: F, s, v, result: `σ = ${s}, проверка ${v === m ? "✓" : "✗"}` };
+  }
+
   const algos = {
+    rsaPoints, powPoints, COST, channel,
     isPrime, modInverse: (e, phi) => modInverse(e, phi, null), modPow: (b, k, n) => modPow(b, k, n, null, ""), factor: (n) => factor(n, null).f,
     /** a) генериране на ключове */
     keygen(inp) {
@@ -4245,6 +4316,8 @@ window.CSRC = {
     <tr><td>установяване на ключ</td><td>своя частен + публичния на другия</td><td>своя частен + публичния на другия</td><td>общ симетричен ключ, който не е минавал по канала</td></tr>
   </table></div>
   <p class="muted">Посоките са противоположни: при шифроването частният ключ е у <i>получателя</i>, при подписа — у <i>изпращача</i>. Затова една и съща двойка обикновено не се използва и за двете.</p>
+  <p class="prose">Анимацията показва същото с числа: кой генерира двойката, какво пътува по канала и какво остава у наблюдателя. Натисни <b>▶ Пусни</b> и смени режима.</p>
+  <div id="v9-chan"></div>
 </div>
 
 <div class="block">
@@ -4270,7 +4343,22 @@ window.CSRC = {
 </div>
 
 <div class="block">
-  <h3>Схема 23. Обмен на ключове на Дифи–Хелман</h3>
+  <h3>Схема 23. Как изглежда шифроването като функция</h3>
+  <p class="prose">Всяка точка е едно съобщение M (хоризонтално) и неговият шифротекст C = M<sup>e</sup> mod n (вертикално). Функцията е <b>пермутация</b> — всяко C се среща точно веднъж, затова дешифрирането съществува. Но точките са разпилени: съседни M дават несвързани C и от графиката не се вижда как да се върнеш. Дешифрирането C<sup>d</sup> mod n връща всяка точка на диагонала — само за този, който знае d.</p>
+  <div class="viz"><div class="viz-head"><h4>M → C = Mᵉ mod n и обратно</h4><span class="sub">n ≤ 10 000, за да се нарисуват всички M.</span></div>
+    <div class="viz-inputs" id="g9-in"></div>
+    <div class="viz-stage"><div class="split">
+      <div><span class="eyebrow">шифроване: M → Mᵉ mod n</span><canvas class="chart" id="g9-enc" aria-label="Точкова графика на шифроването" style="height:300px"></canvas></div>
+      <div><span class="eyebrow" id="g9-rt">дешифриране с d: M → (Mᵉ)ᵈ mod n</span><canvas class="chart" id="g9-dec" aria-label="Точкова графика на дешифрирането" style="height:300px"></canvas></div>
+    </div><p class="muted" id="g9-note" style="margin-top:8px"></p></div>
+  </div>
+  <details class="hint"><summary>Хинт: сравни с Цезар</summary><div>
+    <p>При Цезаровия или афинния шифър графиката на C = (a·M + b) mod n са успоредни прави: две известни двойки (M, C) издават a и b (виж <a href="#ataki">атаката с известен открит текст</a>). При M<sup>e</sup> mod n такава структура не се вижда. Това не е доказателство за сигурност — само илюстрация защо обръщането не е очевидно. Някои точки са неподвижни (C = M, напр. M = 0 и 1), затова учебният RSA без допълване изтича при такива съобщения.</p>
+  </div></details>
+</div>
+
+<div class="block">
+  <h3>Схема 24. Обмен на ключове на Дифи–Хелман</h3>
   <p class="prose">Алиса и Боб се договарят открито за просто p и основа g. Всеки избира тайно число (a, b), изпраща само g<sup>a</sup> или g<sup>b</sup> mod p и вдига полученото на своята тайна степен. И двамата получават g<sup>ab</sup> mod p. Наблюдателят вижда g<sup>a</sup> и g<sup>b</sup>, но за да намери a от g<sup>a</sup> трябва да реши задачата за дискретния логаритъм.</p>
   <div id="v9-dh"></div>
   <details class="trap"><summary>Капан: „Дифи–Хелман пази и от активен нападател“</summary><div>
@@ -4279,12 +4367,32 @@ window.CSRC = {
 </div>
 
 <div class="block">
-  <h3>Схема 24. Защо n трябва да е голямо</h3>
+  <h3>Схема 25. Защо от A не се вижда a</h3>
+  <p class="prose">Без mod функцията g<sup>x</sup> расте монотонно и x се намира с двоично търсене. По модул p стойностите прескачат в целия интервал [1, p − 1]: от A = g<sup>a</sup> mod p (хоризонталната линия) няма откъде да се започне. Това е задачата за <b>дискретния логаритъм</b>.</p>
+  <div class="viz"><div class="viz-head"><h4>y = gˣ mod p</h4><span class="sub">p ≤ 5000. Хоризонталната линия е A, вертикалната — тайното a.</span></div>
+    <div class="viz-inputs" id="x9-in"></div>
+    <div class="viz-stage"><canvas class="chart" id="x9-cv" aria-label="Точкова графика на степените по модул p" style="height:320px"></canvas><p class="muted" id="x9-note" style="margin-top:8px"></p></div>
+  </div>
+  <details class="hint"><summary>Хинт: защо g трябва да е пораждащ</summary><div>
+    <p>Ако редът на g е по-малък от p − 1, степените се повтарят периодично и A е само една от малко възможни стойности — търсенето се свива. Пробвай p = 23 с g = 2 (ред 11) и с g = 5 (ред 22). На практика се използват подгрупи с голям прост ред или стандартизирани групи (RFC 7919) и елиптични криви.</p>
+  </div></details>
+</div>
+
+<div class="block">
+  <h3>Схема 26. Защо n трябва да е голямо</h3>
   <p class="prose">Нападателят има публичния ключ (n, e). Ако разложи n на p·q, пресмята φ(n) и d точно както собственикът. Пробното делене стига до √n — при n с 31 бита това са десетки хиляди опита.</p>
   <div id="v9-att"></div>
   <details class="hint"><summary>Хинт: колко е голямо „голямо“</summary><div>
     <p>За 2048-битово n пробното делене би изисквало около 2<sup>1023</sup> опита. Най-добрият известен класически метод — общото числово решето (GNFS) — е много по-бърз от пробното делене, но остава непосилен за 2048 бита. Най-голямото публично разложено число от предизвикателството RSA е RSA-250 (829 бита, 2020 г.).</p>
   </div></details>
+</div>
+
+<div class="block">
+  <h3>Схема 27. Асиметрията на усилието</h3>
+  <p class="prose">Цялата идея почива на това, че законният потребител и нападателят плащат различна цена за един и същ ключ. Шифроването и дешифрирането растат полиномно с дължината k на n; разлагането — много по-бързо. Графиката е в log₂ на броя елементарни операции, без константите — показва формата на кривите, не точни времена.</p>
+  <div class="viz"><div class="viz-head"><h4>log₂(операции) спрямо бита на n</h4><span class="sub">Ориентировъчни формули: шифроване 17·k², дешифриране 1,5·k³, пробно делене √n/2, GNFS L<sub>n</sub>[1/3, 1,923] без o(1).</span></div>
+    <div class="viz-stage"><canvas class="chart" id="k9-cv" aria-label="Графика на цената" style="height:340px"></canvas><div class="legend" id="k9-leg" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:10px"></div><p class="muted" id="k9-note" style="margin-top:6px"></p></div>
+  </div>
 </div>
 
 <div class="block">
@@ -4409,6 +4517,191 @@ window.CSRC = {
           h("div", { class: "key s-swap", style: { borderColor: "var(--c)" } }, h("b", { text: "пресметнато" }), h("p", { class: "mono", text: `p = ${f.rec.p}, q = ${f.rec.q}, φ = ${f.rec.phi}, d = ${f.rec.d}` }))));
       },
     });
+
+    /* ---------- общ помощник за платно ---------- */
+    const cssv = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+    function prep(cv) {
+      const dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 600, H = cv.clientHeight || 300;
+      cv.width = W * dpr; cv.height = H * dpr;
+      const g = cv.getContext("2d"); g.scale(dpr, dpr); g.clearRect(0, 0, W, H);
+      g.font = "11px " + (cssv("--f-mono") || "monospace");
+      return { g, W, H };
+    }
+    function frame(g, W, H, L, R, T, Bt, xmax, ymax, xlab, ylab, ticks) {
+      g.strokeStyle = cssv("--line"); g.fillStyle = cssv("--muted"); g.lineWidth = 1;
+      g.strokeRect(L, T, W - L - R, H - T - Bt);
+      (ticks || [0, 0.25, 0.5, 0.75, 1]).forEach((f) => {
+        const x = L + f * (W - L - R), y = H - Bt - f * (H - T - Bt);
+        g.textAlign = "center"; g.fillText(String(Math.round(f * xmax)), x, H - Bt + 14);
+        g.textAlign = "right"; g.fillText(String(Math.round(f * ymax)), L - 4, y + 4);
+      });
+      g.textAlign = "right"; g.fillText(xlab, W - R, H - 4); g.textAlign = "left"; g.fillText(ylab, 4, 12);
+    }
+
+    /* ---------- a0) анимация на канала ---------- */
+    S.viz(root.querySelector("#v9-chan"), {
+      id: "ch9", title: "Канал: какво пътува и какво вижда наблюдателят", sub: "Числата са от малкия ключ; при реален ключ те са със стотици цифри.",
+      code: false,
+      inputs: KEYIN.concat([{ id: "m", label: "M (< n)", type: "number", value: 65, width: "7em" }, { id: "mode", label: "режим", type: "select", value: "enc", options: [["enc", "шифроване (за Боб)"], ["sig", "подпис (от Алиса)"]] }]),
+      presets: [{ label: "шифроване", values: { p: 61, q: 53, e: 17, m: 65, mode: "enc" } }, { label: "подпис", values: { p: 61, q: 53, e: 17, m: 65, mode: "sig" } }],
+      legend: [["s-swap", "частен ключ"], ["s-act", "публичен ключ"], ["s-cmp", "шифротекст / подпис"], ["s-done", "възстановено / проверено"]], speed: 1,
+      build: algos.channel,
+      draw(st, f) {
+        st.innerHTML = "";
+        const sv = S.svg, W = 820, H = 300, CL = { sec: "s-swap", pub: "s-act", ct: "s-cmp", ok: "s-done", msg: "", bad: "s-dim" };
+        const svg = sv("svg", { class: "g", viewBox: `0 0 ${W} ${H}`, width: W, style: "min-width:560px", role: "img", "aria-label": "Схема на канала" });
+        const box = (x, y, w, hh, title, rows, extraCls) => {
+          const g = sv("g", { class: "node " + (extraCls || "") });
+          g.append(sv("rect", { x, y, width: w, height: hh, rx: 8, style: "fill:var(--panel);stroke:var(--c,var(--ink-2));stroke-width:2" }));
+          g.append(sv("text", { x: x + 10, y: y + 20, style: "font-weight:700;font-size:13px", text: title }));
+          rows.forEach(([k, v, c], i) => {
+            const yy = y + 32 + i * 24, r = sv("g", { class: CL[c] || "" });
+            r.append(sv("rect", { x: x + 6, y: yy, width: w - 12, height: 20, rx: 3, style: CL[c] ? "fill:var(--cb,transparent);stroke:var(--c,transparent);stroke-width:1" : "fill:transparent;stroke:var(--line);stroke-width:1" }));
+            r.append(sv("text", { x: x + 12, y: yy + 14, style: "font-size:11px", text: k }));
+            r.append(sv("text", { x: x + w - 12, y: yy + 14, "text-anchor": "end", style: "font-size:11px", text: String(v) }));
+            g.append(r);
+          });
+          return g;
+        };
+        // канал
+        svg.append(sv("line", { x1: 245, y1: 70, x2: 575, y2: 70, class: "edge", style: "stroke-dasharray:6 5" }));
+        svg.append(sv("text", { x: 410, y: 42, "text-anchor": "middle", class: "wt", text: "открит канал" }));
+        svg.append(sv("line", { x1: 410, y1: 76, x2: 410, y2: 150, class: "edge", style: "stroke-dasharray:2 4;opacity:.6" }));
+        svg.append(box(10, 30, 235, Math.max(80, 40 + f.hold.alice.length * 24), "Алиса", f.hold.alice));
+        svg.append(box(575, 30, 235, Math.max(80, 40 + f.hold.bob.length * 24), "Боб", f.hold.bob));
+        svg.append(box(292, 150, 236, Math.max(70, 40 + f.hold.eve.length * 24), "Наблюдател (Ева)", f.hold.eve, "s-swap"));
+        if (f.pkt) {
+          const x0 = f.pkt.from === "alice" ? 245 : 575, x1 = f.pkt.from === "alice" ? 575 : 245;
+          const x = x0 + (x1 - x0) * f.pkt.t, w = Math.max(90, f.pkt.text.length * 7 + 16);
+          const g = sv("g", { class: "node " + (CL[f.pkt.cls] || "") });
+          g.append(sv("rect", { x: x - w / 2, y: 58, width: w, height: 24, rx: 12, style: "fill:var(--cb,var(--panel));stroke:var(--c,var(--ink-2));stroke-width:2" }));
+          g.append(sv("text", { x, y: 74, "text-anchor": "middle", style: "font-size:11.5px;font-weight:600", text: f.pkt.text }));
+          svg.append(g);
+          svg.append(sv("line", { x1: x, y1: 82, x2: 410, y2: 150, class: "edge", style: `stroke-dasharray:2 4;opacity:${Math.max(0.15, 1 - Math.abs(x - 410) / 200)}` }));
+        }
+        st.append(h("div", { style: { overflowX: "auto" } }, svg));
+      },
+    });
+
+    /* ---------- c2) точкова графика M → C ---------- */
+    {
+      const gin = root.querySelector("#g9-in"), cvE = root.querySelector("#g9-enc"), cvD = root.querySelector("#g9-dec"), note = root.querySelector("#g9-note");
+      const fp = h("input", { type: "number", value: 61, style: { width: "6em" }, id: "g9-p" }), fq = h("input", { type: "number", value: 53, style: { width: "6em" }, id: "g9-q" });
+      const fe = h("input", { type: "number", value: 17, style: { width: "6em" }, id: "g9-e" }), fm = h("input", { type: "number", value: 65, style: { width: "6em" }, id: "g9-m" });
+      const fmode = h("select", { id: "g9-mode" }, h("option", { value: "dec", text: "дешифриране с d (диагонал)" }), h("option", { value: "inv", text: "обратната функция C → M" }));
+      let P = null, err = null;
+      const run = () => { try { P = algos.rsaPoints({ p: fp.value, q: fq.value, e: fe.value }); err = null; } catch (e) { P = null; err = e.message; } draw(); };
+      function scatter(cv, xs, ys, n, hl, xlab, ylab, diag) {
+        const { g, W, H } = prep(cv), L = 44, R = 10, T = 24, Bt = 30;
+        frame(g, W, H, L, R, T, Bt, n - 1, n - 1, xlab, ylab);
+        const sx = (v) => L + (v / (n - 1)) * (W - L - R), sy = (v) => H - Bt - (v / (n - 1)) * (H - T - Bt);
+        if (diag) { g.strokeStyle = cssv("--line"); g.setLineDash([4, 4]); g.beginPath(); g.moveTo(sx(0), sy(0)); g.lineTo(sx(n - 1), sy(n - 1)); g.stroke(); g.setLineDash([]); }
+        g.fillStyle = cssv("--accent"); g.globalAlpha = n > 3000 ? 0.55 : 0.8;
+        const r = n > 3000 ? 1.4 : n > 500 ? 2 : 3;
+        for (let k = 0; k < xs.length; k++) g.fillRect(sx(xs[k]) - r / 2, sy(ys[k]) - r / 2, r, r);
+        g.globalAlpha = 1;
+        if (hl) {
+          const [x, y] = hl, c = cssv("--st-swap");
+          g.strokeStyle = c; g.lineWidth = 1.2; g.setLineDash([3, 3]);
+          g.beginPath(); g.moveTo(sx(x), H - Bt); g.lineTo(sx(x), sy(y)); g.lineTo(L, sy(y)); g.stroke(); g.setLineDash([]);
+          g.fillStyle = c; g.beginPath(); g.arc(sx(x), sy(y), 5, 0, 7); g.fill();
+          g.textAlign = "left"; g.fillText(`(${x}, ${y})`, Math.min(sx(x) + 8, W - 90), Math.max(sy(y) - 8, T + 10));
+        }
+      }
+      function draw() {
+        if (!P) { note.textContent = "Грешка във входа: " + err; [cvE, cvD].forEach((cv) => prep(cv)); return; }
+        const n = P.n, xs = Array.from({ length: n }, (_, k) => k);
+        let m = Math.max(0, Math.min(n - 1, Number(fm.value) || 0));
+        const c = P.enc[m];
+        scatter(cvE, xs, P.enc, n, [m, c], "M", "C", false);
+        if (fmode.value === "dec") { root.querySelector("#g9-rt").textContent = "дешифриране с d: M → (Mᵉ)ᵈ mod n"; scatter(cvD, xs, P.dec, n, [m, P.dec[m]], "M", "Cᵈ", true); }
+        else { root.querySelector("#g9-rt").textContent = "обратната функция: C → M (същите точки, огледани)"; scatter(cvD, P.enc, xs, n, [c, m], "C", "M", false); }
+        note.innerHTML = `n = ${n}, e = ${P.e}, d = ${P.d}. M = ${m} → C = <b>${c}</b> → обратно ${P.dec[m]}. Неподвижни точки (C = M): <b>${P.fixed}</b> от ${n}. Всички ${n} стойности на C са различни — пермутация.`;
+      }
+      [fp, fq, fe].forEach((el) => el.addEventListener("change", run));
+      [fm, fmode].forEach((el) => el.addEventListener("change", draw)); fm.addEventListener("input", draw);
+      gin.append(h("label", { class: "field", for: "g9-p" }, h("span", { text: "p" }), fp), h("label", { class: "field", for: "g9-q" }, h("span", { text: "q" }), fq), h("label", { class: "field", for: "g9-e" }, h("span", { text: "e" }), fe),
+        h("label", { class: "field", for: "g9-m" }, h("span", { text: "отбележи M" }), fm), h("label", { class: "field", for: "g9-mode" }, h("span", { text: "дясна графика" }), fmode),
+        h("button", { class: "btn primary", text: "Изпълни", onclick: run }),
+        h("button", { class: "btn ghost", text: "11 · 13, e = 7", onclick: () => { fp.value = 11; fq.value = 13; fe.value = 7; fm.value = 42; run(); } }),
+        h("button", { class: "btn ghost", text: "97 · 101, e = 7", onclick: () => { fp.value = 97; fq.value = 101; fe.value = 7; fm.value = 2024; run(); } }));
+      requestAnimationFrame(run);
+      window.addEventListener("resize", draw);
+    }
+
+    /* ---------- d2) gˣ mod p ---------- */
+    {
+      const xin = root.querySelector("#x9-in"), cv = root.querySelector("#x9-cv"), note = root.querySelector("#x9-note");
+      const fp = h("input", { type: "number", value: 467, style: { width: "6em" }, id: "x9-p" }), fg = h("input", { type: "number", value: 2, style: { width: "5em" }, id: "x9-g" }), fa = h("input", { type: "number", value: 153, style: { width: "6em" }, id: "x9-a" });
+      const fexp = h("input", { type: "checkbox", id: "x9-exp" });
+      let P = null, err = null;
+      const run = () => { try { P = algos.powPoints({ p: fp.value, g: fg.value }); err = null; } catch (e) { P = null; err = e.message; } draw(); };
+      function draw() {
+        const { g, W, H } = prep(cv), L = 44, R = 10, T = 24, Bt = 30;
+        if (!P) { note.textContent = "Грешка във входа: " + err; return; }
+        const p = P.p, a = Math.max(0, Math.min(p - 2, Number(fa.value) || 0)), A = P.y[a];
+        frame(g, W, H, L, R, T, Bt, p - 2, p - 1, "x", "gˣ mod p");
+        const sx = (v) => L + (v / (p - 2)) * (W - L - R), sy = (v) => H - Bt - (v / (p - 1)) * (H - T - Bt);
+        if (fexp.checked) { // без mod: gˣ расте монотонно (нормирано до p)
+          g.strokeStyle = cssv("--st-done"); g.lineWidth = 2; g.beginPath();
+          const xm = Math.log(p - 1) / Math.log(P.g);
+          for (let x = 0; x <= xm; x += xm / 200) { const yy = Math.pow(P.g, x); x ? g.lineTo(sx(x), sy(yy)) : g.moveTo(sx(x), sy(yy)); }
+          g.stroke();
+        }
+        g.fillStyle = cssv("--accent"); const r = p > 1500 ? 1.8 : 2.6;
+        P.y.forEach((v, x) => g.fillRect(sx(x) - r / 2, sy(v) - r / 2, r, r));
+        const c = cssv("--st-swap");
+        g.strokeStyle = c; g.lineWidth = 1.2; g.setLineDash([5, 4]);
+        g.beginPath(); g.moveTo(L, sy(A)); g.lineTo(W - R, sy(A)); g.stroke();
+        g.beginPath(); g.moveTo(sx(a), T); g.lineTo(sx(a), H - Bt); g.stroke(); g.setLineDash([]);
+        g.fillStyle = c; g.beginPath(); g.arc(sx(a), sy(A), 5, 0, 7); g.fill();
+        g.textAlign = "left"; g.fillText(`A = ${A}`, L + 4, sy(A) - 5); g.fillText(`a = ${a}`, Math.min(sx(a) + 5, W - 60), T + 12);
+        const hits = []; P.y.forEach((v, x) => { if (v === A) hits.push(x); });
+        note.innerHTML = `p = ${p}, g = ${P.g}: редът на g е <b>${P.ord}</b>${P.gen ? " = p − 1 — g е пораждащ, стойностите обхождат всичко от 1 до p − 1" : ` &lt; p − 1 — само ${P.distinct} различни стойности, повтарят се периодично`}. Линията y = A пресича графиката при x = ${hits.slice(0, 6).join(", ")}${hits.length > 6 ? " …" : ""}.${fexp.checked ? " Зелено: gˣ без mod — монотонна, лесна за обръщане." : ""}`;
+      }
+      [fp, fg].forEach((el) => el.addEventListener("change", run)); [fa, fexp].forEach((el) => el.addEventListener("change", draw)); fa.addEventListener("input", draw);
+      xin.append(h("label", { class: "field", for: "x9-p" }, h("span", { text: "p (просто)" }), fp), h("label", { class: "field", for: "x9-g" }, h("span", { text: "g" }), fg), h("label", { class: "field", for: "x9-a" }, h("span", { text: "тайно a" }), fa),
+        h("label", { class: "field", for: "x9-exp", style: { flexDirection: "row", alignItems: "center", gap: "6px" } }, fexp, h("span", { text: "покажи gˣ без mod" })),
+        h("button", { class: "btn primary", text: "Изпълни", onclick: run }),
+        h("button", { class: "btn ghost", text: "p = 23, g = 5", onclick: () => { fp.value = 23; fg.value = 5; fa.value = 6; run(); } }),
+        h("button", { class: "btn ghost", text: "p = 23, g = 2 (не пораждащ)", onclick: () => { fp.value = 23; fg.value = 2; fa.value = 6; run(); } }),
+        h("button", { class: "btn ghost", text: "p = 4999, g = 3", onclick: () => { fp.value = 4999; fg.value = 3; fa.value = 2024; run(); } }));
+      requestAnimationFrame(run);
+      window.addEventListener("resize", draw);
+    }
+
+    /* ---------- d3) цена ---------- */
+    {
+      const cv = root.querySelector("#k9-cv"), leg = root.querySelector("#k9-leg"), note = root.querySelector("#k9-note");
+      const SER = [["enc", "шифроване (e = 65537)", "--st-done", []], ["dec", "дешифриране / подпис (d)", "--st-act", [6, 4]], ["gnfs", "разлагане: GNFS", "--st-swap", []], ["trial", "разлагане: пробно делене", "--st-cmp", [2, 3]]];
+      SER.forEach(([, t, c, dsh]) => leg.append(h("span", { style: { display: "inline-flex", alignItems: "center", gap: "6px", fontSize: ".85rem" } },
+        S.svg("svg", { width: 26, height: 10, viewBox: "0 0 26 10", "aria-hidden": "true" }, S.svg("line", { x1: 1, y1: 5, x2: 25, y2: 5, style: `stroke:var(${c});stroke-width:2.4;stroke-dasharray:${dsh.join(" ") || "none"}` })), t)));
+      function draw() {
+        const { g, W, H } = prep(cv), L = 46, R = 14, T = 14, Bt = 34, kmin = 256, kmax = 4096, ymax = 260;
+        const sx = (k) => L + ((k - kmin) / (kmax - kmin)) * (W - L - R), sy = (v) => H - Bt - (Math.min(v, ymax) / ymax) * (H - T - Bt);
+        g.strokeStyle = cssv("--line"); g.fillStyle = cssv("--muted"); g.lineWidth = 1;
+        [0, 40, 80, 120, 160, 200, 240].forEach((v) => { g.beginPath(); g.moveTo(L, sy(v)); g.lineTo(W - R, sy(v)); g.stroke(); g.textAlign = "right"; g.fillText("2^" + v, L - 4, sy(v) + 4); });
+        [256, 512, 1024, 2048, 3072, 4096].forEach((k) => { g.textAlign = "center"; g.fillText(String(k), sx(k), H - Bt + 14); g.beginPath(); g.moveTo(sx(k), T); g.lineTo(sx(k), H - Bt); g.stroke(); });
+        g.textAlign = "right"; g.fillText("бита на n", W - R, H - 4);
+        // граница на практическата изчислимост (ориентир)
+        g.strokeStyle = cssv("--st-piv"); g.setLineDash([8, 5]); g.beginPath(); g.moveTo(L, sy(112)); g.lineTo(W - R, sy(112)); g.stroke(); g.setLineDash([]);
+        g.fillStyle = cssv("--st-piv"); g.textAlign = "left"; g.fillText("2^112 — минимална сигурност по NIST SP 800-57", L + 6, sy(112) - 5);
+        SER.forEach(([key, , c, dsh]) => {
+          g.strokeStyle = cssv(c); g.lineWidth = 2.4; g.setLineDash(dsh); g.beginPath();
+          for (let k = kmin; k <= kmax; k += 16) { const v = algos.COST[key](k); if (v > ymax) { g.lineTo(sx(k), sy(ymax)); break; } k === kmin ? g.moveTo(sx(k), sy(v)) : g.lineTo(sx(k), sy(v)); }
+          g.stroke();
+        });
+        g.setLineDash([]);
+        // RSA-250, 829 бита, разложено 2020
+        const kx = 829, ky = algos.COST.gnfs(kx);
+        g.fillStyle = cssv("--st-swap"); g.beginPath(); g.arc(sx(kx), sy(ky), 5, 0, 7); g.fill();
+        g.textAlign = "left"; g.fillText("RSA-250 (829 бита) — разложено, 2020", sx(kx) + 8, sy(ky) + 14);
+        const k = 2048, f = (v) => "2^" + Math.round(v);
+        note.innerHTML = `При n с 2048 бита: шифроване ≈ ${f(algos.COST.enc(k))}, дешифриране ≈ ${f(algos.COST.dec(k))}, GNFS ≈ ${f(algos.COST.gnfs(k))}, пробно делене ≈ ${f(algos.COST.trial(k))} операции. Удвояването 2048 → 4096 бита увеличава дешифрирането ≈ 2^${Math.round(algos.COST.dec(4096) - algos.COST.dec(2048))} = 8 пъти, а GNFS ≈ 2^${Math.round(algos.COST.gnfs(4096) - algos.COST.gnfs(2048))} пъти. Формулата за GNFS без o(1) надценява малко: NIST приравнява RSA-2048 на 112 бита сигурност.`;
+      }
+      requestAnimationFrame(draw);
+      window.addEventListener("resize", draw);
+    }
   }
 
   S.chapter({ id: "asimetrichni", order: 9, num: "9", group: "Допълнение", title: "Асиметрични ключове", lead: "Публичен и частен ключ: какво е всеки, кой го държи и за какво служи. RSA и Дифи–Хелман стъпка по стъпка с малки числа, атака „човек по средата“, разлагане на n, дължини на ключовете и практическата употреба. Разширение.", html, mount, algos });
@@ -4502,7 +4795,8 @@ window.CSRC = {
     ["7", "Афинно заместване и обратен елемент", "cezar"], ["8", "Необратим множител в афинния шифър", "cezar"], ["9", "Виженер върху текст и повторен ключ", "vizhener"],
     ["10", "Честотите при заместване и транспозиция", "chestoti"], ["11", "Еднократна лента чрез XOR", "chestoti"], ["12–13", "Повторното използване на лента елиминира ключа", "chestoti"],
     ["14–18", "Шифроване/хеш, симетрични/асиметрични роли, подпис, AEAD, MAC", "savremenna"], ["19", "Защо колизиите съществуват", "savremenna"],
-    ["20", "Три роли на ключовата двойка", "asimetrichni"], ["21–22", "RSA: генериране, шифроване и подпис", "asimetrichni"], ["23", "Дифи–Хелман и човек по средата", "asimetrichni"], ["24", "Разлагане на n", "asimetrichni"],
+    ["20", "Три роли на ключовата двойка; анимация на канала", "asimetrichni"], ["21–22", "RSA: генериране, шифроване и подпис", "asimetrichni"], ["23", "Графика M → Mᵉ mod n", "asimetrichni"],
+    ["24", "Дифи–Хелман и човек по средата", "asimetrichni"], ["25", "Графика gˣ mod p — дискретен логаритъм", "asimetrichni"], ["26", "Разлагане на n", "asimetrichni"], ["27", "Асиметрията на усилието", "asimetrichni"],
   ];
 
   function mount(root) {
