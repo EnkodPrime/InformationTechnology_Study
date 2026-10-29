@@ -231,7 +231,7 @@ details > div { display: grid; gap: 8px; color: var(--ink-2); }
 .trap { border-color: color-mix(in srgb, var(--st-swap) 45%, var(--line)); }
 .key { border-left: 4px solid var(--accent); background: var(--accent-soft); }
 .key .formula, .formula { font-family: var(--f-mono); font-size: .95rem; }
-.extra { color: var(--accent); }  /* синият текст — допълнение извън конспекта */
+.extra { color: var(--accent); }  /* синият текст — допълнение (разширение) */
 .extra-tag { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); border: 1px solid var(--accent); border-radius: 3px; padding: 0 4px; margin-left: 6px; vertical-align: 2px; }
 
 /* ---------- визуализатор ---------- */
@@ -424,7 +424,7 @@ body { padding-bottom: var(--dock-h, 0px); }
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><b>Тема 4 · Структури от данни</b><span>Кандидат-докторантски изпит · Информатика · ШУ</span></div>
+  <div class="brand"><b>Тема 4 · Структури от данни</b><span>Информационни технологии</span></div>
   <select id="navselect" class="navselect" aria-label="Раздел"></select>
   <span class="sp"></span>
   <button class="btn" id="btn-gloss" type="button">Речник</button>
@@ -1055,8 +1055,7 @@ body { padding-bottom: var(--dock-h, 0px); }
     return lines.join("\n");
   }
   function systemPrompt() {
-    return "Ти помагаш при подготовка за кандидат-докторантски изпит по докторска програма „Информатика“ " +
-      "(Шуменски университет „Епископ Константин Преславски“). Отговаряй на български, точно и кратко. " +
+    return "Ти помагаш при изучаване на информационни технологии. Отговаряй на български, точно и кратко. " +
       "Когато твърдението е валидно само при условие, кажи условието. Ако не си сигурен, кажи го изрично. " +
       "Примерите с код да са на C или C++.\n\nКонтекст от учебния материал:\n" + contextText();
   }
@@ -2474,7 +2473,7 @@ window.CSRC = {
 
   const html = `
 <div class="cards" id="q4"></div>
-<div class="key"><p><b>Ключовата разлика за изпита.</b> <dfn data-g="абстрактен тип данни">Абстрактният тип данни</dfn> казва <i>какво</i> се обещава; <dfn data-g="структура от данни">структурата от данни</dfn> казва <i>как</i> е разположено в паметта; сложността е <i>цена при условие</i>. „Стек“, „опашка“ са договори; „масив“, „свързан списък“ са реализации.</p></div>
+<div class="key"><p><b>Ключовата разлика.</b> <dfn data-g="абстрактен тип данни">Абстрактният тип данни</dfn> казва <i>какво</i> се обещава; <dfn data-g="структура от данни">структурата от данни</dfn> казва <i>как</i> е разположено в паметта; сложността е <i>цена при условие</i>. „Стек“, „опашка“ са договори; „масив“, „свързан списък“ са реализации.</p></div>
 
 <div class="block">
   <h3>Как се работи със страницата</h3>
@@ -2488,8 +2487,8 @@ window.CSRC = {
 </div>
 
 <div class="block">
-  <h3>Конспект, тема 4</h3>
-  <p class="prose">„Абстрактни структури от данни. Стек, опашка, линеен списък, двоично дърво. Реализация и основни операции.“ Разделите 1–7 следват главите на учебното ръководство. Раздел 8 е допълнението <span class="extra-tag">извън конспекта</span>, а раздел 9 — систематизацията, изяснените въпроси и опорният план.</p>
+  <h3>Обхват на тема 4</h3>
+  <p class="prose">„Абстрактни структури от данни. Стек, опашка, линеен списък, двоично дърво. Реализация и основни операции.“ Разделите 1–7 следват главите на учебното ръководство. Раздел 8 е допълнението <span class="extra-tag">разширение</span>, а раздел 9 — систематизацията, изяснените въпроси и опорният план.</p>
   <div class="tbl-wrap"><table class="t" id="secs"></table></div>
   <p class="muted">Връзки с другите теми (по ръководството): тема 1 обяснява кеша и локалността; тема 3 — интерфейси и живот на обекти; тема 5 анализира цената на операциите; тема 8 използва стек и опашка при търсене; тема 6 — дървета и хеширане при достъп до данни.</p>
 </div>`;
@@ -3235,7 +3234,7 @@ window.CSRC = {
 
 <div class="block">
   <h3>Дек и приоритетна опашка</h3>
-  <p class="prose"><dfn data-g="дек">Deque</dfn>, double-ended queue, допуска добавяне и премахване в двата края. В кръгов буфер това е естествено: push_front мести head назад с прехвърляне. Приоритетната опашка избира по приоритет, а не непременно по време на пристигане; честа нейна реализация е двоичната пирамида — виж <a href="#dopalnenie">раздел 8</a> <span class="extra-tag">извън конспекта</span>.</p>
+  <p class="prose"><dfn data-g="дек">Deque</dfn>, double-ended queue, допуска добавяне и премахване в двата края. В кръгов буфер това е естествено: push_front мести head назад с прехвърляне. Приоритетната опашка избира по приоритет, а не непременно по време на пристигане; честа нейна реализация е двоичната пирамида — виж <a href="#dopalnenie">раздел 8</a> <span class="extra-tag">разширение</span>.</p>
   <div id="v3-dq"></div>
   <p class="muted">Кръговият масив и кръговият свързан списък (схема 8) са и двете логически кръгови, но достъпът и представянето им са различни: първият е индексен с mod, вторият — по указатели. Виж <a href="#spisak">раздел 4</a>.</p>
 </div>
@@ -4509,7 +4508,7 @@ window.CSRC = {
   }
 
   const html = `
-<p class="prose"><span class="extra-tag">извън конспекта</span> Целият раздел е допълнение към основния обхват. По опорния план тези структури се споменават <b>само при въпрос</b>.</p>
+<p class="prose"><span class="extra-tag">разширение</span> Целият раздел е допълнение към основния обхват. По опорния план тези структури се споменават <b>само при въпрос</b>.</p>
 
 <div class="block">
   <h3>Двоична пирамида (heap) — приоритет вместо търсене (схеми 25 и 26)</h3>
@@ -4594,7 +4593,7 @@ window.CSRC = {
     });
   }
 
-  S.chapter({ id: "dopalnenie", order: 8, num: "8", group: "Разширение (извън конспекта)", title: "Допълнение: heap, AVL, red-black, B/B+, trie", lead: "Структури, които се споменават само при въпрос: приоритет в корена, балансиране чрез ротации, многоразклонени страници и търсене по символи.", html, mount, algos });
+  S.chapter({ id: "dopalnenie", order: 8, num: "8", group: "Разширение", title: "Допълнение: heap, AVL, red-black, B/B+, trie", lead: "Структури, които се споменават само при въпрос: приоритет в корена, балансиране чрез ротации, многоразклонени страници и търсене по символи.", html, mount, algos });
 })();
 
 </script>
@@ -4649,7 +4648,6 @@ window.CSRC = {
   ];
 
   const SOURCES = [
-    ["Конспект за кандидат-докторантски изпит „Информатика“, ШУ, 21.01.2025", null],
     ["NIST DADS — Binary Tree", "https://xlinux.nist.gov/dads/HTML/binarytree.html"],
     ["NIST DADS — Full Binary Tree", "https://xlinux.nist.gov/dads/HTML/fullBinaryTree.html"],
     ["NIST DADS — Complete Binary Tree", "https://xlinux.nist.gov/dads/HTML/completeBinaryTree.html"],
@@ -4686,7 +4684,7 @@ window.CSRC = {
 </div>
 
 <div class="block">
-  <h3>c) Опорен план за устния изпит</h3>
+  <h3>c) Опорен опорен план</h3>
   <p class="prose">При обяснение назовавам входа и резултата, проследявам стрелките или промените стъпка по стъпка и посочвам условието, при което примерът е валиден.</p>
   <div id="plan" style="display:grid;gap:8px"></div>
   <div class="key"><b>Визуална опора.</b> След добавяне на 4, 7 и 2 стекът изважда 2, а опашката изважда 4. Физическата реализация може да е различна.</div>
@@ -4714,7 +4712,7 @@ window.CSRC = {
     const plan = root.querySelector("#plan");
     PLAN.forEach((P, i) => {
       const box = h("div", { class: "card" },
-        h("h4", null, `${i + 1}. `, h("a", { href: "#" + P.sec, text: P.t }), P.extra ? h("span", { class: "extra-tag", text: "извън конспекта" }) : null),
+        h("h4", null, `${i + 1}. `, h("a", { href: "#" + P.sec, text: P.t }), P.extra ? h("span", { class: "extra-tag", text: "разширение" }) : null),
         h("ul", { style: { margin: "0", paddingLeft: "1.2em" } }, ...P.pts.map((x) => h("li", { text: x }))),
         h("p", null, h("b", { text: "Пример: " }), P.ex));
       plan.append(box);
@@ -4728,7 +4726,7 @@ window.CSRC = {
     SOURCES.forEach(([t, u]) => src.append(h("li", null, u ? h("a", { href: u, target: "_blank", rel: "noopener", text: t }) : t)));
   }
 
-  S.chapter({ id: "sistematizacia", order: 9, num: "9", group: "Обобщение", title: "Систематизация", lead: "Разграничения на близки понятия, изяснените въпроси, опорният план за устния изпит и реалните примери.", html, mount, algos: {} });
+  S.chapter({ id: "sistematizacia", order: 9, num: "9", group: "Обобщение", title: "Систематизация", lead: "Разграничения на близки понятия, изяснените въпроси, опорният план и реалните примери.", html, mount, algos: {} });
 })();
 
 </script>

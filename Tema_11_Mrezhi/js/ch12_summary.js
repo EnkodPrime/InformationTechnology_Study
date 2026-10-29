@@ -18,7 +18,7 @@
     { parts: [["ping минава", "net"], [", но "], ["TCP към 443 получава RST", "tr"], [" — значи "], ["уеб сървърът", "app"], [" не слуша, а не че мрежата е повредена."]],
       why: "Всяко наблюдение доказва изправност до своето равнище. ICMP отговор не проверява услугите над IP." },
     { parts: [["RS-485", "phy"], [" носи "], ["Modbus RTU кадри с CRC", "link"], [", а "], ["function 03 върху регистър 0", "app"], [" е смисълът на заявката."]],
-      why: "RS-485 е електрически интерфейс; RTU рамкирането и CRC са канални функции; Modbus PDU е приложната операция (извън конспекта)." },
+      why: "RS-485 е електрически интерфейс; RTU рамкирането и CRC са канални функции; Modbus PDU е приложната операция (разширение)." },
   ];
   const LCLS = { phy: "s-dim", link: "s-piv", net: "s-act", tr: "s-done", app: "s-cmp" };
 
@@ -59,7 +59,6 @@
   ];
 
   const SOURCES = [
-    ["Конспект за кандидат-докторантски изпит „Информатика“, ШУ, 21.01.2025", null],
     ["IETF RFC 9293 — Transmission Control Protocol", "https://www.rfc-editor.org/rfc/rfc9293.html"],
     ["IETF RFC 768 — User Datagram Protocol", "https://www.rfc-editor.org/rfc/rfc768.html"],
     ["IETF RFC 1122 — Requirements for Internet Hosts", "https://www.rfc-editor.org/rfc/rfc1122.html"],
@@ -105,16 +104,16 @@
 <div class="block">
   <h3>d) Изяснени въпроси</h3>
   <div class="row"><input type="search" id="faq-q" placeholder="Търси във въпросите…" aria-label="Търси във въпросите" style="flex:1 1 240px">
-    <select id="faq-f" aria-label="Филтър"><option value="">всички</option><option value="c">в конспекта</option><option value="e">извън конспекта</option></select></div>
+    <select id="faq-f" aria-label="Филтър"><option value="">всички</option><option value="c">основно</option><option value="e">разширение</option></select></div>
   <div id="faq" style="display:grid;gap:8px"></div>
 </div>
 
 <div class="block">
-  <h3>e) Опорен план за устния изпит</h3>
+  <h3>e) Опорен опорен план</h3>
   <p class="prose">При обяснение назовавам входа и резултата, проследявам стрелките или промените стъпка по стъпка и посочвам условието, при което примерът е валиден.</p>
   <div id="plan" style="display:grid;gap:12px"></div>
   <div id="real" style="display:grid;gap:8px"></div>
-  <div class="key"><b>Допълнение.</b> QUIC е име на стандартизиран транспорт, а не акроним с нормативно разгъване; историческото „Quick UDP Internet Connections“ не е официално разшифроване. Wi-Fi също не се разгъва като „Wireless Fidelity“. <span class="extra-tag">извън конспекта</span></div>
+  <div class="key"><b>Допълнение.</b> QUIC е име на стандартизиран транспорт, а не акроним с нормативно разгъване; историческото „Quick UDP Internet Connections“ не е официално разшифроване. Wi-Fi също не се разгъва като „Wireless Fidelity“. <span class="extra-tag">разширение</span></div>
 </div>
 
 <div class="block">
@@ -157,5 +156,5 @@
     SOURCES.forEach(([t, u2]) => src.append(h("li", null, u2 ? h("a", { href: u2, target: "_blank", rel: "noopener", text: t }) : t)));
   }
 
-  S.chapter({ id: "sistematizacia", order: 12, num: "12", group: "Обобщение", title: "Систематизация и опорен план", lead: "Сравнителни таблици, равнищата в едно изречение, изяснените въпроси и опорният план за устния изпит.", html, mount, algos: {} });
+  S.chapter({ id: "sistematizacia", order: 12, num: "12", group: "Обобщение", title: "Систематизация и опорен план", lead: "Сравнителни таблици, равнищата в едно изречение, изяснените въпроси и опорният план.", html, mount, algos: {} });
 })();

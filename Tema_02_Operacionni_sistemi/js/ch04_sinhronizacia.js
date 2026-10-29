@@ -128,7 +128,7 @@
 </div>
 
 <div class="block">
-  <h3>Производител–потребител с два брояча и мютекс <span class="extra-tag">извън конспекта</span></h3>
+  <h3>Производител–потребител с два брояча и мютекс <span class="extra-tag">разширение</span></h3>
   <p class="prose">Класическа илюстрация на ролите от Схема 12: семафорът <code>empty</code> брои свободните места, <code>full</code> — заетите, а <code>mutex</code> пази самия буфер. Разписанието съдържа <code>P</code> (стъпка на производителя) и <code>C</code> (стъпка на потребителя). Блокирана нишка опитва отново при следващата си стъпка.</p>
   <div id="v-pc"></div>
   <details class="hint"><summary>Хинт: защо редът wait(empty) → wait(mutex) е важен</summary><div>

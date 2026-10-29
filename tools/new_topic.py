@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Създава скелет на нова тема.
-Употреба: python3 tools/new_topic.py Tema_NN_Ime NN "Кратко заглавие" "Ред от конспекта"
+Употреба: python3 tools/new_topic.py Tema_NN_Ime NN "Кратко заглавие" "Кратко описание на темата"
 След това: добави js/chNN_*.js файловете в index.html (между маркерите CHAPTERS)."""
 import pathlib, sys
 folder, num, title, konspekt = sys.argv[1:5]
@@ -25,7 +25,7 @@ topic_key = "t" + num.zfill(2)
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><b>Тема {int(num)} · {title}</b><span>Кандидат-докторантски изпит · Информатика · ШУ</span></div>
+  <div class="brand"><b>Тема {int(num)} · {title}</b><span>Информационни технологии</span></div>
   <select id="navselect" class="navselect" aria-label="Раздел"></select>
   <span class="sp"></span>
   <button class="btn" id="btn-gloss" type="button">Речник</button>
@@ -52,5 +52,5 @@ topic_key = "t" + num.zfill(2)
 (T / "js" / "glossary.js").write_text(f"/* Речник за тема {int(num)}. Основните определения (d) са от „Тема {int(num)}. Речник на понятията“. */\nwindow.GLOSSARY = {{\n}};\n", encoding="utf-8")
 (T / "js" / "sources.js").write_text(f"/* Справки в Уикипедия за понятията от речника на тема {int(num)} (ключ като в glossary.js). */\nwindow.TERM_SOURCES = {{\n}};\n", encoding="utf-8")
 (T / "js" / "csrc.js").write_text("window.CSRC = {};\n", encoding="utf-8")
-(T / "README.md").write_text(f"# Тема {int(num)}. {title}\n\nКонспект: *{konspekt}*\n\nОтвори `index.html` в браузър.\n", encoding="utf-8")
+(T / "README.md").write_text(f"# Тема {int(num)}. {title}\n\nОбхват: *{konspekt}*\n\nОтвори `index.html` в браузър.\n", encoding="utf-8")
 print("Създадена", T)

@@ -117,7 +117,7 @@
     <div class="key" id="rel-info"></div>
   </div>
   <div id="v-compose"></div>
-  <details class="hint"><summary>Хинт: композицията не изключва полиморфизма</summary><div><p><code>DataLogger</code> държи <code>const ISensor&amp;</code>. Един и същ код на регистратора работи с Temp и с Press — изборът е по динамичния тип на сочения датчик. Композицията позволява подмяна на съставните обекти без задължително наследяване. <span class="extra-tag">извън конспекта</span></p></div></details>
+  <details class="hint"><summary>Хинт: композицията не изключва полиморфизма</summary><div><p><code>DataLogger</code> държи <code>const ISensor&amp;</code>. Един и същ код на регистратора работи с Temp и с Press — изборът е по динамичния тип на сочения датчик. Композицията позволява подмяна на съставните обекти без задължително наследяване. <span class="extra-tag">разширение</span></p></div></details>
 </div>
 
 <div class="block">

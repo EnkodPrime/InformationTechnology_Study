@@ -220,7 +220,7 @@ details > div { display: grid; gap: 8px; color: var(--ink-2); }
 .trap { border-color: color-mix(in srgb, var(--st-swap) 45%, var(--line)); }
 .key { border-left: 4px solid var(--accent); background: var(--accent-soft); }
 .key .formula, .formula { font-family: var(--f-mono); font-size: .95rem; }
-.extra { color: var(--accent); }  /* синият текст — допълнение извън конспекта */
+.extra { color: var(--accent); }  /* синият текст — допълнение (разширение) */
 .extra-tag { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); border: 1px solid var(--accent); border-radius: 3px; padding: 0 4px; margin-left: 6px; vertical-align: 2px; }
 
 /* ---------- визуализатор ---------- */

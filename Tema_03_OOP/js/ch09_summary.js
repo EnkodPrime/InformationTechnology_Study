@@ -1,4 +1,4 @@
-/* Раздел 9 — Систематизация, изяснени въпроси и опорен план за устния изпит. */
+/* Раздел 9 — Систематизация, изяснени въпроси и опорен опорен план. */
 (function () {
   const S = window.Study, h = S.h;
 
@@ -41,7 +41,6 @@
   ];
 
   const SOURCES = [
-    ["Конспект за кандидат-докторантски изпит „Информатика“, ШУ, 21.01.2025", null],
     ["C++ Core Guidelines — обекти, ресурси и виртуални интерфейси", "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines"],
     ["Bjarne Stroustrup, A History of C++: 1979–1991 — произход на C++ и влиянието на Simula", "https://www.stroustrup.com/hopl2.pdf"],
     ["Standard C++ FAQ — Virtual Functions", "https://isocpp.org/wiki/faq/virtual-functions"],
@@ -68,7 +67,7 @@
 </div>
 
 <div class="block">
-  <h3>d) Опорен план за устния изпит</h3>
+  <h3>d) Опорен опорен план</h3>
   <p class="prose">При обяснение назовавам входа и резултата, проследявам стрелките или промените стъпка по стъпка и посочвам условието, при което примерът е валиден.</p>
   <div id="plan" style="display:grid;gap:10px"></div>
   <div class="card"><h4>Реални примери за устното изложение</h4><ul class="prose" id="real" style="padding-left:1.2em"></ul></div>
@@ -100,5 +99,5 @@
     SOURCES.forEach(([t, u]) => src.append(h("li", null, u ? h("a", { href: u, target: "_blank", rel: "noopener", text: t }) : t)));
   }
 
-  S.chapter({ id: "sistematizacia", order: 9, num: "9", group: "Обобщение", title: "Систематизация", lead: "Сравнителни таблици, изяснени въпроси и опорен план за устния изпит.", html, mount, algos: {} });
+  S.chapter({ id: "sistematizacia", order: 9, num: "9", group: "Обобщение", title: "Систематизация", lead: "Сравнителни таблици, изяснени въпроси и опорен опорен план.", html, mount, algos: {} });
 })();

@@ -80,7 +80,7 @@
   <h3>Работещият пример: Shape и Rectangle</h3>
   <p class="prose">Примерът от ръководството свързва абстракция, наследяване, виртуален метод и безопасно управление на живота. <code>std::unique_ptr&lt;Shape&gt; p = std::make_unique&lt;Rectangle&gt;(3, 4); p-&gt;area()</code> дава <b>12</b>. Тук е разширен с Triangle и Square — опиши свой списък.</p>
   <div id="v-shapes"></div>
-  <details class="hint"><summary>Хинт: как да обясниш „защо 12“ на изпита</summary><div>
+  <details class="hint"><summary>Хинт: как да обясниш „защо 12“</summary><div>
     <p>Типът на <code>p</code> е <code>unique_ptr&lt;Shape&gt;</code> — компилаторът разрешава само интерфейса на Shape. Действителният обект е Rectangle(3, 4). <code>area()</code> е виртуална → динамичното свързване стига до <code>Rectangle::area</code> → 3 × 4 = 12. При излизане от обхвата unique_ptr вика <code>delete</code> през <code>Shape*</code>; деструкторът на Shape е виртуален, затова се разрушава целият Rectangle.</p>
     <p>За учебна краткост примерът приема валидни размери. При пълен модел конструкторът трябва да установява договор за отрицателни или невалидни стойности — това е отделен въпрос от механизма на полиморфизма.</p>
   </div></details>

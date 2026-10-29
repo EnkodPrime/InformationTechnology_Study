@@ -176,7 +176,7 @@
           return { frames: F, result: 1, tried };
         }
       }
-      F.push({ at: "unsat", f, X: null, st: null, brute: true, hist: hist.slice(), final: true, verdict: false, vars: { return: 0 }, stats: { пробвани: tried, "2ⁿ": 1 << n }, msg: `Всички 2<sup>${n}</sup> = ${tried} присвоявания са проверени ⇒ <b>неизпълнима</b>. Кратък сертификат за „не“ стандартната дефиниция не обещава (<dfn data-g="conp">coNP</dfn>, извън конспекта).` });
+      F.push({ at: "unsat", f, X: null, st: null, brute: true, hist: hist.slice(), final: true, verdict: false, vars: { return: 0 }, stats: { пробвани: tried, "2ⁿ": 1 << n }, msg: `Всички 2<sup>${n}</sup> = ${tried} присвоявания са проверени ⇒ <b>неизпълнима</b>. Кратък сертификат за „не“ стандартната дефиниция не обещава (<dfn data-g="conp">coNP</dfn>, разширение).` });
       return { frames: F, result: 0, tried };
     },
 
@@ -266,7 +266,7 @@
     <p>Не рисуваме NP-пълните като доказано извън P без изричното условие P ≠ NP.</p>
   </div></details>
   <details class="trap"><summary>Капан: „работи бързо на моите примери“</summary><div>
-    <p>Отделни лесни входове и успешни евристики не установяват полиномиална граница за най-лошия случай. CP-SAT (Google OR-Tools) решава задачи с ограничения; използването му не прави NP-пълните задачи полиномиални <span class="extra-tag">извън конспекта</span>.</p>
+    <p>Отделни лесни входове и успешни евристики не установяват полиномиална граница за най-лошия случай. CP-SAT (Google OR-Tools) решава задачи с ограничения; използването му не прави NP-пълните задачи полиномиални <span class="extra-tag">разширение</span>.</p>
   </div></details>
   <div class="key"><p class="formula">P ⊆ NP · NP-пълна = NP ∩ NP-трудна</p><p>Полиномиален алгоритъм за една NP-пълна задача ⇒ P = NP. Ако P ≠ NP, никоя NP-пълна задача не е в P.</p></div>
 </div>
@@ -504,7 +504,7 @@
       ham: { t: "Хамилтонов цикъл", cls: "NPC", d: "NP-пълна: сертификатът е самият цикъл; трудността — чрез свеждане от известна NP-пълна задача." },
       tspd: { t: "TSP решаваща (≤ K)", cls: "NPC", d: "NP-пълна (при двоично кодирани цели тегла). Хамилтонов цикъл ≤ₚ TSP — виж по-горе." },
       tspo: { t: "TSP оптимизационна", cls: "NPH", d: "NP-трудна, но <b>не е в NP</b>: не е задача за разпознаване (търси минимална обиколка, не отговор да/не)." },
-      halt: { t: "проблем за спирането", cls: "NPH", d: "NP-трудна и <b>неразрешима</b> <span class=\"extra-tag\">извън конспекта</span> — всяка задача от NP се свежда до нея, но тя не е в NP." },
+      halt: { t: "проблем за спирането", cls: "NPH", d: "NP-трудна и <b>неразрешима</b> <span class=\"extra-tag\">разширение</span> — всяка задача от NP се свежда до нея, но тя не е в NP." },
     };
     let world = "neq", sel = "sat";
     const wBox = root.querySelector("#world"), cBox = root.querySelector("#classes"), cInfo = root.querySelector("#cls-info");

@@ -1,4 +1,4 @@
-/* Раздел 9 — Систематизация, изяснени въпроси, опорен план за устния изпит. */
+/* Раздел 9 — Систематизация, изяснени въпроси, опорен опорен план. */
 (function () {
   const S = window.Study, h = S.h;
 
@@ -35,7 +35,6 @@
   ];
 
   const SOURCES = [
-    ["Конспект за кандидат-докторантски изпит „Информатика“, ШУ, 21.01.2025", null],
     ["NIST CSRC Glossary", "https://csrc.nist.gov/glossary"],
     ["OWASP Cross Site Scripting Prevention Cheat Sheet", "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html"],
     ["OWASP Cross-Site Request Forgery Prevention Cheat Sheet", "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html"],
@@ -59,7 +58,7 @@
 </div>
 
 <div class="block">
-  <h3>c) Опорен план за устния изпит</h3>
+  <h3>c) Опорен опорен план</h3>
   <p class="prose muted">При обяснение на схема: назови входа и резултата, проследи стрелките или промените стъпка по стъпка и посочи условието, при което примерът е валиден.</p>
   <div id="plan" style="display:grid;gap:10px"></div>
 </div>
@@ -99,5 +98,5 @@
     SOURCES.forEach(([t, u]) => src.append(h("li", null, u ? h("a", { href: u, target: "_blank", rel: "noopener", text: t }) : t)));
   }
 
-  S.chapter({ id: "sistematizacia", order: 9, num: "9", group: "Обобщение", title: "Систематизация", lead: "Двойките понятия, които се объркват, изяснените въпроси и опорният план за устния изпит.", html, mount, algos: {} });
+  S.chapter({ id: "sistematizacia", order: 9, num: "9", group: "Обобщение", title: "Систематизация", lead: "Двойките понятия, които се объркват, изяснените въпроси и опорният план.", html, mount, algos: {} });
 })();

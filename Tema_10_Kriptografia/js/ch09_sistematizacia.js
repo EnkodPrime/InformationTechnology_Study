@@ -1,4 +1,4 @@
-/* Раздел 9 — Систематизация, изяснени въпроси и опорен план за устния изпит. */
+/* Раздел 9 — Систематизация, изяснени въпроси и опорен опорен план. */
 (function () {
   const S = window.Study, h = S.h;
 
@@ -63,12 +63,12 @@
 </div>
 
 <div class="block">
-  <h3>Опорен план за устния изпит</h3>
+  <h3>Опорен опорен план</h3>
   <p class="prose muted">Структура за устно изложение. Всяка точка задава понятията, разграниченията и примерите, които да бъдат развити със собствени думи. При обяснение: назовавам входа и резултата, проследявам промените стъпка по стъпка и посочвам условието, при което примерът е валиден.</p>
   <div id="plan" style="display:grid;gap:10px"></div>
   <div class="split">
     <div class="key"><b>Реални примери за изложението</b><p>Цезар, A = 0 … Z = 25, ключ 3: ATTACK → DWWDFN; дешифрирането изважда 3 по модул 26.</p><p>Транспозиция: ATTACK по редове в 2 × 3 — ATT / ACK; прочит по колони — AATCTK.</p><p>Колонна: ATTACKATDAWN, ширина 4, ред 3 1 4 2 → TAWACDATNTKA. Rail fence с 3 реда → ACDTAKTANTAW.</p><p>Афинен: a = 5, b = 8, C → S; 5⁻¹ ≡ 21. Виженер: ATTACKATDAWN + LEMON → LXFOPVEFRNHR. OTP: 1100 ⊕ 0011 = 1111 = C₁ ⊕ C₂.</p></div>
-    <div class="key"><b>Визуална опора</b><p>Заместването сменя символите, транспозицията сменя местата. Цезар с ключ 3 дава DWWDFN; транспозицията 2 × 3 дава AATCTK и пази честотите на символите.</p><p class="muted">Допълнение <span class="extra-tag">извън конспекта</span>: OpenSSL реализира AES (симетрично), RSA (асиметрично), SHA-256 (хеш), HMAC (удостоверяване с таен ключ). Хешът не е шифроване.</p></div>
+    <div class="key"><b>Визуална опора</b><p>Заместването сменя символите, транспозицията сменя местата. Цезар с ключ 3 дава DWWDFN; транспозицията 2 × 3 дава AATCTK и пази честотите на символите.</p><p class="muted">Допълнение <span class="extra-tag">разширение</span>: OpenSSL реализира AES (симетрично), RSA (асиметрично), SHA-256 (хеш), HMAC (удостоверяване с таен ключ). Хешът не е шифроване.</p></div>
   </div>
 </div>
 
@@ -99,12 +99,12 @@
     QA.forEach(([q, a, s]) => qa.append(h("details", { class: "hint" }, h("summary", { text: q }), h("div", null, h("p", { text: a }), h("p", null, h("a", { href: "#" + s, text: "→ към раздела" }))))));
     const pl = root.querySelector("#plan");
     PLAN.forEach((P) => pl.append(h("div", { class: "card" },
-      h("h4", null, h("span", { class: "mono muted", text: P.n + " · " }), h("a", { href: "#" + P.sec, text: P.t }), P.extra ? h("span", { class: "extra-tag", text: "извън конспекта" }) : null),
+      h("h4", null, h("span", { class: "mono muted", text: P.n + " · " }), h("a", { href: "#" + P.sec, text: P.t }), P.extra ? h("span", { class: "extra-tag", text: "разширение" }) : null),
       h("ul", { style: { margin: "0", paddingLeft: "1.2em" } }, ...P.pts.map((x) => h("li", { html: x }))))));
     const f = root.querySelector("#fig");
     f.append(h("tr", null, h("th", { text: "схема" }), h("th", { text: "съдържание" }), h("th", { text: "раздел" })));
     FIG.forEach(([n, x, s]) => f.append(h("tr", null, h("td", { class: "mono", text: n }), h("td", { text: x }), h("td", null, h("a", { href: "#" + s, text: s })))));
   }
 
-  S.chapter({ id: "sistematizacia", order: 9, num: "9", group: "Систематизация", title: "Систематизация и опорен план", lead: "Сравнителна таблица, двойки понятия, изяснените въпроси и опорният план за устния изпит.", html, mount });
+  S.chapter({ id: "sistematizacia", order: 9, num: "9", group: "Систематизация", title: "Систематизация и опорен план", lead: "Сравнителна таблица, двойки понятия, изяснените въпроси и опорният план.", html, mount });
 })();

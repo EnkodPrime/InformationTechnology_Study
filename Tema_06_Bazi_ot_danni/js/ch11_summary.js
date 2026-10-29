@@ -1,4 +1,4 @@
-/* Раздел 11 — Систематизация, изяснени въпроси и опорен план за устния изпит. */
+/* Раздел 11 — Систематизация, изяснени въпроси и опорен опорен план. */
 (function () {
   const S = window.Study, h = S.h;
 
@@ -60,7 +60,6 @@
   ];
 
   const SOURCES = [
-    ["Конспект за кандидат-докторантски изпит „Информатика“, ШУ, 21.01.2025", "https://integrity.shu.bg/wp-content/uploads/file-manager-advanced/users/projects/news/2025/Kospekt_4.6..pdf"],
     ["E. F. Codd, A Relational Model of Data for Large Shared Data Banks, 1970", "https://research.ibm.com/publications/a-relational-model-of-data-for-large-shared-data-banks"],
     ["PostgreSQL — Constraints", "https://www.postgresql.org/docs/current/ddl-constraints.html"],
     ["PostgreSQL — Transaction Isolation", "https://www.postgresql.org/docs/current/transaction-iso.html"],
@@ -92,7 +91,7 @@
 </div>
 
 <div class="block">
-  <h3>d) Опорен план за устния изпит</h3>
+  <h3>d) Опорен опорен план</h3>
   <p class="prose muted">Всяка точка задава понятията, разграниченията и примерите, които да бъдат развити със собствени думи. Реални примери: Microsoft SQL Server, MySQL, Oracle Database и PostgreSQL са RDBMS; SQL е език, а не продукт.</p>
   <div id="plan" style="display:grid;gap:8px"></div>
 </div>
@@ -141,5 +140,5 @@
     SOURCES.forEach(([t, u]) => src.append(h("li", null, u ? h("a", { href: u, target: "_blank", rel: "noopener", text: t }) : t)));
   }
 
-  S.chapter({ id: "sistematizacia", order: 11, num: "11", group: "Обобщение", title: "Систематизация и опорен план", lead: "Нормалните форми в една таблица, близките понятия, изяснените въпроси и опорният план за устния изпит.", html, mount, algos: {} });
+  S.chapter({ id: "sistematizacia", order: 11, num: "11", group: "Обобщение", title: "Систематизация и опорен план", lead: "Нормалните форми в една таблица, близките понятия, изяснените въпроси и опорният план.", html, mount, algos: {} });
 })();

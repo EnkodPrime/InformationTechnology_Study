@@ -48,7 +48,6 @@
   ];
 
   const SOURCES = [
-    ["Конспект за кандидат-докторантски изпит „Информатика“, ШУ, 21.01.2025", null],
     ["NIST DADS — Binary Tree", "https://xlinux.nist.gov/dads/HTML/binarytree.html"],
     ["NIST DADS — Full Binary Tree", "https://xlinux.nist.gov/dads/HTML/fullBinaryTree.html"],
     ["NIST DADS — Complete Binary Tree", "https://xlinux.nist.gov/dads/HTML/completeBinaryTree.html"],
@@ -85,7 +84,7 @@
 </div>
 
 <div class="block">
-  <h3>c) Опорен план за устния изпит</h3>
+  <h3>c) Опорен опорен план</h3>
   <p class="prose">При обяснение назовавам входа и резултата, проследявам стрелките или промените стъпка по стъпка и посочвам условието, при което примерът е валиден.</p>
   <div id="plan" style="display:grid;gap:8px"></div>
   <div class="key"><b>Визуална опора.</b> След добавяне на 4, 7 и 2 стекът изважда 2, а опашката изважда 4. Физическата реализация може да е различна.</div>
@@ -113,7 +112,7 @@
     const plan = root.querySelector("#plan");
     PLAN.forEach((P, i) => {
       const box = h("div", { class: "card" },
-        h("h4", null, `${i + 1}. `, h("a", { href: "#" + P.sec, text: P.t }), P.extra ? h("span", { class: "extra-tag", text: "извън конспекта" }) : null),
+        h("h4", null, `${i + 1}. `, h("a", { href: "#" + P.sec, text: P.t }), P.extra ? h("span", { class: "extra-tag", text: "разширение" }) : null),
         h("ul", { style: { margin: "0", paddingLeft: "1.2em" } }, ...P.pts.map((x) => h("li", { text: x }))),
         h("p", null, h("b", { text: "Пример: " }), P.ex));
       plan.append(box);
@@ -127,5 +126,5 @@
     SOURCES.forEach(([t, u]) => src.append(h("li", null, u ? h("a", { href: u, target: "_blank", rel: "noopener", text: t }) : t)));
   }
 
-  S.chapter({ id: "sistematizacia", order: 9, num: "9", group: "Обобщение", title: "Систематизация", lead: "Разграничения на близки понятия, изяснените въпроси, опорният план за устния изпит и реалните примери.", html, mount, algos: {} });
+  S.chapter({ id: "sistematizacia", order: 9, num: "9", group: "Обобщение", title: "Систематизация", lead: "Разграничения на близки понятия, изяснените въпроси, опорният план и реалните примери.", html, mount, algos: {} });
 })();

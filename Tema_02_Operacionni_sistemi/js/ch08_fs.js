@@ -163,7 +163,7 @@
     st.append(...rows);
     if (f.method === "linked" && f.blocks && f.blocks.length) {
       const t = h("table", { class: "t grid" }, h("tr", null, h("th", { text: "блок" }), ...f.blocks.map((b) => h("th", { text: b }))), h("tr", null, h("th", { text: "следващ" }), ...f.blocks.map((b, i) => h("td", { class: f.path && f.path.includes(b) ? "s-done" : "", text: i + 1 < f.blocks.length ? f.blocks[i + 1] : "край" }))));
-      st.append(h("p", { class: "muted", style: { marginTop: "6px", fontSize: ".85rem" }, html: "Указателите „следващ“ — събрани в отделна таблица, това е идеята на FAT <span class=\"extra-tag\">извън конспекта</span>:" }), h("div", { class: "tbl-wrap" }, t));
+      st.append(h("p", { class: "muted", style: { marginTop: "6px", fontSize: ".85rem" }, html: "Указателите „следващ“ — събрани в отделна таблица, това е идеята на FAT <span class=\"extra-tag\">разширение</span>:" }), h("div", { class: "tbl-wrap" }, t));
     }
     if (f.method === "indexed" && f.blocks && f.blocks.length) {
       const t = h("table", { class: "t grid" }, h("tr", null, h("th", { text: `индексен блок ${f.ib}: запис` }), ...f.blocks.map((_, i) => h("th", { text: i }))), h("tr", null, h("th", { text: "блок с данни" }), ...f.blocks.map((b, i) => h("td", { class: i === f.k && f.path ? "s-done" : "", text: b }))));
@@ -215,7 +215,7 @@
     <tr><td>Свързано (списък)</td><td>k + 1 четения по указателите</td><td>лесно</td><td>няма външна</td></tr>
     <tr><td>Индексно</td><td>индексен блок + блок с данни</td><td>лесно, до размера на индекса</td><td>няма външна; цена — индексният блок</td></tr>
   </table></div>
-  <p class="muted" style="font-size:.85rem">Таблицата е класическото сравнение на трите метода <span class="extra-tag">извън конспекта</span>; екстентите (поредици от блокове) съчетават непрекъснатост и индекс.</p>
+  <p class="muted" style="font-size:.85rem">Таблицата е класическото сравнение на трите метода <span class="extra-tag">разширение</span>; екстентите (поредици от блокове) съчетават непрекъснатост и индекс.</p>
 </div>
 
 <div class="block">

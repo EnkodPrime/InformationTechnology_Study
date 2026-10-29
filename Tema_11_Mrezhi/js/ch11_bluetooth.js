@@ -1,4 +1,4 @@
-/* Раздел 11 — Bluetooth мрежи (извън конспекта): Classic и LE, роли, откриване и връзка,
+/* Раздел 11 — Bluetooth мрежи (разширение): Classic и LE, роли, откриване и връзка,
    GAP/GATT, декодиране на стойност, шлюз към IP, Mesh с управлявано наводняване. */
 (function () {
   const S = window.Study, h = S.h;
@@ -72,7 +72,7 @@
   ];
 
   const html = `
-<p class="prose"><span class="extra-tag">извън конспекта</span> Целият раздел е допълнителен материал от учебното ръководство (глава 10).</p>
+<p class="prose"><span class="extra-tag">разширение</span> Целият раздел е допълнителен материал от учебното ръководство (глава 10).</p>
 <div class="prose">
   <p><dfn data-g="bluetooth">Bluetooth</dfn> е семейство технологии за безжична комуникация в обхвата 2,4 GHz. Типичната му употреба е <dfn data-g="pan">PAN</dfn> — лична мрежа около човек или устройство. PAN описва обхвата, а Bluetooth — начина на комуникация. Bluetooth е собствено име, а не акроним; <dfn data-g="sig">SIG</dfn> е организацията зад спецификациите.</p>
   <p><dfn data-g="bluetooth classic">Bluetooth Classic</dfn> използва <dfn data-g="br/edr">BR/EDR</dfn> и 79 канала по 1 MHz. <dfn data-g="ble">Bluetooth LE</dfn> използва 40 канала по 2 MHz, от които три са първични advertising канали. Каналите са честотни области, а не брой устройства. LE поддържа и LE Audio — „Classic е за звук, LE е само за датчици“ е грешно като общо правило. <dfn data-g="a2dp">A2DP</dfn> е Classic профил за звук; <dfn data-g="hid">HID</dfn> се отнася до клавиатури и мишки.</p>
@@ -195,5 +195,5 @@
     });
   }
 
-  S.chapter({ id: "bluetooth", order: 11, num: "11", group: "Разширение (извън конспекта)", title: "Bluetooth мрежи", lead: "Classic и LE, central/peripheral срещу GATT client/server, какво означава прочетен байт, шлюз към IP и Mesh с ограничено наводняване.", html, mount, algos });
+  S.chapter({ id: "bluetooth", order: 11, num: "11", group: "Разширение", title: "Bluetooth мрежи", lead: "Classic и LE, central/peripheral срещу GATT client/server, какво означава прочетен байт, шлюз към IP и Mesh с ограничено наводняване.", html, mount, algos });
 })();

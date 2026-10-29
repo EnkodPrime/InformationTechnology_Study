@@ -1,4 +1,4 @@
-/* Раздел 10 — Систематизация, изяснени въпроси и опорен план за устния изпит. */
+/* Раздел 10 — Систематизация, изяснени въпроси и опорен опорен план. */
 (function () {
   const S = window.Study, h = S.h;
 
@@ -48,7 +48,6 @@
     { t: "Допълнение и единен пример за жизнения цикъл", sec: "migracia", pts: ["Разказвам целия пример от потребност до замяна.", "Отделям задължителната теория от конкретната технология."], ex: "Миграция: еднакъв брой редове с объркани валути остава грешна база." },
   ];
   const SOURCES = [
-    ["Конспект за кандидат-докторантски изпит „Информатика“, ШУ, 21.01.2025", null],
     ["M07 R01 — Object Management Group, BPMN", "https://www.omg.org/bpmn/"],
     ["M07 R02 — Object Management Group, Specifications (UML и др.)", "https://www.omg.org/spec/"],
     ["M07 R03 — Ilyas M. A. B., Hassan M. K., Ilyas M. U. PMIS: boon or bane? PMI Global Congress EMEA, 2013", "https://www.pmi.org/learning/library/2019/04/07/15/21/project-management-information-systems-overviews-5813"],
@@ -87,7 +86,7 @@
 </div>
 
 <div class="block">
-  <h3>e) Опорен план за устния изпит</h3>
+  <h3>e) Опорен опорен план</h3>
   <p class="prose">При обяснение назовавам входа и резултата, проследявам стрелките или промените стъпка по стъпка и посочвам условието, при което примерът е валиден.</p>
   <div id="plan" style="display:grid;gap:10px"></div>
 </div>
@@ -134,5 +133,5 @@
     SOURCES.forEach(([t, u]) => src.append(h("li", null, u ? h("a", { href: u, target: "_blank", rel: "noopener", text: t }) : t)));
   }
 
-  S.chapter({ id: "sistematizacia", order: 10, num: "10", group: "Обобщение", title: "Систематизация и опорен план", lead: "Сравнителни таблици, разграничения, изяснени въпроси и опорен план за устния изпит.", html, mount, algos: {} });
+  S.chapter({ id: "sistematizacia", order: 10, num: "10", group: "Обобщение", title: "Систематизация и опорен план", lead: "Сравнителни таблици, разграничения, изяснени въпроси и опорен опорен план.", html, mount, algos: {} });
 })();

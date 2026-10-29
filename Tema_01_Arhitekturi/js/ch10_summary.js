@@ -53,7 +53,6 @@
   ];
 
   const SOURCES = [
-    ["Конспект за кандидат-докторантски изпит по Информатика, ШУ, 21.01.2025", null],
     ["M. J. Flynn, Some Computer Organizations and Their Effectiveness, 1972", "https://www.computer.org/csdl/journal/tc/1972/09/05009071/13rRUwdrdOi"],
     ["RISC-V Instruction Set Manual (unprivileged)", "https://docs.riscv.org/reference/isa/_attachments/riscv-unprivileged.pdf"],
     ["RISC-V RV32I Base Integer Instruction Set", "https://docs.riscv.org/reference/isa/v20260120/unpriv/rv32.html"],
@@ -71,7 +70,7 @@
   ];
 
   const html = `
-<div class="prose"><p>Повечето въпроси в темата са разграничения между две понятия по <b>една ос</b>. Ако на изпита кажеш на коя ос и на кое равнище говориш, капаните отпадат.</p></div>
+<div class="prose"><p>Повечето въпроси в темата са разграничения между две понятия по <b>една ос</b>. Ако кажеш на коя ос и на кое равнище говориш, капаните отпадат.</p></div>
 
 <div class="block">
   <h3>a) Оси на разграничение</h3>
@@ -95,7 +94,7 @@
 </div>
 
 <div class="block">
-  <h3>e) Опорен план за устния изпит</h3>
+  <h3>e) Опорен опорен план</h3>
   <p class="prose muted">Структура за устно изложение. Всяка точка задава понятията, разграниченията и примерите, които да бъдат развити със собствени думи. При обяснение назовавам входа и резултата, проследявам стрелките или промените стъпка по стъпка и посочвам условието, при което примерът е валиден.</p>
   <div id="plan" style="display:grid;gap:8px"></div>
 </div>
@@ -135,7 +134,7 @@
 
     const plan = root.querySelector("#plan");
     PLAN.forEach((P, i) => plan.append(h("div", { class: "card" },
-      h("h4", null, `${i + 1}. ${P.t}`, P.extra ? h("span", { class: "extra-tag", text: "извън конспекта" }) : null),
+      h("h4", null, `${i + 1}. ${P.t}`, P.extra ? h("span", { class: "extra-tag", text: "разширение" }) : null),
       h("ul", { class: "prose", style: { margin: 0 } }, ...P.pts.map((x) => h("li", { text: x }))),
       h("p", null, h("b", { text: "Пример: " }), P.ex),
       h("p", null, h("a", { href: "#" + P.sec, text: "→ към раздела" })))));
@@ -145,5 +144,5 @@
   }
 
   S.chapter({ id: "sistematizacia", order: 10, num: "10", group: "Обобщение", title: "Систематизация",
-    lead: "Оси на разграничение, сравнение на механизмите за вход и изход, формулите, изяснените въпроси и опорният план за устния изпит.", html, mount, algos: {} });
+    lead: "Оси на разграничение, сравнение на механизмите за вход и изход, формулите, изяснените въпроси и опорният план.", html, mount, algos: {} });
 })();

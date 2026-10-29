@@ -1,4 +1,4 @@
-/* Раздел 11 — Систематизация и изпитни въпроси. */
+/* Раздел 11 — Систематизация и изяснени въпроси. */
 (function () {
   const S = window.Study, h = S.h;
 
@@ -53,7 +53,6 @@
 
 
   const SOURCES = [
-    ["Конспект за кандидат-докторантски изпит „Информатика“, ШУ, 21.01.2025", "https://integrity.shu.bg/wp-content/uploads/file-manager-advanced/users/projects/news/2025/Kospekt_4.6..pdf"],
     ["Stephen Cook, The P versus NP Problem", "https://www.claymath.org/wp-content/uploads/2022/06/pvsnp.pdf"],
     ["Clay Mathematics Institute — P vs NP", "https://www.claymath.org/millennium/p-vs-np/"],
     ["Python — functools (lru_cache, cache)", "https://docs.python.org/3/library/functools.html"],
@@ -71,7 +70,7 @@
 <div class="block">
   <h3>a) Сравнителна таблица на методите</h3>
   <div class="row"><input type="search" id="m-q" placeholder="Търси (напр. TSP, гаранция, n log n)…" aria-label="Търси в таблицата" style="flex:1 1 240px">
-    <select id="m-f" aria-label="Филтър по раздел"><option value="">всички раздели</option><option value="conspect">в конспекта</option><option value="extra">извън конспекта</option></select></div>
+    <select id="m-f" aria-label="Филтър по раздел"><option value="">всички раздели</option><option value="conspect">основно</option><option value="extra">разширение</option></select></div>
   <div class="tbl-wrap"><table class="t" id="m-tbl"></table></div>
   <div class="key">Метод ≠ задача ≠ цена ≠ реализация. Методът казва <b>как</b>; сложността е на <b>алгоритъма</b>; класът е на <b>задачата</b>.</div>
 </div>
@@ -90,7 +89,7 @@
 </div>
 
 <div class="block">
-  <h3>d) Опорен план за устния изпит</h3>
+  <h3>d) Опорен опорен план</h3>
   <div id="plan" style="display:grid;gap:8px"></div>
 </div>
 
@@ -154,6 +153,6 @@
   }
 
   S.chapter({ id: "sistematizacia", order: 11, num: "11", group: "Обобщение", title: "Систематизация",
-    lead: "Сравнителна таблица на методите, равнищата в едно изречение, изяснени въпроси и опорен план за устния изпит.",
+    lead: "Сравнителна таблица на методите, равнищата в едно изречение, изяснени въпроси и опорен опорен план.",
     html, mount, algos: {} });
 })();
