@@ -1,0 +1,1646 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Уеб дизайн · Тема 12</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+/* InformationTechnology_Study — обща визия за всички теми.
+   Концепция: инженерна тетрадка — тих лист, ясна йерархия, кодът е равностоен на картината.
+   Цветът е запазен за състоянията на алгоритъма (сравнение, размяна, готово, опорен). */
+:root {
+  --bg: #eef1f4;
+  --paper: #fbfcfd;
+  --panel: #ffffff;
+  --panel-2: #f2f5f8;
+  --ink: #18212b;
+  --ink-2: #3b4856;
+  --muted: #66727f;
+  --line: #d6dde4;
+  --line-2: #e6ebf0;
+  --accent: #1f5fbf;
+  --accent-ink: #ffffff;
+  --accent-soft: #e2ecfa;
+
+  --st-act: #1f5fbf;      /* текущ / активен */
+  --st-act-bg: #dce8fb;
+  --st-cmp: #b86e00;      /* сравнение */
+  --st-cmp-bg: #fbecd2;
+  --st-swap: #c2352b;     /* размяна / конфликт */
+  --st-swap-bg: #fadcd8;
+  --st-done: #1d7a46;     /* готово / вярно */
+  --st-done-bg: #d9f0e2;
+  --st-piv: #7445b8;      /* опорен / специален */
+  --st-piv-bg: #ebe1f8;
+  --st-dim: #a7b1bb;
+
+  --code-bg: #f6f8fa;
+  --code-ink: #1f2933;
+  --code-hl: #fff2c9;
+  --code-hl-edge: #d99a00;
+  --tk-kw: #8b2bb0;
+  --tk-type: #0b6e7a;
+  --tk-num: #b35200;
+  --tk-str: #2b7a2b;
+  --tk-com: #7a8794;
+  --tk-fn: #1f5fbf;
+  --tk-pp: #a03a6a;
+
+  --f-display: "IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", Roboto, system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", "Cascadia Mono", Consolas, "DejaVu Sans Mono", monospace;
+
+  --r: 6px;
+  --shadow: 0 1px 2px rgba(20, 30, 45, .06), 0 4px 14px rgba(20, 30, 45, .05);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1319; --paper: #121921; --panel: #172029; --panel-2: #1c2631;
+    --ink: #e4eaf0; --ink-2: #c3ccd5; --muted: #8b98a5; --line: #2b3743; --line-2: #222d38;
+    --accent: #6ea3f2; --accent-ink: #0b1420; --accent-soft: #1b2e4a;
+    --st-act: #6ea3f2; --st-act-bg: #1d3352; --st-cmp: #f0ad45; --st-cmp-bg: #43331a;
+    --st-swap: #f07468; --st-swap-bg: #4a2220; --st-done: #5cc98a; --st-done-bg: #173b28;
+    --st-piv: #b494ec; --st-piv-bg: #33264d; --st-dim: #4d5966;
+    --code-bg: #121a22; --code-ink: #d9e1e8; --code-hl: #3a3417; --code-hl-edge: #e0b030;
+    --tk-kw: #d39af0; --tk-type: #5fc8d3; --tk-num: #f2a55e; --tk-str: #8fd68f; --tk-com: #6d7c8a;
+    --tk-fn: #82b3f5; --tk-pp: #e88ab5;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1319; --paper: #121921; --panel: #172029; --panel-2: #1c2631;
+  --ink: #e4eaf0; --ink-2: #c3ccd5; --muted: #8b98a5; --line: #2b3743; --line-2: #222d38;
+  --accent: #6ea3f2; --accent-ink: #0b1420; --accent-soft: #1b2e4a;
+  --st-act: #6ea3f2; --st-act-bg: #1d3352; --st-cmp: #f0ad45; --st-cmp-bg: #43331a;
+  --st-swap: #f07468; --st-swap-bg: #4a2220; --st-done: #5cc98a; --st-done-bg: #173b28;
+  --st-piv: #b494ec; --st-piv-bg: #33264d; --st-dim: #4d5966;
+  --code-bg: #121a22; --code-ink: #d9e1e8; --code-hl: #3a3417; --code-hl-edge: #e0b030;
+  --tk-kw: #d39af0; --tk-type: #5fc8d3; --tk-num: #f2a55e; --tk-str: #8fd68f; --tk-com: #6d7c8a;
+  --tk-fn: #82b3f5; --tk-pp: #e88ab5;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.25);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.6 var(--f-body);
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 30; background: var(--paper);
+}
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code, kbd, .mono { font-family: var(--f-mono); font-size: .9em; }
+code { background: var(--panel-2); padding: .05em .35em; border-radius: 4px; }
+h1, h2, h3, h4 { font-family: var(--f-display); line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: 2rem; font-weight: 600; letter-spacing: -.01em; }
+h2 { font-size: 1.55rem; font-weight: 600; }
+h3 { font-size: 1.2rem; font-weight: 600; }
+h4 { font-size: 1rem; font-weight: 600; }
+p { margin: 0; }
+.eyebrow { font: 600 .72rem/1.2 var(--f-body); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+
+/* ---------- каркас ---------- */
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: var(--paper); border-bottom: 1px solid var(--line);
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.topbar .brand { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.topbar .brand b { font: 600 1.05rem/1.2 var(--f-display); }
+.topbar .brand span { font-size: .78rem; color: var(--muted); }
+.topbar .sp { flex: 1; }
+.btn {
+  appearance: none; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+  font: 500 .85rem/1 var(--f-body); padding: 8px 12px; border-radius: var(--r); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px; min-height: 34px; white-space: nowrap;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.ghost { background: transparent; }
+.btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.icon { padding: 8px 10px; font-family: var(--f-mono); }
+
+.layout {
+  display: grid; grid-template-columns: 264px minmax(0, 1fr); gap: 0;
+  min-height: calc(100vh - 60px);
+}
+.sidenav {
+  border-right: 1px solid var(--line); background: var(--paper);
+  padding: 18px 12px 40px; position: sticky; top: 60px; align-self: start;
+  max-height: calc(100vh - 60px); overflow: auto;
+}
+.sidenav ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.sidenav a {
+  display: grid; grid-template-columns: 2.1em 1fr; gap: 4px; align-items: baseline;
+  text-decoration: none; color: var(--ink-2); padding: 7px 8px; border-radius: var(--r); font-size: .9rem; line-height: 1.3;
+}
+.sidenav a .n { font: 500 .78rem var(--f-mono); color: var(--muted); }
+.sidenav a:hover { background: var(--panel-2); }
+.sidenav a.on { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+.sidenav a.seen .n::after { content: " ✓"; color: var(--st-done); }
+.sidenav .group { margin: 14px 8px 6px; }
+.navselect { display: none; }
+
+main.content {
+  min-width: 0;
+  padding-block: 28px 80px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.chapter { max-width: 1120px; margin: 0 auto; display: grid; gap: 22px; }
+.chapter > header { display: grid; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.chapter > header .lead { color: var(--ink-2); max-width: 70ch; font-size: 1.02rem; }
+.prose { max-width: 72ch; display: grid; gap: 12px; }
+p.prose { display: block; }
+.prose ul, .prose ol { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; }
+.block { display: grid; gap: 14px; }
+.chapter-body > *, .block > * { min-width: 0; }
+.block > h3 { padding-top: 6px; }
+.chapnav .btn { white-space: normal; text-align: left; max-width: 100%; line-height: 1.3; }
+.chapnav { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 16px; margin-top: 10px; }
+
+/* ---------- речник: подсказки ---------- */
+dfn[data-g] {
+  font-style: normal; border-bottom: 1.5px dotted var(--accent); cursor: help; color: inherit;
+}
+dfn[data-g]:hover, dfn[data-g]:focus { background: var(--accent-soft); outline: none; }
+.term-source {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.05em; height: 1.05em; margin-left: .16em; vertical-align: .08em;
+  border: 1px solid var(--line); border-radius: 50%; color: var(--accent);
+  font-family: var(--mono); font-size: .72em; font-weight: 700; line-height: 1;
+  text-decoration: none;
+}
+.term-source:hover, .term-source:focus { background: var(--accent-soft); border-color: var(--accent); outline: none; }
+.term-source-card-wrap { position: relative; display: block; min-width: 0; }
+.term-source-card-wrap > .card { width: 100%; height: 100%; padding-right: 38px; }
+.term-source-card-links { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; }
+.term-source-card-links .term-source { margin-left: 0; font-size: .78em; }
+.gtip {
+  position: fixed; z-index: 60; max-width: min(360px, calc(100vw - 32px));
+  background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r);
+  box-shadow: var(--shadow); padding: 10px 12px; font-size: .86rem; line-height: 1.45; display: grid; gap: 4px;
+}
+.gtip b { font-family: var(--f-display); font-size: .95rem; }
+.gtip .en { color: var(--muted); font-size: .78rem; }
+.gtip .more { color: var(--ink-2); border-top: 1px solid var(--line-2); padding-top: 6px; margin-top: 2px; }
+
+.drawer {
+  position: fixed; z-index: 50; top: 0; right: 0; bottom: 0; width: min(420px, 100vw);
+  background: var(--paper); border-left: 1px solid var(--line); box-shadow: var(--shadow);
+  display: grid; grid-template-rows: auto auto 1fr;
+  padding-top: env(safe-area-inset-top, 0px); padding-right: env(safe-area-inset-right, 0px);
+}
+.drawer .dh { display: flex; align-items: center; gap: 8px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.drawer .dh h3 { flex: 1; }
+.drawer input { margin: 12px 16px; }
+.drawer .dl { overflow: auto; padding: 0 16px 30px; display: grid; gap: 10px; align-content: start; }
+.drawer .gi { border-bottom: 1px solid var(--line-2); padding-bottom: 8px; display: grid; gap: 2px; }
+.drawer .gi b { font-family: var(--f-display); }
+.drawer .gi .en { color: var(--muted); font-size: .8rem; }
+.drawer .gi .cat { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+
+/* ---------- хинтове ---------- */
+.hint, .trap, .note, .key {
+  border: 1px solid var(--line); border-radius: var(--r); background: var(--panel);
+  padding: 10px 14px; max-width: 80ch;
+}
+details.hint > summary, details.trap > summary {
+  cursor: pointer; font-weight: 600; list-style: none; display: flex; gap: 8px; align-items: baseline;
+}
+details.hint > summary::-webkit-details-marker, details.trap > summary::-webkit-details-marker { display: none; }
+details.hint > summary::before { content: "?"; font: 700 .75rem/1 var(--f-mono); color: var(--accent-ink); background: var(--accent); border-radius: 50%; width: 18px; height: 18px; display: inline-grid; place-items: center; flex: none; transform: translateY(2px); }
+details.trap > summary::before { content: "!"; font: 700 .75rem/1 var(--f-mono); color: #fff; background: var(--st-swap); border-radius: 50%; width: 18px; height: 18px; display: inline-grid; place-items: center; flex: none; transform: translateY(2px); }
+details[open] > summary { margin-bottom: 8px; }
+details > div { display: grid; gap: 8px; color: var(--ink-2); }
+.trap { border-color: color-mix(in srgb, var(--st-swap) 45%, var(--line)); }
+.key { border-left: 4px solid var(--accent); background: var(--accent-soft); }
+.key .formula, .formula { font-family: var(--f-mono); font-size: .95rem; }
+.extra { color: var(--accent); }  /* синият текст — допълнение (разширение) */
+.extra-tag { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); border: 1px solid var(--accent); border-radius: 3px; padding: 0 4px; margin-left: 6px; vertical-align: 2px; }
+
+/* ---------- визуализатор ---------- */
+.viz {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow);
+  display: grid; overflow: hidden; min-width: 0;
+}
+.viz:focus-within { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); }
+.viz-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; padding: 12px 16px 10px; border-bottom: 1px solid var(--line-2); }
+.viz-head h4 { font-size: 1.05rem; }
+.viz-head .sub { color: var(--muted); font-size: .85rem; }
+.viz-inputs { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: end; padding: 10px 16px; background: var(--panel-2); border-bottom: 1px solid var(--line-2); }
+.field { display: grid; gap: 3px; min-width: 0; }
+.field > span { font-size: .74rem; color: var(--muted); letter-spacing: .02em; }
+input[type=text], input[type=number], input[type=search], select, textarea {
+  font: 14px var(--f-mono); color: var(--ink); background: var(--panel); border: 1px solid var(--line);
+  border-radius: 5px; padding: 6px 8px; min-height: 34px; max-width: 100%;
+}
+input[type=range] { accent-color: var(--accent); }
+.viz-stage { padding: 16px; min-height: 120px; overflow-x: auto; position: relative; }
+.viz-ctrl {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px 12px;
+  border-top: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); background: var(--paper);
+}
+.viz-ctrl .scrub { flex: 1 1 160px; min-width: 120px; }
+.viz-ctrl .pos { font: 500 .8rem var(--f-mono); color: var(--muted); min-width: 7.5em; text-align: right; font-variant-numeric: tabular-nums; }
+.viz-ctrl label { font-size: .78rem; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.viz-msg { padding: 10px 16px; font-size: .92rem; min-height: 2.8em; border-bottom: 1px solid var(--line-2); display: grid; gap: 4px; }
+.viz-msg .inv { font-size: .82rem; font-family: var(--f-mono); padding: 3px 8px; border-radius: 4px; justify-self: start; }
+.viz-msg .inv.ok { background: var(--st-done-bg); color: var(--st-done); }
+.viz-msg .inv.bad { background: var(--st-swap-bg); color: var(--st-swap); }
+.viz-body { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); min-width: 0; }
+.viz-body > * { min-width: 0; }
+.viz-code { background: var(--code-bg); border-right: 1px solid var(--line-2); overflow: auto; max-height: 460px; }
+.viz-code .ch { display: flex; gap: 8px; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--line-2); font-size: .75rem; color: var(--muted); position: sticky; top: 0; background: var(--code-bg); }
+.viz-code .ch .sp { flex: 1; }
+.viz-code .ch a, .viz-code .ch button { font-size: .75rem; }
+pre.c { margin: 0; padding: 8px 0; font: 13px/1.55 var(--f-mono); color: var(--code-ink); counter-reset: ln; }
+pre.c .l { display: block; padding: 0 12px 0 0; white-space: pre; border-left: 3px solid transparent; }
+pre.c .l::before { counter-increment: ln; content: counter(ln); display: inline-block; width: 2.6em; padding-right: .9em; text-align: right; color: var(--tk-com); opacity: .7; }
+pre.c .l.hl { background: var(--code-hl); border-left-color: var(--code-hl-edge); }
+pre.c .l.hl2 { background: color-mix(in srgb, var(--code-hl) 45%, transparent); }
+.tk-kw { color: var(--tk-kw); font-weight: 600; } .tk-type { color: var(--tk-type); } .tk-num { color: var(--tk-num); }
+.tk-str { color: var(--tk-str); } .tk-com { color: var(--tk-com); font-style: italic; } .tk-fn { color: var(--tk-fn); } .tk-pp { color: var(--tk-pp); }
+.viz-side { display: grid; align-content: start; gap: 0; }
+.viz-side .sec { padding: 10px 14px; border-bottom: 1px solid var(--line-2); display: grid; gap: 6px; }
+.viz-side .sec > .eyebrow { margin-bottom: 2px; }
+.vars { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font: 13px var(--f-mono); }
+.vars dt { color: var(--muted); } .vars dd { margin: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.vars dd.chg { color: var(--st-cmp); font-weight: 700; }
+.stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font: 13px var(--f-mono); }
+.stats span b { font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: .78rem; color: var(--ink-2); }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 4px; border: 1.5px solid; }
+.log { font: 12.5px/1.45 var(--f-mono); max-height: 150px; overflow: auto; color: var(--ink-2); display: grid; gap: 1px; }
+.log div.cur { color: var(--ink); font-weight: 700; }
+
+/* състояния (общи класове за клетки, ленти, възли) */
+.s-act { --c: var(--st-act); --cb: var(--st-act-bg); }
+.s-cmp { --c: var(--st-cmp); --cb: var(--st-cmp-bg); }
+.s-swap { --c: var(--st-swap); --cb: var(--st-swap-bg); }
+.s-done { --c: var(--st-done); --cb: var(--st-done-bg); }
+.s-piv { --c: var(--st-piv); --cb: var(--st-piv-bg); }
+.s-dim { --c: var(--st-dim); --cb: transparent; opacity: .55; }
+.legend i { border-color: var(--c, var(--line)); background: var(--cb, transparent); }
+
+/* масив от клетки */
+.arr { display: flex; gap: 4px; align-items: flex-end; flex-wrap: nowrap; padding-top: 18px; padding-bottom: 26px; }
+.cell {
+  position: relative; width: 44px; height: 44px; flex: none; display: grid; place-items: center;
+  border: 1.5px solid var(--c, var(--line)); background: var(--cb, var(--panel)); border-radius: 5px;
+  font: 600 15px var(--f-mono); color: var(--ink); transition: background .15s, border-color .15s, transform .15s;
+}
+.cell .ix { position: absolute; bottom: -20px; font: 11px var(--f-mono); color: var(--muted); }
+.cell .ptr { position: absolute; top: -19px; font: 700 11px var(--f-mono); color: var(--c, var(--accent)); white-space: nowrap; }
+.cell.gap { margin-left: 14px; }
+/* ленти */
+.bars { display: flex; gap: 3px; align-items: flex-end; height: 200px; padding-bottom: 20px; position: relative; }
+.bar { flex: 1 1 0; min-width: 6px; max-width: 46px; background: var(--cb, var(--accent-soft)); border: 1.5px solid var(--c, var(--accent)); border-bottom: none; border-radius: 3px 3px 0 0; position: relative; transition: height .15s; }
+.bar .bv { position: absolute; top: -17px; left: 50%; transform: translateX(-50%); font: 10.5px var(--f-mono); color: var(--ink-2); }
+.bar .bi { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font: 10px var(--f-mono); color: var(--muted); }
+
+/* таблица */
+.tbl-wrap { overflow-x: auto; max-width: 100%; }
+table.t { border-collapse: collapse; font-size: .88rem; }
+table.t th, table.t td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+table.t th { background: var(--panel-2); font-weight: 600; }
+table.grid td, table.grid th { text-align: center; font-family: var(--f-mono); font-variant-numeric: tabular-nums; min-width: 38px; padding: 5px 6px; }
+table.grid td { background: var(--cb, var(--panel)); border-color: var(--line); }
+table.grid td.s-act, table.grid td.s-cmp, table.grid td.s-done, table.grid td.s-swap, table.grid td.s-piv { outline: 2px solid var(--c); outline-offset: -2px; }
+
+/* граф / svg */
+svg.g { max-width: 100%; height: auto; display: block; }
+svg.g text { fill: var(--ink); font-family: var(--f-mono); font-size: 13px; }
+svg.g .edge { stroke: var(--line); stroke-width: 2; fill: none; }
+svg.g .edge.s-act, svg.g .edge.s-cmp, svg.g .edge.s-done, svg.g .edge.s-swap, svg.g .edge.s-piv { stroke: var(--c); stroke-width: 3.5; }
+svg.g .node circle { fill: var(--cb, var(--panel)); stroke: var(--c, var(--ink-2)); stroke-width: 2; }
+svg.g .wt { font-size: 12px; fill: var(--muted); }
+svg.g .muted { fill: var(--muted); }
+
+/* тест */
+.quiz { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 12px; max-width: 80ch; }
+.quiz .q { display: grid; gap: 8px; }
+.quiz .q p { font-weight: 600; }
+.quiz .opts { display: grid; gap: 6px; }
+.quiz button.opt { text-align: left; justify-content: flex-start; white-space: normal; line-height: 1.35; padding: 8px 12px; }
+.quiz button.opt.right { border-color: var(--st-done); background: var(--st-done-bg); }
+.quiz button.opt.wrong { border-color: var(--st-swap); background: var(--st-swap-bg); }
+.quiz .why { font-size: .88rem; color: var(--ink-2); border-left: 3px solid var(--line); padding-left: 10px; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; display: grid; gap: 6px; align-content: start; }
+.card h4 { font-size: .98rem; }
+.card p { font-size: .88rem; color: var(--ink-2); }
+button.card { text-align: left; cursor: pointer; font: inherit; color: inherit; }
+button.card:hover { border-color: var(--accent); }
+button.card[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.split { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.split > * { min-width: 0; }
+.pill { display: inline-block; font: 600 .75rem/1 var(--f-body); padding: 4px 8px; border-radius: 999px; background: var(--cb, var(--panel-2)); color: var(--c, var(--ink-2)); border: 1px solid var(--c, var(--line)); }
+.warn { color: var(--st-swap); font-size: .85rem; }
+.muted { color: var(--muted); }
+canvas.chart { width: 100%; height: 320px; display: block; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .sidenav { display: none; }
+  .navselect { display: block; width: 100%; }
+  .viz-body { grid-template-columns: minmax(0, 1fr); }
+  .viz-code { border-right: none; border-bottom: 1px solid var(--line-2); max-height: 340px; }
+  h1 { font-size: 1.6rem; }
+}
+@media (max-width: 520px) {
+  .cell { width: 36px; height: 36px; font-size: 13px; }
+  .topbar .brand span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* ---------- AI помощ (панел отдолу) ---------- */
+body { padding-bottom: var(--dock-h, 0px); }
+.sidenav { max-height: calc(100vh - 60px - var(--dock-h, 0px)); }
+.ai-dock[hidden], .ai-set[hidden], .ai-selbtn[hidden] { display: none !important; }
+.ai-dock {
+  position: fixed; z-index: 40; left: 0; right: 0; bottom: 0; height: min(42vh, 440px); min-height: 180px;
+  background: var(--paper); border-top: 1px solid var(--line); box-shadow: 0 -4px 18px rgba(20, 30, 45, .08);
+  display: grid; grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px);
+}
+.ai-grip { height: 8px; cursor: ns-resize; touch-action: none; position: relative; }
+.ai-grip::after { content: ""; position: absolute; left: 50%; top: 3px; width: 44px; height: 3px; margin-left: -22px; border-radius: 2px; background: var(--line); }
+.ai-head { display: flex; align-items: center; gap: 8px; padding: 2px 16px 8px; flex-wrap: wrap; border-bottom: 1px solid var(--line-2); }
+.ai-head > b { font: 600 1rem/1.2 var(--f-display); }
+.ai-head .sp { flex: 1; }
+.ai-ctx { display: flex; gap: 6px; flex-wrap: wrap; min-width: 0; }
+.ai-tag { font-size: .76rem; color: var(--ink-2); background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 8px; display: inline-flex; gap: 4px; align-items: center; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ai-tag button { border: 0; background: none; color: var(--muted); cursor: pointer; padding: 0 2px; font-size: .9rem; line-height: 1; }
+.ai-set { display: grid; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--line-2); background: var(--panel-2); font-size: .85rem; }
+.ai-set label { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 8px; align-items: center; }
+.ai-set input { font: 400 .85rem var(--f-mono); padding: 6px 8px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); color: var(--ink); min-width: 0; }
+.ai-set-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ai-set p { margin: 0; }
+.ai-list { overflow: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+.ai-empty { font-size: .86rem; }
+.ai-msg { max-width: min(860px, 92%); padding: 8px 12px; border-radius: var(--r); font-size: .9rem; line-height: 1.5; overflow-wrap: anywhere; }
+.ai-msg p { margin: 0 0 .5em; } .ai-msg p:last-child { margin-bottom: 0; }
+.ai-msg.me { align-self: flex-end; background: var(--accent-soft); white-space: pre-wrap; }
+.ai-msg.bot { align-self: flex-start; background: var(--panel); border: 1px solid var(--line-2); }
+.ai-msg.err { align-self: flex-start; background: var(--st-swap-bg); color: var(--ink); }
+.ai-msg code { font-family: var(--f-mono); font-size: .85em; background: var(--code-bg); padding: 0 3px; border-radius: 3px; }
+.ai-code { background: var(--code-bg); color: var(--code-ink); padding: 8px 10px; border-radius: var(--r); overflow: auto; margin: .4em 0; }
+.ai-code code { background: none; padding: 0; }
+.ai-foot { display: flex; gap: 8px; padding: 8px 16px 12px; border-top: 1px solid var(--line-2); align-items: flex-end; }
+.ai-in { flex: 1; min-width: 0; resize: none; font: 400 .9rem/1.4 var(--f-body); padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); color: var(--ink); }
+.ai-in:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+.ai-ask { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.ai-ask .btn { min-height: 28px; padding: 5px 10px; font-size: .8rem; }
+.ai-ask-l { font-size: .76rem; color: var(--muted); }
+.ai-selbtn { position: fixed; z-index: 70; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); padding: 6px 8px; }
+.ai-tipbtn { justify-self: start; margin-top: 4px; border-top: 1px solid var(--line-2); padding-top: 8px; }
+@media (max-width: 520px) {
+  .ai-head { padding-inline: 10px; } .ai-list, .ai-foot { padding-inline: 10px; }
+  .ai-set label { grid-template-columns: minmax(0, 1fr); }
+}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><b>Тема 12 · Уеб дизайн</b><span>Информационни технологии</span></div>
+  <select id="navselect" class="navselect" aria-label="Раздел"></select>
+  <span class="sp"></span>
+  <button class="btn" id="btn-gloss" type="button">Речник</button>
+  <button class="btn ghost" id="btn-theme" type="button">Тъмна тема</button>
+  <a class="btn ghost" href="https://github.com/EnkodPrime/InformationTechnology_Study/blob/main/README.md" target="_blank" rel="noopener">Репо</a>
+</header>
+<div class="layout">
+  <nav class="sidenav" id="sidenav" aria-label="Раздели"></nav>
+  <main class="content" id="content"></main>
+</div>
+
+<script>
+/* InformationTechnology_Study — обща рамка за интерактивните теми.
+ *
+ * Study.chapter(def)        регистрира глава {id, num, title, group, lead, html, mount(root)}
+ * Study.viz(el, cfg)        стъпков визуализатор, синхронизиран с C код (виж README)
+ * Study.quiz(el, items)     кратък тест с обяснения
+ * Study.drawArray / drawBars помощници за масиви
+ * Study.cBase = "https://github.com/EnkodPrime/InformationTechnology_Study/blob/main/Tema_12_Web_design/c/"; Study.boot({...})         стартира страницата
+ *
+ * Работи от file:// без сървър — само класически <script> файлове.
+ */
+(function () {
+  "use strict";
+  const S = (window.Study = {});
+
+  /* ---------------- помощници ---------------- */
+  S.esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  S.h = function (tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    if (attrs) for (const k in attrs) {
+      const v = attrs[k];
+      if (v == null || v === false) continue;
+      if (k === "class") el.className = v;
+      else if (k === "html") el.innerHTML = v;
+      else if (k === "text") el.textContent = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else if (k === "style" && typeof v === "object") Object.assign(el.style, v);
+      else el.setAttribute(k, v === true ? "" : v);
+    }
+    for (const c of kids.flat()) if (c != null && c !== false) el.append(c.nodeType ? c : document.createTextNode(c));
+    return el;
+  };
+  const h = S.h;
+  const SVGNS = "http://www.w3.org/2000/svg";
+  S.svg = function (tag, attrs, ...kids) {
+    const el = document.createElementNS(SVGNS, tag);
+    if (attrs) for (const k in attrs) if (attrs[k] != null) {
+      if (k === "text") el.textContent = attrs[k];
+      else if (k === "class") el.setAttribute("class", attrs[k]);
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), attrs[k]);
+      else el.setAttribute(k, attrs[k]);
+    }
+    for (const c of kids.flat()) if (c) el.append(c);
+    return el;
+  };
+  /** "7 3, 9" -> [7,3,9]; хвърля грешка при невалидно число */
+  S.parseNums = function (str, { min = -1e9, max = 1e9, maxLen = 64, minLen = 0, int = true } = {}) {
+    const parts = String(str).split(/[\s,;]+/).filter(Boolean);
+    const out = parts.map((p) => {
+      const v = Number(p);
+      if (!Number.isFinite(v) || (int && !Number.isInteger(v))) throw new Error(`„${p}“ не е ${int ? "цяло " : ""}число.`);
+      if (v < min || v > max) throw new Error(`Стойностите трябва да са между ${min} и ${max}.`);
+      return v;
+    });
+    if (out.length > maxLen) throw new Error(`Най-много ${maxLen} елемента.`);
+    if (out.length < minLen) throw new Error(`Нужни са поне ${minLen} елемента.`);
+    return out;
+  };
+  S.int = function (v, lo, hi, name) {
+    const n = Number(v);
+    if (!Number.isInteger(n)) throw new Error(`${name || "Стойността"} трябва да е цяло число.`);
+    if (n < lo || n > hi) throw new Error(`${name || "Стойността"} трябва да е между ${lo} и ${hi}.`);
+    return n;
+  };
+  S.randInt = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+  S.randArray = (n, lo = 1, hi = 99) => Array.from({ length: n }, () => S.randInt(lo, hi));
+  S.store = {
+    get(k, d) { try { const v = localStorage.getItem("its:" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem("its:" + k, JSON.stringify(v)); } catch (e) { /* няма памет — без запис */ } },
+  };
+
+  /* ---------------- оцветяване на C ---------------- */
+  const KW = new Set("if else for while do return break continue switch case default goto sizeof struct union enum typedef static const extern volatile register inline new delete class public private protected template typename namespace using true false nullptr NULL".split(" "));
+  const TY = new Set("int long short char unsigned signed float double void bool size_t uint8_t uint16_t uint32_t uint64_t int8_t int16_t int32_t int64_t FILE auto std vector string".split(" "));
+  S.highlightC = function (code) {
+    const re = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(^[ \t]*#[^\n]*)|(\b\d+(?:\.\d+)?[uUlLfF]*\b)|([A-Za-z_]\w*)(\s*\()?|([\s\S])/gm;
+    let out = "", m;
+    while ((m = re.exec(code))) {
+      if (m[1]) out += `<span class="tk-com">${S.esc(m[1])}</span>`;
+      else if (m[2]) out += `<span class="tk-str">${S.esc(m[2])}</span>`;
+      else if (m[3]) out += `<span class="tk-pp">${S.esc(m[3])}</span>`;
+      else if (m[4]) out += `<span class="tk-num">${m[4]}</span>`;
+      else if (m[5]) {
+        const w = m[5];
+        if (KW.has(w)) out += `<span class="tk-kw">${w}</span>`;
+        else if (TY.has(w)) out += `<span class="tk-type">${w}</span>`;
+        else if (m[6]) out += `<span class="tk-fn">${w}</span>`;
+        else out += w;
+        if (m[6]) out += S.esc(m[6]);
+      } else out += S.esc(m[7]);
+    }
+    // разделяне на редове, като коментарите /* */ на няколко реда се затварят коректно
+    const lines = out.split("\n");
+    let open = null;
+    return lines.map((ln) => {
+      let pre = open ? open : "";
+      const opens = [...ln.matchAll(/<span class="([^"]+)">/g)].length;
+      const closes = (ln.match(/<\/span>/g) || []).length;
+      let post = "";
+      if (opens > closes) { const last = [...ln.matchAll(/<span class="([^"]+)">/g)].pop(); open = `<span class="${last[1]}">`; post = "</span>"; }
+      else if (closes > opens) { open = null; }
+      return pre + ln + post;
+    });
+  };
+
+  /* ---------------- речник / подсказки ---------------- */
+  let tipEl = null, tipFor = null;
+  function glossLookup(key) {
+    const G = window.GLOSSARY || {};
+    if (G[key]) return G[key];
+    const k = key.toLowerCase().trim();
+    for (const g in G) if (g.toLowerCase() === k) return G[g];
+    return null;
+  }
+  S.glossLookup = glossLookup;
+  // Справки в Уикипедия за понятията — по тема, в js/sources.js (window.TERM_SOURCES).
+  // Българската Уикипедия е предпочетена, когато има статия за същото понятие; иначе английската.
+  function sourceFor(key) { return (window.TERM_SOURCES || {})[String(key).toLowerCase().trim()] || null; }
+  function sourceLabel(url) {
+    return url.includes("bg.wikipedia.org") ? "Уикипедия на български" : "Wikipedia in English";
+  }
+  function sourceLink(url, term) {
+    const title = sourceLabel(url);
+    return h("a", {
+      class: "term-source", href: url, target: "_blank", rel: "noopener noreferrer",
+      title, "aria-label": `${title}: ${term}`
+    }, "↗");
+  }
+  function showTip(target) {
+    const g = glossLookup(target.dataset.g);
+    if (!g) { console.warn("Липсва в речника:", target.dataset.g); return; }
+    hideTip();
+    tipEl = h("div", { class: "gtip", role: "tooltip" },
+      h("b", { text: g.t }),
+      g.en ? h("span", { class: "en", text: g.en }) : null,
+      h("span", { html: g.d }),
+      g.more ? h("span", { class: "more", html: g.more }) : null);
+    if (S.onTip) try { S.onTip(tipEl, g, target); } catch (e) { console.error(e); }
+    document.body.append(tipEl);
+    tipFor = target;
+    const r = target.getBoundingClientRect(), tr = tipEl.getBoundingClientRect();
+    let x = Math.min(Math.max(8, r.left), window.innerWidth - tr.width - 8);
+    let y = r.bottom + 6;
+    if (y + tr.height > window.innerHeight - 8) y = r.top - tr.height - 6;
+    tipEl.style.left = x + "px"; tipEl.style.top = Math.max(8, y) + "px";
+  }
+  S.hideTip = () => hideTip();
+  function hideTip() { if (tipEl) tipEl.remove(); tipEl = null; tipFor = null; }
+  function bindGlossary() {
+    document.addEventListener("mouseover", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && d !== tipFor) showTip(d); });
+    document.addEventListener("mouseout", (e) => {
+      const d = e.target.closest("dfn[data-g]");
+      if (d && !d.contains(e.relatedTarget) && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
+    document.addEventListener("focusin", (e) => { const d = e.target.closest("dfn[data-g]"); if (d) showTip(d); });
+    document.addEventListener("focusout", (e) => {
+      if (e.target.closest("dfn[data-g]") && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
+    document.addEventListener("click", (e) => {
+      const d = e.target.closest("dfn[data-g]");
+      if (d) { e.preventDefault(); if (tipFor === d) hideTip(); else showTip(d); } else if (!e.target.closest(".gtip")) hideTip();
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideTip(); closeDrawer(); } });
+    window.addEventListener("scroll", hideTip, { passive: true });
+  }
+  // Направи всички dfn фокусируеми и добави само икона към проверената справка.
+  function prepDfn(root) {
+    root.querySelectorAll("dfn[data-g]").forEach((d) => {
+      d.setAttribute("tabindex", "0");
+      const url = sourceFor(d.dataset.g);
+      if (!url || d.closest("a")) return;
+      const button = d.closest("button");
+      if (button) {
+        let wrap = button.parentElement;
+        if (!wrap.classList.contains("term-source-card-wrap")) {
+          const parent = wrap;
+          wrap = h("span", { class: "term-source-card-wrap" });
+          parent.insertBefore(wrap, button);
+          wrap.append(button);
+        }
+        let links = wrap.querySelector(".term-source-card-links");
+        if (!links) { links = h("span", { class: "term-source-card-links" }); wrap.append(links); }
+        if (![...links.querySelectorAll("a")].some((a) => a.href === url)) links.append(sourceLink(url, d.textContent.trim()));
+        return;
+      }
+      if (!(d.nextElementSibling && d.nextElementSibling.classList.contains("term-source"))) d.insertAdjacentElement("afterend", sourceLink(url, d.textContent.trim()));
+    });
+  }
+
+  let drawer = null;
+  function closeDrawer() { if (drawer) drawer.remove(); drawer = null; }
+  S.openGlossary = function (q = "") {
+    closeDrawer();
+    const G = window.GLOSSARY || {};
+    const list = h("div", { class: "dl" });
+    const inp = h("input", { type: "search", id: "gloss-q", placeholder: "Търси понятие…", value: q, "aria-label": "Търси понятие" });
+    function render() {
+      const s = inp.value.toLowerCase().trim();
+      list.innerHTML = "";
+      Object.values(G).filter((g) => !s || (g.t + " " + (g.en || "") + " " + g.d).toLowerCase().includes(s))
+        .sort((a, b) => a.t.localeCompare(b.t, "bg"))
+        .forEach((g) => list.append(h("div", { class: "gi" },
+          g.cat ? h("span", { class: "cat", text: g.cat }) : null,
+          h("b", { text: g.t }), g.en ? h("span", { class: "en", text: g.en }) : null,
+          h("span", { html: g.d }), g.more ? h("span", { class: "muted", html: g.more }) : null)));
+      if (!list.children.length) list.append(h("p", { class: "muted", text: "Няма съвпадения." }));
+    }
+    inp.addEventListener("input", render);
+    drawer = h("aside", { class: "drawer", "aria-label": "Речник" },
+      h("div", { class: "dh" }, h("h3", { text: "Речник на понятията" }), h("button", { class: "btn", onclick: closeDrawer, text: "Затвори" })),
+      inp, list);
+    document.body.append(drawer);
+    render();
+    inp.focus();
+  };
+
+  /* ---------------- визуализатор ---------------- */
+  const SPEEDS = [["бавно", 1300], ["нормално", 650], ["бързо", 260], ["много бързо", 80], ["турбо", 15]];
+
+  S.viz = function (host, cfg) {
+    const id = cfg.id || "v" + Math.random().toString(36).slice(2, 8);
+    const root = h("div", { class: "viz", id: "viz-" + id, tabindex: "-1" });
+    const head = h("div", { class: "viz-head" }, h("h4", { text: cfg.title || "" }), cfg.sub ? h("span", { class: "sub", html: cfg.sub }) : null);
+    root.append(head);
+
+    // входове
+    const inputs = {};
+    let inBox = null;
+    if (cfg.inputs && cfg.inputs.length) {
+      inBox = h("div", { class: "viz-inputs" });
+      for (const f of cfg.inputs) {
+        let el;
+        const fid = `${id}-${f.id}`;
+        if (f.type === "select") {
+          el = h("select", { id: fid }, ...f.options.map((o) => {
+            const [v, t] = Array.isArray(o) ? o : [o, o];
+            return h("option", { value: v, text: t, selected: String(v) === String(f.value) ? true : null });
+          }));
+        } else if (f.type === "checkbox") {
+          el = h("input", { type: "checkbox", id: fid, checked: f.value ? true : null });
+        } else {
+          el = h("input", { id: fid, type: f.type === "number" ? "number" : "text", value: f.value, min: f.min, max: f.max, step: f.step, spellcheck: "false", autocomplete: "off" });
+          if (f.width) el.style.width = f.width;
+        }
+        inputs[f.id] = el;
+        const lab = h("label", { class: "field", for: fid }, h("span", { html: f.label }), el);
+        if (f.type === "checkbox") { lab.style.display = "flex"; lab.style.gap = "6px"; lab.style.alignItems = "center"; lab.prepend(el); }
+        inBox.append(lab);
+        el.addEventListener("keydown", (e) => { if (e.key === "Enter") apply(); });
+        if (f.type === "select" || f.type === "checkbox" || f.live) el.addEventListener("change", () => apply());
+      }
+      inBox.append(h("button", { class: "btn primary", onclick: () => apply(), text: "Изпълни" }));
+      if (cfg.random) inBox.append(h("button", { class: "btn", onclick: () => { setValues(cfg.random()); apply(); }, text: "Случайни" }));
+      if (cfg.presets) for (const p of cfg.presets) inBox.append(h("button", { class: "btn ghost", onclick: () => { setValues(p.values); apply(); }, text: p.label, title: p.title || "" }));
+      root.append(inBox);
+    }
+    function setValues(vals) {
+      for (const k in vals) if (inputs[k]) { if (inputs[k].type === "checkbox") inputs[k].checked = !!vals[k]; else inputs[k].value = vals[k]; }
+    }
+    function readValues() {
+      const o = {};
+      for (const k in inputs) o[k] = inputs[k].type === "checkbox" ? inputs[k].checked : inputs[k].value;
+      return o;
+    }
+
+    const stage = h("div", { class: "viz-stage" });
+    if (cfg.stageHeight) stage.style.minHeight = cfg.stageHeight + "px";
+    root.append(stage);
+
+    const msg = h("div", { class: "viz-msg", "aria-live": "polite" });
+    // контроли
+    const bFirst = h("button", { class: "btn icon", title: "Начало (Home)", "aria-label": "Начало", text: "⏮" });
+    const bPrev = h("button", { class: "btn icon", title: "Стъпка назад (←)", "aria-label": "Стъпка назад", text: "◀" });
+    const bPlay = h("button", { class: "btn primary", title: "Пусни / пауза (интервал)", text: "▶ Пусни" });
+    const bNext = h("button", { class: "btn icon", title: "Стъпка напред (→)", "aria-label": "Стъпка напред", text: "▶" });
+    const bLast = h("button", { class: "btn icon", title: "Край (End)", "aria-label": "Край", text: "⏭" });
+    const scrub = h("input", { type: "range", class: "scrub", min: 0, max: 0, value: 0, "aria-label": "Позиция", id: id + "-scrub" });
+    const pos = h("span", { class: "pos" });
+    const speed = h("select", { id: id + "-speed", "aria-label": "Скорост" }, ...SPEEDS.map(([t, ms], i) => h("option", { value: ms, text: t, selected: i === (cfg.speed ?? 1) ? true : null })));
+    const ctrl = h("div", { class: "viz-ctrl" }, bFirst, bPrev, bPlay, bNext, bLast, scrub, pos, h("label", null, "скорост", speed));
+    root.append(ctrl, msg);
+
+    // код + странично
+    const body = h("div", { class: "viz-body" });
+    const codeBox = h("div", { class: "viz-code" });
+    const side = h("div", { class: "viz-side" });
+    body.append(codeBox, side);
+    if (cfg.code !== false) root.append(body);
+    const varsSec = h("div", { class: "sec" }, h("span", { class: "eyebrow", text: "Променливи" }), h("dl", { class: "vars" }));
+    const statSec = h("div", { class: "sec" }, h("span", { class: "eyebrow", text: "Броячи" }), h("div", { class: "stats" }));
+    const logSec = h("div", { class: "sec" }, h("span", { class: "eyebrow", text: "Ход на изпълнението" }), h("div", { class: "log" }));
+    const legSec = cfg.legend ? h("div", { class: "sec" }, h("span", { class: "eyebrow", text: "Легенда" }),
+      h("div", { class: "legend" }, ...cfg.legend.map(([cls, t]) => h("span", { class: cls }, h("i"), t)))) : null;
+    side.append(varsSec, statSec, logSec);
+    if (legSec) side.append(legSec);
+    if (cfg.sideExtra) side.append(cfg.sideExtra);
+
+    host.append(root);
+
+    let frames = [], i = 0, timer = null, codeKey = null, codeLines = [], tags = {}, inp = {}, extra = null, logIdx = [];
+
+    function loadCode(key) {
+      if (cfg.code === false || key === codeKey) return;
+      codeKey = key;
+      const src = (window.CSRC || {})[key];
+      codeBox.innerHTML = "";
+      if (!src) { codeBox.append(h("p", { class: "warn", style: { padding: "10px" }, text: "Липсва C код: " + key })); console.warn("Липсва C регион", key); return; }
+      tags = src.tags;
+      const copy = h("button", { class: "btn ghost", text: "Копирай", onclick: () => {
+        const done = () => { copy.textContent = "Копирано"; setTimeout(() => (copy.textContent = "Копирай"), 1200); };
+        if (navigator.clipboard) navigator.clipboard.writeText(src.code).then(done, () => selectCode());
+        else selectCode();
+      } });
+      const pre = h("pre", { class: "c" });
+      function selectCode() { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+      codeLines = S.highlightC(src.code).map((l) => h("span", { class: "l", html: l || " " }));
+      pre.append(...codeLines);
+      codeBox.append(h("div", { class: "ch" }, h("span", { class: "mono", text: "C · " + src.file }), h("span", { class: "sp" }),
+        h("a", { href: (cfg.cPath || S.cBase || "c/") + src.file, target: "_blank", rel: "noopener", text: "целият файл" }), copy), pre);
+    }
+
+    function apply() {
+      stop();
+      inp = readValues();
+      let res;
+      try {
+        res = cfg.build(inp);
+      } catch (e) {
+        frames = [];
+        stage.innerHTML = "";
+        msg.innerHTML = "";
+        msg.append(h("span", { class: "warn", text: "Грешка във входа: " + e.message }));
+        updateCtrl();
+        return;
+      }
+      if (Array.isArray(res)) res = { frames: res };
+      frames = res.frames || [];
+      extra = res;
+      if (frames.length > 20000) frames = frames.slice(0, 20000);
+      logIdx = [];
+      frames.forEach((f, k) => { if (f.log) logIdx.push(k); });
+      loadCode(typeof cfg.code === "function" ? cfg.code(inp) : cfg.code);
+      scrub.max = Math.max(0, frames.length - 1);
+      go(cfg.startAtEnd ? frames.length - 1 : 0);
+    }
+
+    let prevVars = {};
+    function go(k) {
+      if (!frames.length) return;
+      i = Math.max(0, Math.min(frames.length - 1, k));
+      const f = frames[i];
+      // сцена
+      try { cfg.draw(stage, f, { inputs: inp, frames, i, res: extra }); }
+      catch (e) { console.error(e); stage.textContent = "Грешка при рисуване: " + e.message; }
+      // съобщение
+      msg.innerHTML = "";
+      msg.append(h("div", { html: f.msg || "" }));
+      if (f.inv) msg.append(h("span", { class: "inv " + (f.inv.ok === false ? "bad" : "ok"), html: (f.inv.ok === false ? "✗ " : "✓ ") + f.inv.text }));
+      // код
+      codeLines.forEach((l) => l.classList.remove("hl", "hl2"));
+      const at = f.at == null ? [] : [].concat(f.at);
+      let first = null;
+      at.forEach((t, ti) => {
+        const ls = tags[t];
+        if (!ls) { if (codeKey) console.warn(`Етикет @${t} липсва в ${codeKey}`); return; }
+        ls.forEach((n) => { const el = codeLines[n - 1]; if (el) { el.classList.add(ti === 0 ? "hl" : "hl2"); first = first || el; } });
+      });
+      if (first) {
+        const top = first.offsetTop, bh = codeBox.clientHeight;
+        if (top < codeBox.scrollTop + 30 || top > codeBox.scrollTop + bh - 40) codeBox.scrollTop = top - bh / 3;
+      }
+      // променливи
+      const dl = varsSec.querySelector("dl");
+      dl.innerHTML = "";
+      const vars = f.vars || {};
+      const vk = Object.keys(vars);
+      varsSec.hidden = !vk.length;
+      const pv = i > 0 ? frames[i - 1].vars || {} : {};
+      vk.forEach((k2) => {
+        const val = fmtVal(vars[k2]);
+        const changed = i > 0 && k2 in pv && fmtVal(pv[k2]) !== val;
+        dl.append(h("dt", { text: k2 }), h("dd", { class: changed ? "chg" : "", text: val }));
+      });
+      // броячи
+      const st = f.stats || {};
+      const sk = Object.keys(st);
+      statSec.hidden = !sk.length;
+      const sb = statSec.querySelector(".stats");
+      sb.innerHTML = "";
+      sk.forEach((k2) => sb.append(h("span", null, k2 + ": ", h("b", { text: String(st[k2]) }))));
+      // лог
+      const lb = logSec.querySelector(".log");
+      lb.innerHTML = "";
+      const upto = logIdx.filter((x) => x <= i);
+      logSec.hidden = !logIdx.length;
+      upto.slice(-60).forEach((x) => lb.append(h("div", { class: x === upto[upto.length - 1] ? "cur" : "", html: frames[x].log })));
+      lb.scrollTop = lb.scrollHeight;
+      updateCtrl();
+      if (cfg.onFrame) cfg.onFrame(f, i, frames);
+    }
+    function fmtVal(v) {
+      if (Array.isArray(v)) return "[" + v.map((x) => (x === null || x === undefined ? "·" : Array.isArray(x) ? fmtVal(x) : x)).join(", ") + "]";
+      if (v === null || v === undefined) return "—";
+      if (typeof v === "boolean") return v ? "true" : "false";
+      return String(v);
+    }
+    function updateCtrl() {
+      const n = frames.length;
+      scrub.value = i;
+      pos.textContent = n ? `стъпка ${i + 1}/${n}` : "—";
+      bFirst.disabled = bPrev.disabled = !n || i === 0;
+      bNext.disabled = bLast.disabled = !n || i >= n - 1;
+      bPlay.disabled = !n;
+      bPlay.textContent = timer ? "❚❚ Пауза" : i >= n - 1 && n > 1 ? "↺ Отначало" : "▶ Пусни";
+    }
+    function play() {
+      if (timer) return stop();
+      if (i >= frames.length - 1) go(0);
+      timer = setInterval(() => { if (i >= frames.length - 1) stop(); else go(i + 1); }, +speed.value);
+      updateCtrl();
+    }
+    function stop() { if (timer) clearInterval(timer); timer = null; updateCtrl(); }
+    speed.addEventListener("change", () => { if (timer) { stop(); play(); } });
+    bFirst.onclick = () => { stop(); go(0); };
+    bPrev.onclick = () => { stop(); go(i - 1); };
+    bNext.onclick = () => { stop(); go(i + 1); };
+    bLast.onclick = () => { stop(); go(frames.length - 1); };
+    bPlay.onclick = play;
+    scrub.addEventListener("input", () => { const k = +scrub.value; stop(); go(k); });
+    root.addEventListener("keydown", (e) => {
+      if (e.target.closest("input:not([type=range]),select,textarea")) return;
+      if (e.key === "ArrowRight") { e.preventDefault(); stop(); go(i + 1); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); stop(); go(i - 1); }
+      else if (e.key === " ") { e.preventDefault(); play(); }
+      else if (e.key === "Home") { e.preventDefault(); stop(); go(0); }
+      else if (e.key === "End") { e.preventDefault(); stop(); go(frames.length - 1); }
+    });
+
+    const api = { apply, go, stop, setValues, get frames() { return frames; }, get index() { return i; }, root, stage };
+    if (cfg.initial) setValues(cfg.initial);
+    apply();
+    return api;
+  };
+
+  /** Статичен изглед на C регион (без стъпки). hl: етикет(и) за подсветка. */
+  S.codeView = function (host, key, hl, cPath) {
+    const src = (window.CSRC || {})[key];
+    const box = h("div", { class: "viz-code", style: { borderRight: "none", border: "1px solid var(--line)", borderRadius: "6px", maxHeight: "none" } });
+    if (!src) { box.append(h("p", { class: "warn", text: "Липсва C код: " + key })); host.append(box); return box; }
+    const lines = S.highlightC(src.code).map((l) => h("span", { class: "l", html: l || " " }));
+    [].concat(hl || []).forEach((t) => (src.tags[t] || []).forEach((n) => lines[n - 1] && lines[n - 1].classList.add("hl")));
+    box.append(h("div", { class: "ch" }, h("span", { class: "mono", text: "C · " + src.file }), h("span", { class: "sp" }),
+      h("a", { href: (cPath || S.cBase || "c/") + src.file, target: "_blank", rel: "noopener", text: "целият файл" })), h("pre", { class: "c" }, ...lines));
+    host.append(box);
+    return box;
+  };
+
+  /* ---------------- рисуване на масиви ---------------- */
+  /** opts: {cls:{i:'s-cmp'}, ptr:{i:'i'}, dim:[from,to] | fn, gapAfter:k, label:i=>txt} */
+  S.drawArray = function (el, arr, opts = {}) {
+    const box = h("div", { class: "arr" });
+    const ptrs = {};
+    for (const name in opts.ptr || {}) { const k = opts.ptr[name]; if (k == null || k < 0 || k >= arr.length) continue; (ptrs[k] = ptrs[k] || []).push(name); }
+    arr.forEach((v, k) => {
+      let cls = (opts.cls && opts.cls[k]) || "";
+      if (opts.dim && (typeof opts.dim === "function" ? opts.dim(k) : k < opts.dim[0] || k > opts.dim[1])) cls = cls || "s-dim";
+      const c = h("div", { class: "cell " + cls + (opts.gapAt && opts.gapAt.includes(k) ? " gap" : "") },
+        v === null || v === undefined ? "" : String(v),
+        h("span", { class: "ix", text: opts.index === false ? "" : (opts.label ? opts.label(k) : k) }),
+        ptrs[k] ? h("span", { class: "ptr", text: ptrs[k].join(",") }) : null);
+      box.append(c);
+    });
+    if (opts.append) el.append(box); else { el.innerHTML = ""; el.append(box); }
+    return box;
+  };
+  S.drawBars = function (el, arr, opts = {}) {
+    const max = Math.max(1, ...arr.map((x) => Math.abs(x)));
+    const box = h("div", { class: "bars" });
+    if (opts.height) box.style.height = opts.height + "px";
+    const showV = arr.length <= (opts.labelsUpTo ?? 32);
+    arr.forEach((v, k) => {
+      const b = h("div", { class: "bar " + ((opts.cls && opts.cls[k]) || "") });
+      b.style.height = Math.max(3, (Math.abs(v) / max) * 100) + "%";
+      if (showV) { b.append(h("span", { class: "bv", text: opts.fmt ? opts.fmt(v, k) : v })); b.append(h("span", { class: "bi", text: k })); }
+      if (opts.title) b.title = opts.title(v, k);
+      box.append(b);
+    });
+    if (opts.append) el.append(box); else { el.innerHTML = ""; el.append(box); }
+    return box;
+  };
+
+  /* ---------------- тест ---------------- */
+  S.quiz = function (host, items, title = "Провери се") {
+    const box = h("div", { class: "quiz" }, h("span", { class: "eyebrow", text: title }));
+    items.forEach((it, qi) => {
+      const why = h("div", { class: "why", html: it.why || "", hidden: true });
+      const opts = h("div", { class: "opts" });
+      it.options.forEach((o, oi) => {
+        const b = h("button", { class: "btn opt", html: o, onclick: () => {
+          opts.querySelectorAll("button").forEach((x, xi) => { x.classList.remove("right", "wrong"); if (xi === it.correct) x.classList.add("right"); });
+          if (oi !== it.correct) b.classList.add("wrong");
+          why.hidden = false;
+          why.innerHTML = (oi === it.correct ? "<b>Вярно.</b> " : "<b>Не точно.</b> ") + (it.why || "");
+        } });
+        opts.append(b);
+      });
+      box.append(h("div", { class: "q" }, h("p", { html: `${qi + 1}. ${it.q}` }), opts, why));
+    });
+    host.append(box);
+    return box;
+  };
+
+  /* ---------------- глави и навигация ---------------- */
+  const chapters = [];
+  S.chapter = (def) => chapters.push(def);
+  S.chapters = chapters;
+
+  S.boot = function (opt) {
+    const theme = S.store.get("theme", null);
+    if (theme) document.documentElement.dataset.theme = theme;
+    chapters.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const nav = document.getElementById("sidenav");
+    const sel = document.getElementById("navselect");
+    const main = document.getElementById("content");
+    const seen = S.store.get(opt.topic + ":seen", {});
+    const ol = h("ol");
+    let lastGroup = null;
+    const links = {};
+    chapters.forEach((c) => {
+      if (c.group && c.group !== lastGroup) { ol.append(h("li", { class: "group eyebrow", text: c.group })); lastGroup = c.group; }
+      const a = h("a", { href: "#" + c.id, class: seen[c.id] ? "seen" : "" }, h("span", { class: "n", text: c.num || "" }), h("span", { text: c.title }));
+      links[c.id] = a;
+      ol.append(h("li", null, a));
+      sel.append(h("option", { value: c.id, text: (c.num ? c.num + " · " : "") + c.title }));
+    });
+    nav.append(ol);
+    sel.addEventListener("change", () => (location.hash = sel.value));
+    const mounted = {};
+    function show() {
+      const id = (location.hash || "").slice(1);
+      const c = chapters.find((x) => x.id === id) || chapters[0];
+      chapters.forEach((x) => { if (mounted[x.id]) mounted[x.id].hidden = x !== c; });
+      Object.values(links).forEach((a) => a.classList.remove("on"));
+      links[c.id].classList.add("on");
+      sel.value = c.id;
+      if (!mounted[c.id]) {
+        const idx = chapters.indexOf(c);
+        const prev = chapters[idx - 1], next = chapters[idx + 1];
+        const sec = h("section", { class: "chapter", id: "ch-" + c.id },
+          h("header", null, h("span", { class: "eyebrow", text: (c.group ? c.group + " · " : "") + (c.num ? "Раздел " + c.num : "") }),
+            h("h1", { text: c.title }), c.lead ? h("p", { class: "lead", html: c.lead }) : null));
+        const body = h("div", { class: "chapter-body", style: { display: "grid", gap: "22px", minWidth: "0" } });
+        if (c.html) body.innerHTML = c.html;
+        sec.append(body);
+        sec.append(h("nav", { class: "chapnav" },
+          prev ? h("a", { class: "btn", href: "#" + prev.id, text: "← " + prev.title }) : h("span"),
+          next ? h("a", { class: "btn primary", href: "#" + next.id, text: next.title + " →" }) : h("span")));
+        main.append(sec);
+        mounted[c.id] = sec;
+        try { if (c.mount) c.mount(body); } catch (e) { console.error(e); body.prepend(h("p", { class: "warn", text: "Грешка в главата: " + e.message })); }
+        prepDfn(sec);
+      }
+      seen[c.id] = 1; S.store.set(opt.topic + ":seen", seen); links[c.id].classList.add("seen");
+      if (S._booted) window.scrollTo(0, 0);
+      S._booted = true;
+      document.title = c.title + " · " + opt.title;
+      S.current = { chapter: c, section: mounted[c.id], topic: opt };
+      document.dispatchEvent(new CustomEvent("study:chapter", { detail: S.current }));
+    }
+    window.addEventListener("hashchange", show);
+    document.getElementById("btn-gloss").onclick = () => S.openGlossary();
+    const tb = document.getElementById("btn-theme");
+    const curDark = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    const lab = () => (tb.textContent = curDark() ? "Светла тема" : "Тъмна тема");
+    tb.onclick = () => { const t = curDark() ? "light" : "dark"; document.documentElement.dataset.theme = t; S.store.set("theme", t); lab(); };
+    lab();
+    bindGlossary();
+    show();
+  };
+})();
+
+</script>
+<script>
+/* AI помощ — панел отдолу за въпроси по текущата глава.
+   Два пътя за един и същ въпрос с контекст:
+   1) „ChatGPT ↗“ / „Claude ↗“ — нов таб chatgpt.com или claude.ai с попълнен въпрос (без ключ; ползва абонамента).
+      Бързият път е директно от маркиран текст или от подсказката на понятие — без да се отваря панелът.
+   2) Отговор в панела — OpenAI Chat Completions API с личен ключ. Ключът се пази само в този браузър
+      (localStorage) и се праща само към api.openai.com. Не се записва в репото.
+   Контекстът е: тема, глава, термин от речника (по избор) и маркиран текст (по избор). */
+(function () {
+  const S = window.Study, h = S.h;
+  const API = "https://api.openai.com/v1/chat/completions";
+  const SITES = { chatgpt: { name: "ChatGPT", url: "https://chatgpt.com/?q=" }, claude: { name: "Claude", url: "https://claude.ai/new?q=" } };
+  const DEF_MODEL = "gpt-5-mini";
+  const MAX_SEL = 4000;        // знака маркиран текст в контекста
+  const MAX_URL_PROMPT = 3000; // знака въпрос в адреса към chatgpt.com
+
+  const st = { open: false, ctxTerm: null, ctxSel: "", msgs: [], busy: false, ctrl: null, settings: false };
+  const getKey = () => S.store.get("ai:key", "");
+  const getModel = () => S.store.get("ai:model", DEF_MODEL) || DEF_MODEL;
+
+  const strip = (html) => { const d = document.createElement("div"); d.innerHTML = html || ""; return d.textContent.replace(/\s+/g, " ").trim(); };
+
+  /* ---------- контекст ---------- */
+  function contextText(ctx) {
+    ctx = ctx || { term: st.ctxTerm, sel: st.ctxSel };
+    const cur = S.current || {}, c = cur.chapter || {}, t = cur.topic || {};
+    const lines = [];
+    if (t.title) lines.push("Тема: " + t.title);
+    if (c.title) lines.push("Глава: " + (c.num ? c.num + ". " : "") + c.title + (c.lead ? " — " + strip(c.lead) : ""));
+    if (ctx.term) {
+      const g = ctx.term;
+      lines.push("Понятие: " + g.t + (g.en ? " (" + g.en + ")" : "") + " — " + strip(g.d) + (g.more ? " " + strip(g.more) : ""));
+    }
+    if (ctx.sel) lines.push("Маркиран текст от страницата:\n\"\"\"\n" + ctx.sel + "\n\"\"\"");
+    return lines.join("\n");
+  }
+  function systemPrompt() {
+    return "Ти помагаш при изучаване на информационни технологии. Отговаряй на български, точно и кратко. " +
+      "Когато твърдението е валидно само при условие, кажи условието. Ако не си сигурен, кажи го изрично. " +
+      "Примерите с код да са на C или C++.\n\nКонтекст от учебния материал:\n" + contextText();
+  }
+
+  /* ---------- минимален markdown (след екраниране) ---------- */
+  function esc(s) { return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+  function md(src) {
+    const parts = String(src).split(/```/);
+    return parts.map((p, i) => {
+      if (i % 2) { const nl = p.indexOf("\n"); const code = nl >= 0 && /^[\w+#-]*$/.test(p.slice(0, nl).trim()) ? p.slice(nl + 1) : p; return "<pre class=\"ai-code\"><code>" + esc(code.replace(/\n$/, "")) + "</code></pre>"; }
+      let t = esc(p);
+      t = t.replace(/`([^`\n]+)`/g, "<code>$1</code>").replace(/\*\*([^*\n]+)\*\*/g, "<b>$1</b>")
+        .replace(/^#{1,4}\s+(.+)$/gm, "<b>$1</b>").replace(/^\s*[-*]\s+(.+)$/gm, "• $1");
+      return t.split(/\n{2,}/).map((x) => x.trim() ? "<p>" + x.replace(/\n/g, "<br>") + "</p>" : "").join("");
+    }).join("");
+  }
+
+  /* ---------- DOM ---------- */
+  let dock, list, input, chip, sendBtn, setBox, keyInp, modelInp, keyState, topBtn, selBtn;
+
+  function build() {
+    chip = h("div", { class: "ai-ctx" });
+    list = h("div", { class: "ai-list", "aria-live": "polite" });
+    input = h("textarea", { class: "ai-in", rows: "2", placeholder: "Въпрос по главата… (Enter изпраща, Shift+Enter — нов ред)", "aria-label": "Въпрос" });
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); } });
+    sendBtn = h("button", { class: "btn primary", type: "button", onclick: () => (st.busy ? stop() : send()), text: "Изпрати" });
+
+    keyInp = h("input", { type: "password", placeholder: "sk-…", autocomplete: "off", spellcheck: "false", "aria-label": "OpenAI API ключ" });
+    modelInp = h("input", { type: "text", value: getModel(), spellcheck: "false", "aria-label": "Модел" });
+    keyState = h("span", { class: "muted" });
+    setBox = h("div", { class: "ai-set", hidden: true },
+      h("label", null, h("span", { text: "OpenAI API ключ" }), keyInp),
+      h("label", null, h("span", { text: "Модел" }), modelInp),
+      h("div", { class: "ai-set-row" },
+        h("button", { class: "btn primary", type: "button", text: "Запази", onclick: saveSettings }),
+        h("button", { class: "btn", type: "button", text: "Изтрий ключа", onclick: () => { S.store.set("ai:key", ""); keyInp.value = ""; refreshKey(); } }),
+        keyState),
+      h("p", { class: "muted", html: "Ключът остава само в този браузър и се праща само към <code>api.openai.com</code>. " +
+        "API се таксува отделно от абонамента за ChatGPT. Ключ: <a href=\"https://platform.openai.com/api-keys\" target=\"_blank\" rel=\"noopener noreferrer\">platform.openai.com/api-keys</a>." }));
+
+    dock = h("aside", { class: "ai-dock", "aria-label": "AI помощ", hidden: true },
+      h("div", { class: "ai-grip", title: "Влачи за височина", onpointerdown: grip }),
+      h("div", { class: "ai-head" },
+        h("b", { text: "AI помощ" }), chip, h("span", { class: "sp" }),
+        h("button", { class: "btn", type: "button", text: "ChatGPT ↗", title: "Нов таб chatgpt.com с въпроса и контекста", onclick: () => openSite("chatgpt") }),
+        h("button", { class: "btn", type: "button", text: "Claude ↗", title: "Нов таб claude.ai с въпроса и контекста", onclick: () => openSite("claude") }),
+        h("button", { class: "btn ghost", type: "button", text: "Нов разговор", onclick: reset }),
+        h("button", { class: "btn ghost", type: "button", text: "Настройки", onclick: () => { st.settings = !st.settings; setBox.hidden = !st.settings; } }),
+        h("button", { class: "btn ghost icon", type: "button", text: "✕", "aria-label": "Затвори", onclick: () => toggle(false) })),
+      setBox, list,
+      h("div", { class: "ai-foot" }, input, sendBtn));
+    document.body.append(dock);
+
+    topBtn = h("button", { class: "btn", id: "btn-ai", type: "button", text: "AI помощ", "aria-pressed": "false", onclick: () => toggle() });
+    const gl = document.getElementById("btn-gloss");
+    if (gl) gl.before(topBtn);
+
+    selBtn = askButtons(() => ({ sel: pendingSel }), () => { st.ctxSel = pendingSel; selBtn.hidden = true; toggle(true); renderChip(); input.focus(); }, "ai-selbtn");
+    selBtn.hidden = true;
+    document.body.append(selBtn);
+
+    const hh = S.store.get("ai:h", 0); if (hh) dock.style.height = hh + "px";
+    refreshKey(); renderChip(); renderList();
+  }
+
+  function refreshKey() { keyState.textContent = getKey() ? "ключът е записан" : "няма записан ключ"; }
+  function saveSettings() {
+    const k = keyInp.value.trim(); if (k) S.store.set("ai:key", k);
+    S.store.set("ai:model", modelInp.value.trim() || DEF_MODEL); modelInp.value = getModel();
+    keyInp.value = ""; refreshKey(); st.settings = false; setBox.hidden = true;
+  }
+
+  function renderChip() {
+    if (!chip) return;
+    chip.innerHTML = "";
+    const c = S.current && S.current.chapter;
+    if (c) chip.append(h("span", { class: "ai-tag", text: (c.num ? c.num + " · " : "") + c.title }));
+    if (st.ctxTerm) chip.append(h("span", { class: "ai-tag" }, "понятие: " + st.ctxTerm.t, h("button", { type: "button", "aria-label": "Махни понятието", text: "×", onclick: () => { st.ctxTerm = null; renderChip(); } })));
+    if (st.ctxSel) chip.append(h("span", { class: "ai-tag", title: st.ctxSel.slice(0, 300) }, "маркиран текст: " + st.ctxSel.length + " зн.", h("button", { type: "button", "aria-label": "Махни маркирания текст", text: "×", onclick: () => { st.ctxSel = ""; renderChip(); } })));
+  }
+
+  function bubble(m) {
+    const el = h("div", { class: "ai-msg " + (m.role === "user" ? "me" : m.role === "error" ? "err" : "bot") });
+    if (m.role === "user") el.textContent = m.content; else el.innerHTML = m.html || md(m.content || "…");
+    return el;
+  }
+  function renderList() {
+    list.innerHTML = "";
+    if (!st.msgs.length) {
+      list.append(h("div", { class: "ai-empty muted", html: "Питай за текущата глава. Маркирай текст на страницата или посочи понятие → „Панел“, за да го добавиш в контекста. Бутоните ChatGPT ↗ / Claude ↗ там отварят въпроса направо в нов таб." +
+        (getKey() ? "" : "<br>Без API ключ отговорът се отваря в ChatGPT. Ключ се добавя от „Настройки“.") }));
+      return;
+    }
+    st.msgs.forEach((m) => list.append(bubble(m)));
+    list.scrollTop = list.scrollHeight;
+  }
+
+  /* ---------- действия ---------- */
+  function toggle(force) {
+    st.open = force == null ? !st.open : force;
+    dock.hidden = !st.open;
+    topBtn.setAttribute("aria-pressed", String(st.open));
+    syncPad();
+    if (st.open) { renderChip(); input.focus(); }
+  }
+  function syncPad() {
+    const px = st.open ? dock.getBoundingClientRect().height : 0;
+    document.documentElement.style.setProperty("--dock-h", px + "px");
+  }
+  function grip(e) {
+    e.preventDefault();
+    const y0 = e.clientY, h0 = dock.getBoundingClientRect().height;
+    const mv = (ev) => { const v = Math.max(180, Math.min(window.innerHeight - 80, h0 + (y0 - ev.clientY))); dock.style.height = v + "px"; syncPad(); };
+    const up = () => { removeEventListener("pointermove", mv); removeEventListener("pointerup", up); S.store.set("ai:h", Math.round(dock.getBoundingClientRect().height)); };
+    addEventListener("pointermove", mv); addEventListener("pointerup", up);
+  }
+  function reset() { stop(); st.msgs = []; renderList(); }
+
+  function siteUrl(site, q, ctx) {
+    let p = contextText(ctx) + "\n\nВъпрос: " + (q || "Обясни накратко.") + "\n\nОтговори на български.";
+    if (p.length > MAX_URL_PROMPT) p = p.slice(0, MAX_URL_PROMPT) + "…";
+    return SITES[site].url + encodeURIComponent(p);
+  }
+  const chatgptUrl = (q) => siteUrl("chatgpt", q);
+  function openSite(site) {
+    const q = input.value.trim() || (st.msgs.filter((m) => m.role === "user").pop() || {}).content || "";
+    window.open(siteUrl(site, q), "_blank", "noopener");
+  }
+  // Бърз път: директно в нов таб, без панела; контекстът е само за този въпрос.
+  function quick(site, ctx) {
+    const q = ctx.term && !ctx.sel ? "Обясни „" + ctx.term.t + "“ с пример." : "Обясни маркирания текст.";
+    window.open(siteUrl(site, q, ctx), "_blank", "noopener");
+  }
+  function askButtons(ctx, onPanel, cls) {
+    const b = (text, title, fn, prim) => h("button", { class: "btn" + (prim ? " primary" : ""), type: "button", text, title,
+      onmousedown: (e) => e.preventDefault(), onclick: (e) => { e.stopPropagation(); fn(); } });
+    return h("span", { class: "ai-ask " + (cls || "") },
+      h("span", { class: "ai-ask-l", text: "Попитай:" }),
+      b("ChatGPT ↗", "Нов таб chatgpt.com с въпроса", () => quick("chatgpt", ctx()), true),
+      b("Claude ↗", "Нов таб claude.ai с въпроса", () => quick("claude", ctx()), true),
+      b("Панел", "В панела „AI помощ“ отдолу", onPanel));
+  }
+
+  function stop() { if (st.ctrl) st.ctrl.abort(); }
+  async function send() {
+    const q = input.value.trim();
+    if (!q || st.busy) return;
+    const key = getKey();
+    st.msgs.push({ role: "user", content: q });
+    input.value = "";
+    if (!key) {
+      st.msgs.push({ role: "error", html: "Няма API ключ. <a href=\"" + esc(chatgptUrl(q)) + "\" target=\"_blank\" rel=\"noopener\">Отвори въпроса в ChatGPT ↗</a> или добави ключ от „Настройки“." });
+      renderList(); return;
+    }
+    const bot = { role: "assistant", content: "" };
+    st.msgs.push(bot); renderList();
+    const el = list.lastElementChild;
+    const history = st.msgs.filter((m) => m !== bot && (m.role === "user" || m.role === "assistant") && m.content).slice(-12)
+      .map((m) => ({ role: m.role, content: m.content }));
+    st.busy = true; sendBtn.textContent = "Спри"; st.ctrl = new AbortController();
+    try {
+      const r = await fetch(API, {
+        method: "POST", signal: st.ctrl.signal,
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
+        body: JSON.stringify({ model: getModel(), stream: true, messages: [{ role: "system", content: systemPrompt() }, ...history] }),
+      });
+      if (!r.ok) {
+        let msg = r.status + " " + r.statusText;
+        try { const j = await r.json(); if (j.error && j.error.message) msg += " — " + j.error.message; } catch (e) { /* няма тяло */ }
+        throw new Error(msg);
+      }
+      const rd = r.body.getReader(), dec = new TextDecoder();
+      let buf = "";
+      for (;;) {
+        const { value, done } = await rd.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let i;
+        while ((i = buf.indexOf("\n")) >= 0) {
+          const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+          if (!line.startsWith("data:")) continue;
+          const data = line.slice(5).trim();
+          if (data === "[DONE]") continue;
+          try { const d = JSON.parse(data).choices?.[0]?.delta?.content; if (d) { bot.content += d; el.innerHTML = md(bot.content); list.scrollTop = list.scrollHeight; } } catch (e) { /* непълен ред */ }
+        }
+      }
+      if (!bot.content) bot.content = "(празен отговор)";
+    } catch (e) {
+      if (e.name === "AbortError") bot.content += "\n\n_(спряно)_";
+      else { st.msgs.splice(st.msgs.indexOf(bot), 1); st.msgs.push({ role: "error", html: "Грешка: " + esc(e.message) + (e.message === "Failed to fetch" ? " (мрежа или CORS)" : "") + ". <a href=\"" + esc(chatgptUrl(q)) + "\" target=\"_blank\" rel=\"noopener\">Отвори в ChatGPT ↗</a>" }); }
+    } finally {
+      st.busy = false; st.ctrl = null; sendBtn.textContent = "Изпрати"; renderList();
+    }
+  }
+
+  /* ---------- маркиран текст ---------- */
+  let pendingSel = "";
+  function onSelect() {
+    const s = window.getSelection();
+    const txt = s && !s.isCollapsed ? s.toString().trim() : "";
+    const inContent = txt && s.anchorNode && document.getElementById("content")?.contains(s.anchorNode);
+    if (!inContent || txt.length < 3) { selBtn.hidden = true; return; }
+    pendingSel = txt.slice(0, MAX_SEL);
+    const r = s.getRangeAt(0).getBoundingClientRect();
+    selBtn.hidden = false;
+    const bw = selBtn.offsetWidth || 300;
+    selBtn.style.left = Math.max(8, Math.min(window.innerWidth - bw - 8, r.left + r.width / 2 - bw / 2)) + "px";
+    selBtn.style.top = (r.top > 48 ? r.top - 42 : r.bottom + 8) + "px";
+  }
+
+  /* ---------- закачане ---------- */
+  S.onTip = function (tipEl, g) {
+    tipEl.append(askButtons(() => ({ term: g }), () => { st.ctxTerm = g; S.hideTip(); toggle(true); renderChip(); if (!input.value) input.value = "Обясни „" + g.t + "“ с пример."; input.focus(); }, "ai-tipbtn"));
+  };
+
+  function init() {
+    build();
+    document.addEventListener("study:chapter", () => { st.ctxTerm = null; st.ctxSel = ""; renderChip(); });
+    document.addEventListener("mouseup", () => setTimeout(onSelect, 0));
+    document.addEventListener("keyup", (e) => { if (e.shiftKey || e.key === "Shift") onSelect(); });
+    window.addEventListener("scroll", () => { selBtn.hidden = true; }, { passive: true });
+    window.addEventListener("resize", syncPad);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
+})();
+
+</script>
+<script>
+/* Определения по WHATWG, CSS и MDN документацията. */
+window.GLOSSARY = {
+  "html": {
+    "cat": "Структура",
+    "t": "HTML",
+    "en": "HyperText Markup Language",
+    "d": "Език за маркиране на структурата и значението на уеб съдържание."
+  },
+  "dom": {
+    "cat": "Структура",
+    "t": "DOM",
+    "en": "Document Object Model",
+    "d": "Дървовиден модел на документ и интерфейс за достъп и промяна на възлите му."
+  },
+  "css": {
+    "cat": "Форматиране",
+    "t": "CSS",
+    "en": "Cascading Style Sheets",
+    "d": "Език за описание на представянето и оформлението на документи."
+  },
+  "каскада": {
+    "cat": "Форматиране",
+    "t": "Каскада",
+    "en": "Cascade",
+    "d": "Правила за избор на приложима декларация за дадено свойство на елемент. Специфичността е само един от критериите."
+  },
+  "кутиев модел": {
+    "cat": "Форматиране",
+    "t": "Кутиев модел",
+    "en": "Box model",
+    "d": "Представяне на кутия чрез съдържание, padding, border и margin."
+  },
+  "адаптивен дизайн": {
+    "cat": "Оформление",
+    "t": "Адаптивен дизайн",
+    "en": "Responsive web design",
+    "d": "Подход за използваемо представяне на едно съдържание при различни размери на viewport и устройства."
+  },
+  "media query": {
+    "cat": "Оформление",
+    "t": "Media query",
+    "en": "Media query",
+    "d": "Условие за прилагане на CSS според характеристики на средата, например ширина на viewport."
+  },
+  "javascript": {
+    "cat": "Програмиране",
+    "t": "JavaScript",
+    "en": "JavaScript",
+    "d": "Език за програмиране за поведение, DOM промени и взаимодействие с услуги. Използва се и извън браузъра; различен е от Java."
+  }
+};
+
+</script>
+<script>
+/* Първичните източници са в раздел Систематизация. */
+window.TERM_SOURCES = {};
+
+</script>
+<script>
+window.CSRC = {};
+
+</script>
+<!-- CHAPTERS -->
+<script>
+(function () {
+  const S = window.Study;
+  const html = `<div class="prose"><p><b>По конспекта:</b> Уеб дизайн. Основни структурни елементи, форматиране и програмиране.</p>
+  <p>Уеб дизайнът свързва организацията на информацията, визуалното представяне и взаимодействието. Започваме с потребителя и задачата, а след това избираме структура, оформление и поведение. Един и същ документ може да се показва на телефон, настолен екран и чрез екранен четец.</p></div>
+  <div class="block"><h3>Три езика, три отговорности</h3><table class="t"><tr><th>Език</th><th>Задача</th><th>Пример</th></tr>
+  <tr><td>HTML</td><td>Структура и значение</td><td>Заглавие, навигация, статия, формуляр</td></tr>
+  <tr><td>CSS</td><td>Представяне и подредба</td><td>Шрифт, отстояния, цветове, Grid, Flexbox</td></tr>
+  <tr><td>JavaScript</td><td>Програмно поведение</td><td>Реакция на събитие, промяна на DOM, заявка към сървър</td></tr></table>
+  <div class="key">HTML описва съдържанието, CSS го представя, JavaScript променя състояние и поведение. Браузърът съчетава трите.</div></div>
+  <div class="block"><h3>Карта на разделите</h3><ol class="prose">
+  <li><a href="#html">Структурни елементи</a> — документ, семантика, DOM, връзки, изображения, списъци и таблици.</li>
+  <li><a href="#css">Форматиране</a> — селектори, каскада, наследяване, специфичност и кутиев модел.</li>
+  <li><a href="#layout">Оформление</a> — нормален поток, Flexbox, Grid и адаптивност.</li>
+  <li><a href="#javascript">Програмиране</a> — променливи, функции, DOM и събития.</li>
+  <li><a href="#forms">Формуляри и клиент–сървър</a> — вход, валидация, GET/POST и HTTP.</li>
+  <li><a href="#sistematizacia">Систематизация</a> — работен процес, разграничения и опорен план.</li></ol>
+  <p>Тук примерите са на HTML/CSS/JavaScript, защото именно те се изпълняват от браузъра. Лабораториите са локални и работят без инсталация.</p></div>`;
+  S.chapter({id:"karta", order:0, num:"0", group:"Основа", title:"Карта на темата", lead:"От съдържание и семантика към оформление и програмиране в браузъра.", html, mount() {}, algos:{}});
+})();
+
+</script>
+<script>
+(function () {
+  const S = window.Study, h = S.h;
+  const SAMPLE = `<!doctype html>
+<html lang="bg">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Учебна страница</title>
+</head>
+<body>
+  <header><h1>Моят учебен сайт</h1></header>
+  <nav aria-label="Основна навигация"><a href="#tema">Към темата</a></nav>
+  <main id="tema">
+    <article><h2>Уеб дизайн</h2><p>Структура, представяне и поведение.</p></article>
+  </main>
+  <footer><small>Материал за подготовка</small></footer>
+</body>
+</html>`;
+  const html = `<div class="prose"><p><dfn data-g="html">HTML</dfn> е език за маркиране. Елементът има име, атрибути и обикновено съдържание. В <code>&lt;a href="index.html"&gt;Начало&lt;/a&gt;</code> атрибутът <code>href</code> задава целта на връзката. <code>img</code>, <code>input</code> и <code>meta</code> са празни (void) елементи — нямат затварящ таг.</p>
+  <p><code>doctype</code> включва стандартния режим на HTML. В <code>head</code> са метаданните; в <code>body</code> — съдържанието. <code>lang="bg"</code> посочва езика; <code>charset="utf-8"</code> — кодирането; <code>title</code> е заглавието на документа, а <code>h1</code> е заглавие в съдържанието.</p></div>
+  <div class="block"><h3>Семантични структурни елементи</h3><table class="t"><tr><th>Елемент</th><th>Роля</th></tr>
+  <tr><td>header, footer</td><td>Въвеждаща и заключителна информация за страница или секция</td></tr>
+  <tr><td>nav, main</td><td>Основна навигация и основно съдържание</td></tr>
+  <tr><td>article, section, aside</td><td>Самостоятелно съдържание, тематична секция, странично свързана информация</td></tr>
+  <tr><td>h1–h6, p, ul/ol/li</td><td>Йерархия от заглавия, абзаци, списъци</td></tr>
+  <tr><td>a, img, figure/figcaption</td><td>Връзки, изображения и надписи</td></tr>
+  <tr><td>table, caption, tr, th, td</td><td>Таблични данни; таблица не е средство за общо оформление</td></tr>
+  <tr><td>div, span</td><td>Общи контейнери без собствен специализиран семантичен смисъл</td></tr></table>
+  <p class="prose">Избираме елемент по смисъл, а не по вида му по подразбиране. <code>button</code> изпълнява действие, <code>a href</code> навигира. Заглавията отразяват йерархията, а размерът им се задава с CSS. Изображението има подходящ <code>alt</code>; чисто декоративното — празен <code>alt=""</code>.</p></div>
+  <div class="block"><h3>От HTML текст до DOM</h3><p class="prose"><dfn data-g="dom">DOM</dfn> е дървовидното представяне в паметта. Браузърът анализира HTML и създава възли. Може да поправя невалидно влагане; дървото не е гарантирано буквално копие на изходния текст. CSS избира елементи от това дърво, а JavaScript може да го променя.</p>
+  <table class="t"><tr><th>Родител</th><th>Деца в примера</th></tr><tr><td>document</td><td>doctype, html</td></tr><tr><td>html</td><td>head, body</td></tr><tr><td>head</td><td>meta, title</td></tr><tr><td>body</td><td>header, nav, main, footer</td></tr><tr><td>main</td><td>article</td></tr><tr><td>article</td><td>h2, p</td></tr></table>
+  <details class="trap"><summary>Капан: таг, елемент и DOM възел</summary><div><p>Тагът е част от синтаксиса; елементът е структурна единица. DOM включва и текстови възли и коментари. След JavaScript промяна изходният HTML файл може да остане същият, докато DOM вече е различен.</p></div></details></div>
+  <div class="block"><h3>Редактируем HTML документ</h3><p>Промени заглавието, добави списък или връзка към секция и обнови изгледа.</p><label for="html-source">HTML</label><textarea id="html-source" rows="20" spellcheck="false" class="mono" style="width:100%"></textarea>
+  <p><button class="btn" id="render-html" type="button">Обнови изгледа</button> <button class="btn ghost" id="reset-html" type="button">Начален пример</button></p>
+  <iframe id="html-preview" title="Преглед на HTML документа" sandbox="" style="width:100%;height:300px;border:1px solid var(--line);background:white"></iframe>
+  <p class="muted">Изолиран преглед на HTML: скриптове и изпращане на формуляри са изключени. Относителните адреси се тълкуват спрямо адреса на страницата; абсолютният URL включва схема и хост.</p></div>`;
+  function mount(root) {
+    const input = root.querySelector("#html-source"), frame = root.querySelector("#html-preview");
+    function render() {
+      const policy = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; img-src data:; base-uri \'none\'; form-action \'none\'">';
+      const source = input.value;
+      frame.srcdoc = /^\s*<!doctype html>/i.test(source) ? source.replace(/^(\s*<!doctype html>)/i, '$1' + policy) : policy + source;
+    }
+    root.querySelector("#render-html").addEventListener("click", render);
+    root.querySelector("#reset-html").addEventListener("click", () => { input.value = SAMPLE; render(); });
+    input.value = SAMPLE; render();
+  }
+  S.chapter({id:"html", order:1, num:"1", group:"Структура", title:"HTML: документ, елементи и семантика", lead:"Структура на документа, смисъл на елементите, DOM и редактируем пример.", html, mount, algos:{}});
+})();
+
+</script>
+<script>
+(function () {
+  const S = window.Study, h = S.h;
+  const algos = {
+    box({width, padding, border, margin, sizing}) {
+      width = S.int(width, 100, 500, "Ширината"); padding = S.int(padding, 0, 40, "Padding");
+      border = S.int(border, 0, 10, "Рамката"); margin = S.int(margin, 0, 40, "Margin");
+      if (!["content-box","border-box"].includes(sizing)) throw new Error("Непознат box-sizing.");
+      const content = sizing === "content-box" ? width : width - 2 * padding - 2 * border;
+      const outer = content + 2 * padding + 2 * border;
+      return {content, outer, occupied:outer + 2 * margin, frames:[
+        {part:"content", value:content, msg:`Съдържание: ${content}px. width се отнася за ${sizing === "content-box" ? "съдържанието" : "съдържанието + padding + border"}.`},
+        {part:"padding", value:content + 2 * padding, msg:`Добавяме ляв и десен padding: ${content} + 2 × ${padding}.`},
+        {part:"border", value:outer, msg:`Ширина на border box: ${outer}px. Margin не влиза в зададената width.`},
+        {part:"margin", value:outer + 2 * margin, msg:`С външните хоризонтални отстояния: ${outer + 2 * margin}px. Моделът е без min/max-width и без свиване от layout.`,done:true}
+      ]};
+    },
+    cascade({important, idRule}) {
+      const imp = important === true || important === "true" || important === "1";
+      const id = idRule === true || idRule === "true" || idRule === "1";
+      const winner = imp ? ".note !important" : id ? "#demo" : ".note (последно)";
+      return {winner, frames:[
+        {msg:"Елементът е <p id='demo' class='note'>. Сравняваме само свойството color на съвпадащите декларации."},
+        {msg:imp ? "Включена е важна авторска декларация: тя изпреварва нормалните в този модел." : "Всички декларации са нормални, авторски, без слоеве и в еднакъв обхват."},
+        {msg:imp ? "Сред разглежданите важни декларации има само една." : id ? "#demo има специфичност (1,0,0); .note — (0,1,0); p — (0,0,1). Сравняват се лексикографски." : "Двете .note правила са с равна специфичност: печели по-късната декларация."},
+        {msg:`Победител: ${winner}. Наследяването се разглежда, когато стойността се получава от родителя, а не като още един конкурентен селектор.`, winner,done:true}
+      ]};
+    }
+  };
+  const html = `<div class="prose"><p><dfn data-g="css">CSS</dfn> правило съдържа селектор и декларации: <code>.note { color: navy; padding: 1rem; }</code>. Свойство и стойност са разделени с двоеточие. Стиловете могат да са във външен файл чрез <code>link</code>, в <code>style</code> или в атрибута <code>style</code>; външният файл улеснява общото оформление и поддръжката.</p>
+  <p>Селектори: <code>p</code> — тип; <code>.note</code> — клас; <code>#demo</code> — идентификатор; <code>nav a</code> — наследник; <code>ul &gt; li</code> — пряко дете; <code>:hover</code> и <code>:focus-visible</code> — състояния. Един клас може да се използва многократно; идентификаторът трябва да е уникален в документа.</p></div>
+  <div class="block"><h3>Каскада, специфичност и наследяване</h3><p class="prose"><dfn data-g="каскада">Каскадата</dfn> избира стойност за всяко свойство поотделно. Значение имат произходът, важността и слоевете, а след тях специфичността, близостта на обхвата и редът. „Последното правило печели“ е вярно само при равенство на по-ранните критерии. <code>!important</code> променя приоритета в каскадата, не увеличава специфичността.</p>
+  <pre class="mono">p { color: gray; }                 /* (0,0,1) */
+.note { color: navy; }             /* (0,1,0) */
+#demo { color: green; }            /* (1,0,0), по избор */
+.note { color: purple; }           /* (0,1,0), по-късно */
+.note { color: red !important; }   /* по избор */</pre><div id="v-cascade"></div>
+  <p class="prose">Цвят и шрифт обикновено се наследяват; margin и border — не. <code>inherit</code> изрично взема стойността от родителя. Наследена стойност не побеждава пряко приложена декларация само защото селекторът на родителя е по-специфичен.</p></div>
+  <div class="block"><h3>Кутиев модел</h3><p class="prose"><dfn data-g="кутиев модел">Кутиевият модел</dfn> различава съдържание, вътрешно отстояние (padding), рамка (border) и външно отстояние (margin). При <code>content-box</code> width е ширината на съдържанието; при <code>border-box</code> включва padding и border. Margin остава отвън.</p><div id="v-box"></div>
+  <details class="trap"><summary>Капан: width:100% плюс padding</summary><div><p>При content-box padding и border се добавят към 100% и могат да причинят преливане. Често използваме <code>*, *::before, *::after { box-sizing: border-box; }</code>. Вертикални margin в нормалния блоков поток понякога се сливат; хоризонталната сметка тук не моделира това.</p></div></details></div>
+  <div class="block"><h3>Форматиране на текст и размери</h3><p class="prose">Използвай <code>font-family</code> с резервно семейство, четим <code>font-size</code>, достатъчен <code>line-height</code> и контраст. <code>rem</code> е спрямо шрифта на корена; за font-size <code>em</code> е спрямо наследения размер; процентите зависят от свойството. CSS px е логическа единица и не е непременно един физически пиксел. Цвят сам по себе си не трябва да носи цялото значение.</p></div>`;
+  function mount(root) {
+    S.viz(root.querySelector("#v-cascade"), {id:"cascade",title:"Коя декларация печели?",code:false,
+      sub:"Ограничен модел: авторски стилове, без слоеве, анимации, transitions, inline style и @scope.",
+      inputs:[{id:"important",label:"!important",type:"checkbox",value:false},{id:"idRule",label:"#demo правило",type:"checkbox",value:true}],build:algos.cascade,
+      draw(st,f) {st.replaceChildren(h("p",{class:"key",text:f.winner || "Сравняваме декларациите стъпка по стъпка."}));}});
+    S.viz(root.querySelector("#v-box"), {id:"box",title:"Ширината стъпка по стъпка",code:false,
+      inputs:[{id:"width",label:"width px",type:"number",value:240},{id:"padding",label:"padding px",type:"number",value:20},{id:"border",label:"border px",type:"number",value:4},{id:"margin",label:"margin px",type:"number",value:10},{id:"sizing",label:"box-sizing",type:"select",value:"content-box",options:[["content-box","content-box"],["border-box","border-box"]]}],
+      build:algos.box, draw(st,f) {st.replaceChildren(h("div",{class:"card s-act",style:{width:f.value+"px",maxWidth:"100%",boxSizing:"border-box"},text:`${f.part}: ${f.value}px` }));}});
+  }
+  S.chapter({id:"css",order:2,num:"2",group:"Форматиране",title:"CSS: каскада и кутиев модел",lead:"Селектори, специфичност, наследяване, типография и изчисляване на ширината.",html,mount,algos});
+})();
+
+</script>
+<script>
+(function () {
+  const S = window.Study;
+  const HTML = `<main class="cards">
+  <article><h2>HTML</h2><p>Структура и значение.</p></article>
+  <article><h2>CSS</h2><p>Представяне и подредба.</p></article>
+  <article><h2>JavaScript</h2><p>Поведение и взаимодействие.</p></article>
+</main>`;
+  const CSS = `* { box-sizing: border-box; }
+body { margin: 0; padding: 16px; font: 16px/1.5 system-ui; }
+.cards { display: grid; grid-template-columns: 1fr; gap: 12px; }
+article { padding: 16px; border: 1px solid #8899aa; border-radius: 8px; }
+h2 { color: #185b75; }
+@media (min-width: 600px) {
+  .cards { grid-template-columns: repeat(3, 1fr); }
+}`;
+  const html = `<div class="prose"><p>В нормалния поток блоковите кутии обикновено се подреждат една след друга, а текстът и inline елементите — по редове. <code>display</code> избира модел на оформление. Не подреждаме страница с поредица от интервали и <code>br</code>.</p></div>
+  <div class="block"><h3>Flexbox и Grid</h3><table class="t"><tr><th>Модел</th><th>Основна идея</th><th>Подходящ пример</th></tr>
+  <tr><td>Flexbox</td><td>Едномерно разпределяне по основна ос, с възможно пренасяне</td><td>Навигация, лента от бутони; display:flex; gap:1rem; flex-wrap:wrap</td></tr>
+  <tr><td>Grid</td><td>Редове и колони, общи линии на мрежата</td><td>Карти и областите на страница; grid-template-columns:repeat(3,1fr)</td></tr></table>
+  <p class="prose">При Flexbox <code>justify-content</code> работи по основната ос, а <code>align-items</code> — по напречната; посоката зависи от <code>flex-direction</code>. При Grid <code>fr</code> разпределя свободното пространство. Flexbox и Grid могат да се влагат.</p>
+  <p class="prose"><code>position:relative</code> запазва мястото в потока и позволява отместване. <code>absolute</code> изважда кутията от нормалния поток и я позиционира спрямо съдържащия блок, често най-близкия позициониран предшественик. <code>fixed</code> обичайно е спрямо viewport; <code>sticky</code> зависи от прага и контейнера за превъртане. Припокриването и stacking context не се свеждат само до най-голямо <code>z-index</code>.</p></div>
+  <div class="block"><h3>Адаптивен дизайн: един документ, различна ширина</h3><p class="prose"><dfn data-g="адаптивен дизайн">Адаптивният дизайн</dfn> използва гъвкави размери, изображения и <dfn data-g="media query">media queries</dfn>. Mobile first започва с тесния изглед и добавя възможности при достатъчно пространство. Точките на пречупване се избират според съдържанието. Viewport meta настройва мобилния viewport; само по себе си не прави страницата адаптивна.</p>
+  <p>Редактирай CSS и сравни 360px с 800px. Media query се оценява спрямо viewport на прегледа.</p>
+  <label for="layout-css">CSS</label><textarea id="layout-css" rows="13" class="mono" spellcheck="false" style="width:100%"></textarea>
+  <div class="row"><label for="preview-width">Ширина на прегледа</label><select id="preview-width"><option value="360">360px — телефон</option><option value="800">800px — широк изглед</option></select><button class="btn" id="layout-run" type="button">Приложи CSS</button><button class="btn ghost" id="layout-reset" type="button">Начален CSS</button></div>
+  <div style="overflow:auto;margin-top:12px"><iframe id="layout-preview" title="Адаптивно оформление с Grid" sandbox="" style="height:390px;border:1px solid var(--line);background:white"></iframe></div>
+  <details class="hint"><summary>Защо съдържанието идва първо?</summary><div><p>Логичният ред в HTML остава важен за клавиатура и екранни четци. CSS пренареждането на картите може да промени визуалния ред, без да промени реда на фокуса.</p></div></details></div>
+  <div class="block"><h3>Проверка на достъпността</h3><ul class="prose"><li>Семантични заглавия и области, описателни връзки, текстови алтернативи на изображенията.</li><li>Всички действия са достижими с клавиатура; фокусът се вижда. Използвай native button и form controls.</li><li>Проверявай контраст, увеличение на текста и липса на нежелано хоризонтално превъртане.</li><li>Съдържанието остава разбираемо без цвят и при различни размери. Избягвай ненужно движение.</li></ul></div>`;
+  function mount(root) {
+    const css=root.querySelector("#layout-css"), width=root.querySelector("#preview-width"), frame=root.querySelector("#layout-preview");
+    function render() {
+      frame.style.width=width.value+"px";
+      frame.srcdoc='<!doctype html><html lang="bg"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; base-uri \'none\'; form-action \'none\'"><meta name="viewport" content="width=device-width, initial-scale=1"><style>'+css.value+'</style></head><body>'+HTML+'</body></html>';
+    }
+    css.value=CSS; root.querySelector("#layout-run").addEventListener("click",render);
+    root.querySelector("#layout-reset").addEventListener("click",()=>{css.value=CSS;render();});
+    width.addEventListener("change",render);render();
+  }
+  S.chapter({id:"layout",order:3,num:"3",group:"Форматиране",title:"Оформление, адаптивност и достъпност",lead:"Нормален поток, Flexbox, Grid и редактируема лаборатория с две ширини.",html,mount,algos:{}});
+})();
+
+</script>
+<script>
+(function () {
+  const S=window.Study, h=S.h;
+  const algos={
+    counter({start,step,clicks}) {
+      let count=S.int(start,-100,100,"Началната стойност");step=S.int(step,-10,10,"Стъпката");clicks=S.int(clicks,0,20,"Броят щраквания");
+      const frames=[{count,msg:`let count = ${count}; регистрираме обработчик. Регистрацията не изпълнява обработчика.`}];
+      for(let i=0;i<clicks;i++) {
+        frames.push({count,msg:`Щракване ${i+1}: браузърът подава събитието към обработчика.`});
+        count+=step;frames.push({count,msg:`count += ${step}; нова стойност ${count}.`});
+        frames.push({count,msg:`output.textContent = String(count); DOM показва ${count}.`});
+      }
+      return {result:count,frames};
+    },
+    events({stop}) {
+      const halted=stop===true||stop==="true"||stop==="1";
+      const route=["контейнер: capture","бутон: target",...(halted?[]:["контейнер: bubble"])];
+      return {route,frames:route.map((node,i)=>({node,msg:`${i+1}. ${node}. ${halted&&i===1?"В обработчика на бутона stopPropagation() спира продължаването към предшествениците.":"event.target остава бутонът; currentTarget е елементът с текущия обработчик."}`}))};
+    }
+  };
+  const html=`<div class="prose"><p><dfn data-g="javascript">JavaScript</dfn> е език за програмиране, а не вариант на Java. Използва променливи, изрази, условия, цикли, масиви, обекти и функции. <code>let</code> позволява ново присвояване; <code>const</code> не позволява ново присвояване на самата връзка, но не прави автоматично обекта неизменяем. За сравнение без неявно преобразуване на типовете обичайно използваме <code>===</code>.</p>
+  <p>DOM API е интерфейсът към документа: <code>document.querySelector</code> намира елемент, <code>textContent</code> задава текст, <code>classList</code> сменя класове. Външен класически скрипт с <code>defer</code> се изпълнява след анализа на HTML и преди DOMContentLoaded. Кодът трябва да има достъп до вече създадените елементи.</p></div>
+  <div class="block"><h3>Състояние → събитие → промяна на DOM</h3>
+  <pre class="mono">&lt;button id="add" type="button"&gt;Добави&lt;/button&gt;
+&lt;output id="count"&gt;0&lt;/output&gt;
+&lt;script src="app.js" defer&gt;&lt;/script&gt;
+
+// app.js
+let count = 0;
+const output = document.querySelector('#count');
+document.querySelector('#add').addEventListener('click', () =&gt; {
+  count += 1;
+  output.textContent = String(count);
+});</pre><div id="v-counter"></div>
+  <p>Работещ DOM пример: <button class="btn" id="live-add" type="button">Добави 1</button> <button class="btn ghost" id="live-reset" type="button">Нулирай</button> <output id="live-count" aria-live="polite">0</output></p>
+  <details class="trap"><summary>Капан: текст срещу HTML</summary><div><p><code>textContent</code> показва текста буквално. <code>innerHTML</code> го анализира като маркиране; недоверен вход може да доведе до XSS. Използвай textContent за обикновен потребителски текст; обработката на HTML изисква отделен, подходящ механизъм.</p></div></details></div>
+  <div class="block"><h3>Път на събитието</h3><p class="prose">При щракване има фаза на прихващане към целта, достигане на целта и изкачване (bubbling). Не всички видове събития се изкачват. <code>target</code> е първоначалната цел; <code>currentTarget</code> — елементът на текущия обработчик. Делегирането използва общ предшественик и проверка на target.</p><div id="v-events"></div>
+  <p><code>stopPropagation()</code> спира разпространението; <code>preventDefault()</code> отменя допустимото действие по подразбиране, например изпращането на формуляр. Това са различни операции.</p></div>
+  <div class="block"><h3>Асинхронни заявки <span class="extra-tag">разширение</span></h3><p class="prose"><code>fetch</code> връща Promise; <code>await</code> изчаква резултата в async функция, без синхронно блокиране на главната нишка през чакането. HTTP грешка като 404 не е непременно отхвърлен Promise — проверяваме <code>response.ok</code>. След успешен JSON отговор обновяваме DOM. Same-origin policy и CORS определят какво клиентският код може да чете от друг произход; CORS не е удостоверяване.</p>
+  <pre class="mono">async function loadTitle() {
+  try {
+    const response = await fetch('/api/topic');
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    const data = await response.json();
+    document.querySelector('#title').textContent = data.title;
+  } catch (error) {
+    document.querySelector('#status').textContent = 'Неуспешно зареждане';
+  }
+}</pre><p class="muted">Пример за договор със сървър, не активна заявка в тази страница.</p></div>`;
+  function mount(root) {
+    S.viz(root.querySelector("#v-counter"),{id:"counter",title:"Обработчик стъпка по стъпка",code:false,inputs:[{id:"start",label:"начало",type:"number",value:0},{id:"step",label:"стъпка",type:"number",value:1},{id:"clicks",label:"щраквания",type:"number",value:3}],build:algos.counter,draw(st,f){st.replaceChildren(h("p",{class:"key",text:`count = ${f.count}`}));}});
+    S.viz(root.querySelector("#v-events"),{id:"events",title:"Щракване върху бутон в контейнер",code:false,sub:"Съкратен път: показани са само двата елемента с регистрирани обработчици.",inputs:[{id:"stop",label:"stopPropagation в бутона",type:"checkbox",value:false}],build:algos.events,draw(st,f){st.replaceChildren(h("p",{class:"key",text:f.node}));}});
+    let count=0;const out=root.querySelector("#live-count");
+    root.querySelector("#live-add").addEventListener("click",()=>{out.textContent=String(++count);});
+    root.querySelector("#live-reset").addEventListener("click",()=>{count=0;out.textContent="0";});
+  }
+  S.chapter({id:"javascript",order:4,num:"4",group:"Програмиране",title:"JavaScript, DOM и събития",lead:"Основни езикови конструкции, обработчици, състояние, разпространение на събития и заявка към API.",html,mount,algos});
+})();
+
+</script>
+<script>
+(function () {
+  const S=window.Study;
+  const html=`<div class="prose"><p>Формулярът събира данни чрез <code>input</code>, <code>select</code> и <code>textarea</code>. <code>label for</code> се свързва с <code>id</code> на полето. <code>name</code> е името на изпращания параметър; id сам по себе си не го замества. Placeholder е кратка подсказка, а не заместител на етикета.</p>
+  <p><code>required</code>, <code>type="email"</code>, <code>min</code>, <code>max</code> и <code>pattern</code> задават клиентски ограничения. Проверяват удобството и допустимия формат; email проверката не доказва, че адресът съществува. Данните се проверяват отново на сървъра — браузърната валидация може да се заобиколи.</p></div>
+  <div class="block"><h3>Работещ формуляр: само локален резултат</h3><form id="demo-form">
+  <p><label for="student-name">Име (задължително)</label><br><input id="student-name" name="name" required maxlength="80" autocomplete="off"></p>
+  <p><label for="student-email">Примерен email (задължително)</label><br><input id="student-email" name="email" type="email" required autocomplete="off" placeholder="student@example.org"></p>
+  <p><label for="student-topic">Тема</label><br><select id="student-topic" name="topic"><option value="html">HTML</option><option value="css">CSS</option><option value="js">JavaScript</option></select></p>
+  <button class="btn" type="submit">Покажи данните локално</button></form>
+  <output id="form-result" class="mono" aria-live="polite" style="display:block;white-space:pre-wrap;margin-top:12px"></output>
+  <p class="muted">Използвай измислени данни. Няма сървърна заявка и данните не се запазват.</p>
+  <pre class="mono">form.addEventListener('submit', (event) =&gt; {
+  event.preventDefault();
+  const values = new FormData(form);
+  output.textContent = new URLSearchParams(values).toString();
+});</pre></div>
+  <div class="block"><h3>Клиентско и сървърно програмиране</h3><p class="prose">Браузърът показва документа и обработва взаимодействието. Сървърът обработва заявки, проверява права, изпълнява бизнес правила и достъпва база данни. Клиентът не трябва да получава сървърни тайни. Статичният сайт може да има JavaScript взаимодействие; „динамичен интерфейс“ не означава задължително сървърно генериран HTML.</p>
+  <table class="t"><tr><th>Метод</th><th>Предназначение</th><th>Пример</th></tr><tr><td>GET</td><td>Извличане; параметрите на обикновен GET формуляр са в URL</td><td>/search?q=html</td></tr><tr><td>POST</td><td>Подаване за обработка; обикновено параметри в тялото</td><td>Регистрация или добавяне на запис</td></tr></table>
+  <p class="prose">GET има безопасна семантика — не се използва за заявено изменение на състояние. POST не шифрова: HTTPS защитава транспорта и при двата метода. POST сам по себе си не защитава от CSRF и не замества оторизация. HTTP 200, 400, 401/403, 404 и 500 означават различни резултати; страницата трябва да показва разбираема грешка.</p>
+  <details class="trap"><summary>Капан: скрит бутон ≠ защита на действие</summary><div><p>Потребителят може да промени клиентския JavaScript или да изпрати HTTP заявка направо. Сървърът проверява правото при всяко защитено действие. Това свързва уеб програмирането с тема 9, а HTTP обмена — с тема 11.</p></div></details></div>`;
+  function mount(root) {
+    const form=root.querySelector("#demo-form"), output=root.querySelector("#form-result");
+    form.addEventListener("submit",event=>{event.preventDefault();const values=new FormData(form);output.textContent=new URLSearchParams(values).toString();});
+  }
+  S.chapter({id:"forms",order:5,num:"5",group:"Програмиране",title:"Формуляри, валидация и клиент–сървър",lead:"Етикети, полета, обработка на входа и границата между браузър и сървър.",html,mount,algos:{}});
+})();
+
+</script>
+<script>
+(function () {
+  const S=window.Study;
+  const html=`<div class="block"><h3>Опорен план по конспекта</h3><ol class="prose">
+  <li><b>Уеб дизайн:</b> потребители, задачи, информационна архитектура, навигация, визуална йерархия, използваемост и достъпност.</li>
+  <li><b>Основни структурни елементи:</b> HTML документ (doctype, html, head, body), метаданни, семантични области, заглавия, абзаци, списъци, връзки, изображения, таблици и формуляри. HTML се анализира до DOM.</li>
+  <li><b>Форматиране:</b> CSS правила и селектори, каскада и наследяване, шрифт и цвят, кутиев модел, нормален поток, Flexbox, Grid и media queries.</li>
+  <li><b>Програмиране:</b> променливи, условия, цикли и функции в JavaScript; DOM операции и събития; валидация и комуникация със сървър. Разграничавам клиентския код от сървърните проверки.</li>
+  <li><b>Свързващ пример:</b> HTML формулярът задава полетата; CSS го подрежда; JavaScript обработва взаимодействието; сървърът проверява данните и правата при реална заявка.</li></ol></div>
+  <div class="block"><h3>Работен процес</h3><p class="prose">Уточни аудиторията и целта → подреди съдържанието и навигацията → направи скица на страницата → реализирай семантичен HTML → добави адаптивен CSS → добави JavaScript само за нужното поведение → провери → публикувай и поддържай. Прототипът проверява идея; готовият сайт изисква и реална обработка на грешки, достъпност и сигурност.</p>
+  <ul class="prose"><li>HTML валидатор и браузърни DevTools: DOM, приложени стилове, box model, конзола и мрежови заявки.</li><li>Клавиатура, видим фокус, увеличение, тесен и широк екран; проверка на смисления ред и етикетите.</li><li>Валиден и невалиден вход, липсващ ресурс, отказ на сървъра, бавна връзка; проверка на връзките.</li><li>Оптимизирани изображения, разумно количество CSS/JS и стабилно оформление при зареждане.</li></ul></div>
+  <div class="block"><h3>Разграничения за запомняне</h3><table class="t"><tr><th>Понятия</th><th>Разлика</th></tr>
+  <tr><td>Интернет / Web</td><td>Мрежова инфраструктура / система от уеб ресурси и услуги върху нея</td></tr>
+  <tr><td>HTML / DOM</td><td>Изходна маркировка / дърво в паметта, което може да е променено</td></tr>
+  <tr><td>Клас / id</td><td>Повторно използваем етикет / уникален идентификатор в документа</td></tr>
+  <tr><td>Padding / margin</td><td>Отстояние вътре в рамката / извън рамката</td></tr>
+  <tr><td>Специфичност / каскада</td><td>Критерий / цялостният избор на декларация</td></tr>
+  <tr><td>textContent / innerHTML</td><td>Буквален текст / анализирано HTML съдържание</td></tr>
+  <tr><td>preventDefault / stopPropagation</td><td>Отмяна на подразбираното действие / спиране на разпространението</td></tr>
+  <tr><td>Клиентска / сървърна валидация</td><td>Обратна връзка към потребителя / задължителна проверка на недоверения вход</td></tr>
+  <tr><td>POST / HTTPS</td><td>HTTP метод / защита на транспорта</td></tr></table></div>
+  <div class="block"><h3>Източници и допълнително четене</h3><ul class="prose">
+  <li><a href="https://html.spec.whatwg.org/multipage/" target="_blank" rel="noopener">WHATWG HTML Living Standard</a> — структура, семантика и формуляри.</li>
+  <li><a href="https://www.w3.org/TR/css-cascade-5/" target="_blank" rel="noopener">W3C CSS Cascading and Inheritance</a> — каскада, произход, слоеве и важност.</li>
+  <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Cascade/Specificity" target="_blank" rel="noopener">MDN: Specificity</a> и <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/box-sizing" target="_blank" rel="noopener">box-sizing</a>.</li>
+  <li><a href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting/Event_bubbling" target="_blank" rel="noopener">MDN: Event bubbling</a> и <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide" target="_blank" rel="noopener">JavaScript Guide</a>.</li>
+  <li><a href="https://www.w3.org/WAI/tutorials/" target="_blank" rel="noopener">W3C WAI Tutorials</a> — практически насоки за достъпност.</li>
+  <li><a href="https://www.rfc-editor.org/rfc/rfc9110.html" target="_blank" rel="noopener">RFC 9110: HTTP Semantics</a> — методи и статуси.</li></ul>
+  <p class="muted">Нормативните спецификации и документацията обосновават техническите примери. Обхватът на темата следва точка 12 от конспекта „1-BS-Конспект-4.6-Докт_Integrity“ (21.01.2025).</p></div>`;
+  S.chapter({id:"sistematizacia",order:6,num:"6",group:"Обобщение",title:"Систематизация и опорен план",lead:"Покритие на трите части от конспекта, работен процес, разграничения и източници.",html,mount(){},algos:{}});
+})();
+
+</script>
+<!-- /CHAPTERS -->
+<script>Study.boot({ topic: "t12", title: "Тема 12 · Уеб дизайн" });</script>
+</body>
+</html>

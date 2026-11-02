@@ -1,0 +1,22 @@
+const assert = require('node:assert/strict');
+const load = require('../../tools/harness.js');
+const css = load(__dirname + '/..', 'ch02_css.js', null).ch.algos;
+const js = load(__dirname + '/..', 'ch04_javascript.js', null).ch.algos;
+// Външни примери за очаквано поведение, включително гранични стойности.
+const a = css.box({width:240,padding:20,border:4,margin:10,sizing:'content-box'});
+assert.equal(a.content,240); assert.equal(a.outer,288); assert.equal(a.occupied,308);
+const b = css.box({width:240,padding:20,border:4,margin:10,sizing:'border-box'});
+assert.equal(b.content,192); assert.equal(b.outer,240); assert.equal(b.occupied,260);
+assert.equal(css.box({width:100,padding:40,border:10,margin:0,sizing:'border-box'}).content,0);
+assert.throws(()=>css.box({width:99,padding:0,border:0,margin:0,sizing:'content-box'}));
+assert.throws(()=>css.box({width:200,padding:0,border:0,margin:0,sizing:'unknown'}));
+assert.equal(css.cascade({important:false,idRule:true}).winner,'#demo');
+assert.equal(css.cascade({important:false,idRule:false}).winner,'.note (последно)');
+assert.equal(css.cascade({important:true,idRule:true}).winner,'.note !important');
+assert.equal(js.counter({start:0,step:1,clicks:3}).result,3);
+assert.equal(js.counter({start:5,step:-2,clicks:4}).result,-3);
+assert.equal(js.counter({start:5,step:10,clicks:0}).result,5);
+assert.throws(()=>js.counter({start:0,step:1,clicks:-1}));
+assert.equal(Array.from(js.events({stop:false}).route).join(','),'контейнер: capture,бутон: target,контейнер: bubble');
+assert.equal(Array.from(js.events({stop:true}).route).join(','),'контейнер: capture,бутон: target');
+console.log('Topic 12: box geometry, cascade, state changes and event paths passed.');
