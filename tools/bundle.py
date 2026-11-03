@@ -23,14 +23,15 @@ def main():
         return "<style>\n" + p.read_text(encoding="utf-8") + "\n</style>"
 
     def js(m):
-        p = (topic / m.group(1)).resolve()
+        # Cache-version queries are for the browser; the bundle reads the local file.
+        p = (topic / m.group(1).split("?", 1)[0]).resolve()
         if not p.exists():
             return ""
         code = p.read_text(encoding="utf-8").replace("</script", "<\\/script")
         return "<script>\n" + code + "\n</script>"
 
     out = re.sub(r'<link rel="stylesheet" href="((?:\.\./)?[^"h][^"]*\.css)">', css, src)
-    out = re.sub(r'<script src="([^"]+\.js)"></script>', js, out)
+    out = re.sub(r'<script src="([^"]+\.js(?:\?[^"\s]*)?)"></script>', js, out)
     # пълните C файлове — към GitHub
     out = out.replace('Study.boot({', f'Study.cBase = "{REPO_RAW}{topic.name}/c/"; Study.boot({{', 1)
     out = out.replace('<a class="btn ghost" href="../index.html">Всички теми</a>',
