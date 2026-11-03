@@ -1716,7 +1716,7 @@ h2 { color: #185b75; }
 @media (min-width: 600px) {
   .cards { grid-template-columns: repeat(3, 1fr); }
 }`;
-  const html = `<div id="layout-playground"></div><div class="prose"><p>В нормалния поток блоковите кутии обикновено се подреждат една след друга, а текстът и inline елементите — по редове. <code>display</code> избира модел на оформление. Не подреждаме страница с поредица от интервали и <code>br</code>.</p></div>
+  const html = `<p><a class="btn ghost" href="playground.html" target="_blank" rel="noopener">Отвори playground в отделен прозорец</a></p><div id="layout-playground"></div><div class="prose"><p>В нормалния поток блоковите кутии обикновено се подреждат една след друга, а текстът и inline елементите — по редове. <code>display</code> избира модел на оформление. Не подреждаме страница с поредица от интервали и <code>br</code>.</p></div>
   <div class="block"><h3>Flexbox и Grid</h3><table class="t"><tr><th>Модел</th><th>Основна идея</th><th>Подходящ пример</th></tr>
   <tr><td>Flexbox</td><td>Едномерно разпределяне по основна ос, с възможно пренасяне</td><td>Навигация, лента от бутони; display:flex; gap:1rem; flex-wrap:wrap</td></tr>
   <tr><td>Grid</td><td>Редове и колони, общи линии на мрежата</td><td>Карти и областите на страница; grid-template-columns:repeat(3,1fr)</td></tr></table>

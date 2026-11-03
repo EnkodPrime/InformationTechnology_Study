@@ -1,0 +1,1225 @@
+<!doctype html>
+<html lang="bg"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HTML и CSS playground · Тема 12</title>
+<style>/* InformationTechnology_Study — обща визия за всички теми.
+   Концепция: инженерна тетрадка — тих лист, ясна йерархия, кодът е равностоен на картината.
+   Цветът е запазен за състоянията на алгоритъма (сравнение, размяна, готово, опорен). */
+:root {
+  --bg: #eef1f4;
+  --paper: #fbfcfd;
+  --panel: #ffffff;
+  --panel-2: #f2f5f8;
+  --ink: #18212b;
+  --ink-2: #3b4856;
+  --muted: #66727f;
+  --line: #d6dde4;
+  --line-2: #e6ebf0;
+  --accent: #1f5fbf;
+  --accent-ink: #ffffff;
+  --accent-soft: #e2ecfa;
+
+  --st-act: #1f5fbf;      /* текущ / активен */
+  --st-act-bg: #dce8fb;
+  --st-cmp: #b86e00;      /* сравнение */
+  --st-cmp-bg: #fbecd2;
+  --st-swap: #c2352b;     /* размяна / конфликт */
+  --st-swap-bg: #fadcd8;
+  --st-done: #1d7a46;     /* готово / вярно */
+  --st-done-bg: #d9f0e2;
+  --st-piv: #7445b8;      /* опорен / специален */
+  --st-piv-bg: #ebe1f8;
+  --st-dim: #a7b1bb;
+
+  --code-bg: #f6f8fa;
+  --code-ink: #1f2933;
+  --code-hl: #fff2c9;
+  --code-hl-edge: #d99a00;
+  --tk-kw: #8b2bb0;
+  --tk-type: #0b6e7a;
+  --tk-num: #b35200;
+  --tk-str: #2b7a2b;
+  --tk-com: #7a8794;
+  --tk-fn: #1f5fbf;
+  --tk-pp: #a03a6a;
+
+  --f-display: "IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", Roboto, system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", "Cascadia Mono", Consolas, "DejaVu Sans Mono", monospace;
+
+  --r: 6px;
+  --shadow: 0 1px 2px rgba(20, 30, 45, .06), 0 4px 14px rgba(20, 30, 45, .05);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1319; --paper: #121921; --panel: #172029; --panel-2: #1c2631;
+    --ink: #e4eaf0; --ink-2: #c3ccd5; --muted: #8b98a5; --line: #2b3743; --line-2: #222d38;
+    --accent: #6ea3f2; --accent-ink: #0b1420; --accent-soft: #1b2e4a;
+    --st-act: #6ea3f2; --st-act-bg: #1d3352; --st-cmp: #f0ad45; --st-cmp-bg: #43331a;
+    --st-swap: #f07468; --st-swap-bg: #4a2220; --st-done: #5cc98a; --st-done-bg: #173b28;
+    --st-piv: #b494ec; --st-piv-bg: #33264d; --st-dim: #4d5966;
+    --code-bg: #121a22; --code-ink: #d9e1e8; --code-hl: #3a3417; --code-hl-edge: #e0b030;
+    --tk-kw: #d39af0; --tk-type: #5fc8d3; --tk-num: #f2a55e; --tk-str: #8fd68f; --tk-com: #6d7c8a;
+    --tk-fn: #82b3f5; --tk-pp: #e88ab5;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1319; --paper: #121921; --panel: #172029; --panel-2: #1c2631;
+  --ink: #e4eaf0; --ink-2: #c3ccd5; --muted: #8b98a5; --line: #2b3743; --line-2: #222d38;
+  --accent: #6ea3f2; --accent-ink: #0b1420; --accent-soft: #1b2e4a;
+  --st-act: #6ea3f2; --st-act-bg: #1d3352; --st-cmp: #f0ad45; --st-cmp-bg: #43331a;
+  --st-swap: #f07468; --st-swap-bg: #4a2220; --st-done: #5cc98a; --st-done-bg: #173b28;
+  --st-piv: #b494ec; --st-piv-bg: #33264d; --st-dim: #4d5966;
+  --code-bg: #121a22; --code-ink: #d9e1e8; --code-hl: #3a3417; --code-hl-edge: #e0b030;
+  --tk-kw: #d39af0; --tk-type: #5fc8d3; --tk-num: #f2a55e; --tk-str: #8fd68f; --tk-com: #6d7c8a;
+  --tk-fn: #82b3f5; --tk-pp: #e88ab5;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.25);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.6 var(--f-body);
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 30; background: var(--paper);
+}
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code, kbd, .mono { font-family: var(--f-mono); font-size: .9em; }
+code { background: var(--panel-2); padding: .05em .35em; border-radius: 4px; }
+h1, h2, h3, h4 { font-family: var(--f-display); line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: 2rem; font-weight: 600; letter-spacing: -.01em; }
+h2 { font-size: 1.55rem; font-weight: 600; }
+h3 { font-size: 1.2rem; font-weight: 600; }
+h4 { font-size: 1rem; font-weight: 600; }
+p { margin: 0; }
+.eyebrow { font: 600 .72rem/1.2 var(--f-body); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+
+/* ---------- каркас ---------- */
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: var(--paper); border-bottom: 1px solid var(--line);
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.topbar .brand { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.topbar .brand b { font: 600 1.05rem/1.2 var(--f-display); }
+.topbar .brand span { font-size: .78rem; color: var(--muted); }
+.topbar .sp { flex: 1; }
+.btn {
+  appearance: none; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+  font: 500 .85rem/1 var(--f-body); padding: 8px 12px; border-radius: var(--r); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px; min-height: 34px; white-space: nowrap;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.ghost { background: transparent; }
+.btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.icon { padding: 8px 10px; font-family: var(--f-mono); }
+
+.layout {
+  display: grid; grid-template-columns: 264px minmax(0, 1fr); gap: 0;
+  min-height: calc(100vh - 60px);
+}
+.sidenav {
+  border-right: 1px solid var(--line); background: var(--paper);
+  padding: 18px 12px 40px; position: sticky; top: 60px; align-self: start;
+  max-height: calc(100vh - 60px); overflow: auto;
+}
+.sidenav ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.sidenav a {
+  display: grid; grid-template-columns: 2.1em 1fr; gap: 4px; align-items: baseline;
+  text-decoration: none; color: var(--ink-2); padding: 7px 8px; border-radius: var(--r); font-size: .9rem; line-height: 1.3;
+}
+.sidenav a .n { font: 500 .78rem var(--f-mono); color: var(--muted); }
+.sidenav a:hover { background: var(--panel-2); }
+.sidenav a.on { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+.sidenav a.seen .n::after { content: " ✓"; color: var(--st-done); }
+.sidenav .group { margin: 14px 8px 6px; }
+.navselect { display: none; }
+
+main.content {
+  min-width: 0;
+  padding-block: 28px 80px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.chapter { max-width: 1120px; margin: 0 auto; display: grid; gap: 22px; }
+.chapter > header { display: grid; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.chapter > header .lead { color: var(--ink-2); max-width: 70ch; font-size: 1.02rem; }
+.prose { max-width: 72ch; display: grid; gap: 12px; }
+p.prose { display: block; }
+.prose ul, .prose ol { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; }
+.block { display: grid; gap: 14px; }
+.chapter-body > *, .block > * { min-width: 0; }
+.block > h3 { padding-top: 6px; }
+.chapnav .btn { white-space: normal; text-align: left; max-width: 100%; line-height: 1.3; }
+.chapnav { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 16px; margin-top: 10px; }
+
+/* ---------- речник: подсказки ---------- */
+dfn[data-g] {
+  font-style: normal; border-bottom: 1.5px dotted var(--accent); cursor: help; color: inherit;
+}
+dfn[data-g]:hover, dfn[data-g]:focus { background: var(--accent-soft); outline: none; }
+.term-source {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.05em; height: 1.05em; margin-left: .16em; vertical-align: .08em;
+  border: 1px solid var(--line); border-radius: 50%; color: var(--accent);
+  font-family: var(--mono); font-size: .72em; font-weight: 700; line-height: 1;
+  text-decoration: none;
+}
+.term-source:hover, .term-source:focus { background: var(--accent-soft); border-color: var(--accent); outline: none; }
+.term-source-card-wrap { position: relative; display: block; min-width: 0; }
+.term-source-card-wrap > .card { width: 100%; height: 100%; padding-right: 38px; }
+.term-source-card-links { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; }
+.term-source-card-links .term-source { margin-left: 0; font-size: .78em; }
+.gtip {
+  position: fixed; z-index: 60; max-width: min(360px, calc(100vw - 32px));
+  background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r);
+  box-shadow: var(--shadow); padding: 10px 12px; font-size: .86rem; line-height: 1.45; display: grid; gap: 4px;
+}
+.gtip b { font-family: var(--f-display); font-size: .95rem; }
+.gtip .en { color: var(--muted); font-size: .78rem; }
+.gtip .more { color: var(--ink-2); border-top: 1px solid var(--line-2); padding-top: 6px; margin-top: 2px; }
+
+.drawer {
+  position: fixed; z-index: 50; top: 0; right: 0; bottom: 0; width: min(420px, 100vw);
+  background: var(--paper); border-left: 1px solid var(--line); box-shadow: var(--shadow);
+  display: grid; grid-template-rows: auto auto 1fr;
+  padding-top: env(safe-area-inset-top, 0px); padding-right: env(safe-area-inset-right, 0px);
+}
+.drawer .dh { display: flex; align-items: center; gap: 8px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.drawer .dh h3 { flex: 1; }
+.drawer input { margin: 12px 16px; }
+.drawer .dl { overflow: auto; padding: 0 16px 30px; display: grid; gap: 10px; align-content: start; }
+.drawer .gi { border-bottom: 1px solid var(--line-2); padding-bottom: 8px; display: grid; gap: 2px; }
+.drawer .gi b { font-family: var(--f-display); }
+.drawer .gi .en { color: var(--muted); font-size: .8rem; }
+.drawer .gi .cat { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+
+/* ---------- хинтове ---------- */
+.hint, .trap, .note, .key {
+  border: 1px solid var(--line); border-radius: var(--r); background: var(--panel);
+  padding: 10px 14px; max-width: 80ch;
+}
+details.hint > summary, details.trap > summary {
+  cursor: pointer; font-weight: 600; list-style: none; display: flex; gap: 8px; align-items: baseline;
+}
+details.hint > summary::-webkit-details-marker, details.trap > summary::-webkit-details-marker { display: none; }
+details.hint > summary::before { content: "?"; font: 700 .75rem/1 var(--f-mono); color: var(--accent-ink); background: var(--accent); border-radius: 50%; width: 18px; height: 18px; display: inline-grid; place-items: center; flex: none; transform: translateY(2px); }
+details.trap > summary::before { content: "!"; font: 700 .75rem/1 var(--f-mono); color: #fff; background: var(--st-swap); border-radius: 50%; width: 18px; height: 18px; display: inline-grid; place-items: center; flex: none; transform: translateY(2px); }
+details[open] > summary { margin-bottom: 8px; }
+details > div { display: grid; gap: 8px; color: var(--ink-2); }
+.trap { border-color: color-mix(in srgb, var(--st-swap) 45%, var(--line)); }
+.key { border-left: 4px solid var(--accent); background: var(--accent-soft); }
+.key .formula, .formula { font-family: var(--f-mono); font-size: .95rem; }
+.extra { color: var(--accent); }  /* синият текст — допълнение (разширение) */
+.extra-tag { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); border: 1px solid var(--accent); border-radius: 3px; padding: 0 4px; margin-left: 6px; vertical-align: 2px; }
+
+/* ---------- визуализатор ---------- */
+.viz {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow);
+  display: grid; overflow: hidden; min-width: 0;
+}
+.viz:focus-within { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); }
+.viz-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; padding: 12px 16px 10px; border-bottom: 1px solid var(--line-2); }
+.viz-head h4 { font-size: 1.05rem; }
+.viz-head .sub { color: var(--muted); font-size: .85rem; }
+.viz-inputs { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: end; padding: 10px 16px; background: var(--panel-2); border-bottom: 1px solid var(--line-2); }
+.field { display: grid; gap: 3px; min-width: 0; }
+.field > span { font-size: .74rem; color: var(--muted); letter-spacing: .02em; }
+input[type=text], input[type=number], input[type=search], select, textarea {
+  font: 14px var(--f-mono); color: var(--ink); background: var(--panel); border: 1px solid var(--line);
+  border-radius: 5px; padding: 6px 8px; min-height: 34px; max-width: 100%;
+}
+input[type=range] { accent-color: var(--accent); }
+.viz-stage { padding: 16px; min-height: 120px; overflow-x: auto; position: relative; }
+.viz-ctrl {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px 12px;
+  border-top: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); background: var(--paper);
+}
+.viz-ctrl .scrub { flex: 1 1 160px; min-width: 120px; }
+.viz-ctrl .pos { font: 500 .8rem var(--f-mono); color: var(--muted); min-width: 7.5em; text-align: right; font-variant-numeric: tabular-nums; }
+.viz-ctrl label { font-size: .78rem; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.viz-msg { padding: 10px 16px; font-size: .92rem; min-height: 2.8em; border-bottom: 1px solid var(--line-2); display: grid; gap: 4px; }
+.viz-msg .inv { font-size: .82rem; font-family: var(--f-mono); padding: 3px 8px; border-radius: 4px; justify-self: start; }
+.viz-msg .inv.ok { background: var(--st-done-bg); color: var(--st-done); }
+.viz-msg .inv.bad { background: var(--st-swap-bg); color: var(--st-swap); }
+.viz-body { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); min-width: 0; }
+.viz-body > * { min-width: 0; }
+.viz-code { background: var(--code-bg); border-right: 1px solid var(--line-2); overflow: auto; max-height: 460px; }
+.viz-code .ch { display: flex; gap: 8px; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--line-2); font-size: .75rem; color: var(--muted); position: sticky; top: 0; background: var(--code-bg); }
+.viz-code .ch .sp { flex: 1; }
+.viz-code .ch a, .viz-code .ch button { font-size: .75rem; }
+pre.c { margin: 0; padding: 8px 0; font: 13px/1.55 var(--f-mono); color: var(--code-ink); counter-reset: ln; }
+pre.c .l { display: block; padding: 0 12px 0 0; white-space: pre; border-left: 3px solid transparent; }
+pre.c .l::before { counter-increment: ln; content: counter(ln); display: inline-block; width: 2.6em; padding-right: .9em; text-align: right; color: var(--tk-com); opacity: .7; }
+pre.c .l.hl { background: var(--code-hl); border-left-color: var(--code-hl-edge); }
+pre.c .l.hl2 { background: color-mix(in srgb, var(--code-hl) 45%, transparent); }
+.tk-kw { color: var(--tk-kw); font-weight: 600; } .tk-type { color: var(--tk-type); } .tk-num { color: var(--tk-num); }
+.tk-str { color: var(--tk-str); } .tk-com { color: var(--tk-com); font-style: italic; } .tk-fn { color: var(--tk-fn); } .tk-pp { color: var(--tk-pp); }
+.viz-side { display: grid; align-content: start; gap: 0; }
+.viz-side .sec { padding: 10px 14px; border-bottom: 1px solid var(--line-2); display: grid; gap: 6px; }
+.viz-side .sec > .eyebrow { margin-bottom: 2px; }
+.vars { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font: 13px var(--f-mono); }
+.vars dt { color: var(--muted); } .vars dd { margin: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.vars dd.chg { color: var(--st-cmp); font-weight: 700; }
+.stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font: 13px var(--f-mono); }
+.stats span b { font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: .78rem; color: var(--ink-2); }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 4px; border: 1.5px solid; }
+.log { font: 12.5px/1.45 var(--f-mono); max-height: 150px; overflow: auto; color: var(--ink-2); display: grid; gap: 1px; }
+.log div.cur { color: var(--ink); font-weight: 700; }
+
+/* състояния (общи класове за клетки, ленти, възли) */
+.s-act { --c: var(--st-act); --cb: var(--st-act-bg); }
+.s-cmp { --c: var(--st-cmp); --cb: var(--st-cmp-bg); }
+.s-swap { --c: var(--st-swap); --cb: var(--st-swap-bg); }
+.s-done { --c: var(--st-done); --cb: var(--st-done-bg); }
+.s-piv { --c: var(--st-piv); --cb: var(--st-piv-bg); }
+.s-dim { --c: var(--st-dim); --cb: transparent; opacity: .55; }
+.legend i { border-color: var(--c, var(--line)); background: var(--cb, transparent); }
+
+/* масив от клетки */
+.arr { display: flex; gap: 4px; align-items: flex-end; flex-wrap: nowrap; padding-top: 18px; padding-bottom: 26px; }
+.cell {
+  position: relative; width: 44px; height: 44px; flex: none; display: grid; place-items: center;
+  border: 1.5px solid var(--c, var(--line)); background: var(--cb, var(--panel)); border-radius: 5px;
+  font: 600 15px var(--f-mono); color: var(--ink); transition: background .15s, border-color .15s, transform .15s;
+}
+.cell .ix { position: absolute; bottom: -20px; font: 11px var(--f-mono); color: var(--muted); }
+.cell .ptr { position: absolute; top: -19px; font: 700 11px var(--f-mono); color: var(--c, var(--accent)); white-space: nowrap; }
+.cell.gap { margin-left: 14px; }
+/* ленти */
+.bars { display: flex; gap: 3px; align-items: flex-end; height: 200px; padding-bottom: 20px; position: relative; }
+.bar { flex: 1 1 0; min-width: 6px; max-width: 46px; background: var(--cb, var(--accent-soft)); border: 1.5px solid var(--c, var(--accent)); border-bottom: none; border-radius: 3px 3px 0 0; position: relative; transition: height .15s; }
+.bar .bv { position: absolute; top: -17px; left: 50%; transform: translateX(-50%); font: 10.5px var(--f-mono); color: var(--ink-2); }
+.bar .bi { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font: 10px var(--f-mono); color: var(--muted); }
+
+/* таблица */
+.tbl-wrap { overflow-x: auto; max-width: 100%; }
+table.t { border-collapse: collapse; font-size: .88rem; }
+table.t th, table.t td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+table.t th { background: var(--panel-2); font-weight: 600; }
+table.grid td, table.grid th { text-align: center; font-family: var(--f-mono); font-variant-numeric: tabular-nums; min-width: 38px; padding: 5px 6px; }
+table.grid td { background: var(--cb, var(--panel)); border-color: var(--line); }
+table.grid td.s-act, table.grid td.s-cmp, table.grid td.s-done, table.grid td.s-swap, table.grid td.s-piv { outline: 2px solid var(--c); outline-offset: -2px; }
+
+/* граф / svg */
+svg.g { max-width: 100%; height: auto; display: block; }
+svg.g text { fill: var(--ink); font-family: var(--f-mono); font-size: 13px; }
+svg.g .edge { stroke: var(--line); stroke-width: 2; fill: none; }
+svg.g .edge.s-act, svg.g .edge.s-cmp, svg.g .edge.s-done, svg.g .edge.s-swap, svg.g .edge.s-piv { stroke: var(--c); stroke-width: 3.5; }
+svg.g .node circle { fill: var(--cb, var(--panel)); stroke: var(--c, var(--ink-2)); stroke-width: 2; }
+svg.g .wt { font-size: 12px; fill: var(--muted); }
+svg.g .muted { fill: var(--muted); }
+
+/* тест */
+.quiz { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 12px; max-width: 80ch; }
+.quiz .q { display: grid; gap: 8px; }
+.quiz .q p { font-weight: 600; }
+.quiz .opts { display: grid; gap: 6px; }
+.quiz button.opt { text-align: left; justify-content: flex-start; white-space: normal; line-height: 1.35; padding: 8px 12px; }
+.quiz button.opt.right { border-color: var(--st-done); background: var(--st-done-bg); }
+.quiz button.opt.wrong { border-color: var(--st-swap); background: var(--st-swap-bg); }
+.quiz .why { font-size: .88rem; color: var(--ink-2); border-left: 3px solid var(--line); padding-left: 10px; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; display: grid; gap: 6px; align-content: start; }
+.card h4 { font-size: .98rem; }
+.card p { font-size: .88rem; color: var(--ink-2); }
+button.card { text-align: left; cursor: pointer; font: inherit; color: inherit; }
+button.card:hover { border-color: var(--accent); }
+button.card[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.split { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.split > * { min-width: 0; }
+.pill { display: inline-block; font: 600 .75rem/1 var(--f-body); padding: 4px 8px; border-radius: 999px; background: var(--cb, var(--panel-2)); color: var(--c, var(--ink-2)); border: 1px solid var(--c, var(--line)); }
+.warn { color: var(--st-swap); font-size: .85rem; }
+.muted { color: var(--muted); }
+canvas.chart { width: 100%; height: 320px; display: block; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .sidenav { display: none; }
+  .navselect { display: block; width: 100%; }
+  .viz-body { grid-template-columns: minmax(0, 1fr); }
+  .viz-code { border-right: none; border-bottom: 1px solid var(--line-2); max-height: 340px; }
+  h1 { font-size: 1.6rem; }
+}
+@media (max-width: 520px) {
+  .cell { width: 36px; height: 36px; font-size: 13px; }
+  .topbar .brand span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* ---------- AI помощ (панел отдолу) ---------- */
+body { padding-bottom: var(--dock-h, 0px); }
+.sidenav { max-height: calc(100vh - 60px - var(--dock-h, 0px)); }
+.ai-dock[hidden], .ai-set[hidden], .ai-selbtn[hidden] { display: none !important; }
+.ai-dock {
+  position: fixed; z-index: 40; left: 0; right: 0; bottom: 0; height: min(42vh, 440px); min-height: 180px;
+  background: var(--paper); border-top: 1px solid var(--line); box-shadow: 0 -4px 18px rgba(20, 30, 45, .08);
+  display: grid; grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px);
+}
+.ai-grip { height: 8px; cursor: ns-resize; touch-action: none; position: relative; }
+.ai-grip::after { content: ""; position: absolute; left: 50%; top: 3px; width: 44px; height: 3px; margin-left: -22px; border-radius: 2px; background: var(--line); }
+.ai-head { display: flex; align-items: center; gap: 8px; padding: 2px 16px 8px; flex-wrap: wrap; border-bottom: 1px solid var(--line-2); }
+.ai-head > b { font: 600 1rem/1.2 var(--f-display); }
+.ai-head .sp { flex: 1; }
+.ai-ctx { display: flex; gap: 6px; flex-wrap: wrap; min-width: 0; }
+.ai-tag { font-size: .76rem; color: var(--ink-2); background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 8px; display: inline-flex; gap: 4px; align-items: center; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ai-tag button { border: 0; background: none; color: var(--muted); cursor: pointer; padding: 0 2px; font-size: .9rem; line-height: 1; }
+.ai-set { display: grid; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--line-2); background: var(--panel-2); font-size: .85rem; }
+.ai-set label { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 8px; align-items: center; }
+.ai-set input { font: 400 .85rem var(--f-mono); padding: 6px 8px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); color: var(--ink); min-width: 0; }
+.ai-set-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ai-set p { margin: 0; }
+.ai-list { overflow: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+.ai-empty { font-size: .86rem; }
+.ai-msg { max-width: min(860px, 92%); padding: 8px 12px; border-radius: var(--r); font-size: .9rem; line-height: 1.5; overflow-wrap: anywhere; }
+.ai-msg p { margin: 0 0 .5em; } .ai-msg p:last-child { margin-bottom: 0; }
+.ai-msg.me { align-self: flex-end; background: var(--accent-soft); white-space: pre-wrap; }
+.ai-msg.bot { align-self: flex-start; background: var(--panel); border: 1px solid var(--line-2); }
+.ai-msg.err { align-self: flex-start; background: var(--st-swap-bg); color: var(--ink); }
+.ai-msg code { font-family: var(--f-mono); font-size: .85em; background: var(--code-bg); padding: 0 3px; border-radius: 3px; }
+.ai-code { background: var(--code-bg); color: var(--code-ink); padding: 8px 10px; border-radius: var(--r); overflow: auto; margin: .4em 0; }
+.ai-code code { background: none; padding: 0; }
+.ai-foot { display: flex; gap: 8px; padding: 8px 16px 12px; border-top: 1px solid var(--line-2); align-items: flex-end; }
+.ai-in { flex: 1; min-width: 0; resize: none; font: 400 .9rem/1.4 var(--f-body); padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); color: var(--ink); }
+.ai-in:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+.ai-ask { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.ai-ask .btn { min-height: 28px; padding: 5px 10px; font-size: .8rem; }
+.ai-ask-l { font-size: .76rem; color: var(--muted); }
+.ai-selbtn { position: fixed; z-index: 70; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); padding: 6px 8px; }
+.ai-tipbtn { justify-self: start; margin-top: 4px; border-top: 1px solid var(--line-2); padding-top: 8px; }
+@media (max-width: 520px) {
+  .ai-head { padding-inline: 10px; } .ai-list, .ai-foot { padding-inline: 10px; }
+  .ai-set label { grid-template-columns: minmax(0, 1fr); }
+}
+
+main.playground-page{max-width:1240px;margin:auto;padding:24px 16px 48px;min-width:0}
+</style></head><body>
+<header class="topbar"><div class="brand"><b>HTML и CSS playground</b><span>Тема 12 · Уеб дизайн</span></div><span class="sp"></span><a class="btn ghost" href="index.html#layout">Към урока</a></header>
+<main class="playground-page"><div id="playground"></div></main>
+<script>/* InformationTechnology_Study — обща рамка за интерактивните теми.
+ *
+ * Study.chapter(def)        регистрира глава {id, num, title, group, lead, html, mount(root)}
+ * Study.viz(el, cfg)        стъпков визуализатор, синхронизиран с C код (виж README)
+ * Study.quiz(el, items)     кратък тест с обяснения
+ * Study.drawArray / drawBars помощници за масиви
+ * Study.boot({...})         стартира страницата
+ *
+ * Работи от file:// без сървър — само класически <script> файлове.
+ */
+(function () {
+  "use strict";
+  const S = (window.Study = {});
+
+  /* ---------------- помощници ---------------- */
+  S.esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  S.h = function (tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    if (attrs) for (const k in attrs) {
+      const v = attrs[k];
+      if (v == null || v === false) continue;
+      if (k === "class") el.className = v;
+      else if (k === "html") el.innerHTML = v;
+      else if (k === "text") el.textContent = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else if (k === "style" && typeof v === "object") Object.assign(el.style, v);
+      else el.setAttribute(k, v === true ? "" : v);
+    }
+    for (const c of kids.flat()) if (c != null && c !== false) el.append(c.nodeType ? c : document.createTextNode(c));
+    return el;
+  };
+  const h = S.h;
+  const SVGNS = "http://www.w3.org/2000/svg";
+  S.svg = function (tag, attrs, ...kids) {
+    const el = document.createElementNS(SVGNS, tag);
+    if (attrs) for (const k in attrs) if (attrs[k] != null) {
+      if (k === "text") el.textContent = attrs[k];
+      else if (k === "class") el.setAttribute("class", attrs[k]);
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), attrs[k]);
+      else el.setAttribute(k, attrs[k]);
+    }
+    for (const c of kids.flat()) if (c) el.append(c);
+    return el;
+  };
+  /** "7 3, 9" -> [7,3,9]; хвърля грешка при невалидно число */
+  S.parseNums = function (str, { min = -1e9, max = 1e9, maxLen = 64, minLen = 0, int = true } = {}) {
+    const parts = String(str).split(/[\s,;]+/).filter(Boolean);
+    const out = parts.map((p) => {
+      const v = Number(p);
+      if (!Number.isFinite(v) || (int && !Number.isInteger(v))) throw new Error(`„${p}“ не е ${int ? "цяло " : ""}число.`);
+      if (v < min || v > max) throw new Error(`Стойностите трябва да са между ${min} и ${max}.`);
+      return v;
+    });
+    if (out.length > maxLen) throw new Error(`Най-много ${maxLen} елемента.`);
+    if (out.length < minLen) throw new Error(`Нужни са поне ${minLen} елемента.`);
+    return out;
+  };
+  S.int = function (v, lo, hi, name) {
+    const n = Number(v);
+    if (!Number.isInteger(n)) throw new Error(`${name || "Стойността"} трябва да е цяло число.`);
+    if (n < lo || n > hi) throw new Error(`${name || "Стойността"} трябва да е между ${lo} и ${hi}.`);
+    return n;
+  };
+  S.randInt = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+  S.randArray = (n, lo = 1, hi = 99) => Array.from({ length: n }, () => S.randInt(lo, hi));
+  S.store = {
+    get(k, d) { try { const v = localStorage.getItem("its:" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem("its:" + k, JSON.stringify(v)); } catch (e) { /* няма памет — без запис */ } },
+  };
+
+  /* ---------------- оцветяване на C ---------------- */
+  const KW = new Set("if else for while do return break continue switch case default goto sizeof struct union enum typedef static const extern volatile register inline new delete class public private protected template typename namespace using true false nullptr NULL".split(" "));
+  const TY = new Set("int long short char unsigned signed float double void bool size_t uint8_t uint16_t uint32_t uint64_t int8_t int16_t int32_t int64_t FILE auto std vector string".split(" "));
+  S.highlightC = function (code) {
+    const re = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(^[ \t]*#[^\n]*)|(\b\d+(?:\.\d+)?[uUlLfF]*\b)|([A-Za-z_]\w*)(\s*\()?|([\s\S])/gm;
+    let out = "", m;
+    while ((m = re.exec(code))) {
+      if (m[1]) out += `<span class="tk-com">${S.esc(m[1])}</span>`;
+      else if (m[2]) out += `<span class="tk-str">${S.esc(m[2])}</span>`;
+      else if (m[3]) out += `<span class="tk-pp">${S.esc(m[3])}</span>`;
+      else if (m[4]) out += `<span class="tk-num">${m[4]}</span>`;
+      else if (m[5]) {
+        const w = m[5];
+        if (KW.has(w)) out += `<span class="tk-kw">${w}</span>`;
+        else if (TY.has(w)) out += `<span class="tk-type">${w}</span>`;
+        else if (m[6]) out += `<span class="tk-fn">${w}</span>`;
+        else out += w;
+        if (m[6]) out += S.esc(m[6]);
+      } else out += S.esc(m[7]);
+    }
+    // разделяне на редове, като коментарите /* */ на няколко реда се затварят коректно
+    const lines = out.split("\n");
+    let open = null;
+    return lines.map((ln) => {
+      let pre = open ? open : "";
+      const opens = [...ln.matchAll(/<span class="([^"]+)">/g)].length;
+      const closes = (ln.match(/<\/span>/g) || []).length;
+      let post = "";
+      if (opens > closes) { const last = [...ln.matchAll(/<span class="([^"]+)">/g)].pop(); open = `<span class="${last[1]}">`; post = "</span>"; }
+      else if (closes > opens) { open = null; }
+      return pre + ln + post;
+    });
+  };
+
+  /* ---------------- речник / подсказки ---------------- */
+  let tipEl = null, tipFor = null;
+  function glossLookup(key) {
+    const G = window.GLOSSARY || {};
+    if (G[key]) return G[key];
+    const k = key.toLowerCase().trim();
+    for (const g in G) if (g.toLowerCase() === k) return G[g];
+    return null;
+  }
+  S.glossLookup = glossLookup;
+  // Справки в Уикипедия за понятията — по тема, в js/sources.js (window.TERM_SOURCES).
+  // Българската Уикипедия е предпочетена, когато има статия за същото понятие; иначе английската.
+  function sourceFor(key) { return (window.TERM_SOURCES || {})[String(key).toLowerCase().trim()] || null; }
+  function sourceLabel(url) {
+    return url.includes("bg.wikipedia.org") ? "Уикипедия на български" : "Wikipedia in English";
+  }
+  function sourceLink(url, term) {
+    const title = sourceLabel(url);
+    return h("a", {
+      class: "term-source", href: url, target: "_blank", rel: "noopener noreferrer",
+      title, "aria-label": `${title}: ${term}`
+    }, "↗");
+  }
+  function showTip(target) {
+    const g = glossLookup(target.dataset.g);
+    if (!g) { console.warn("Липсва в речника:", target.dataset.g); return; }
+    hideTip();
+    tipEl = h("div", { class: "gtip", role: "tooltip" },
+      h("b", { text: g.t }),
+      g.en ? h("span", { class: "en", text: g.en }) : null,
+      h("span", { html: g.d }),
+      g.more ? h("span", { class: "more", html: g.more }) : null);
+    if (S.onTip) try { S.onTip(tipEl, g, target); } catch (e) { console.error(e); }
+    document.body.append(tipEl);
+    tipFor = target;
+    const r = target.getBoundingClientRect(), tr = tipEl.getBoundingClientRect();
+    let x = Math.min(Math.max(8, r.left), window.innerWidth - tr.width - 8);
+    let y = r.bottom + 6;
+    if (y + tr.height > window.innerHeight - 8) y = r.top - tr.height - 6;
+    tipEl.style.left = x + "px"; tipEl.style.top = Math.max(8, y) + "px";
+  }
+  S.hideTip = () => hideTip();
+  function hideTip() { if (tipEl) tipEl.remove(); tipEl = null; tipFor = null; }
+  function bindGlossary() {
+    document.addEventListener("mouseover", (e) => { const d = e.target.closest("dfn[data-g]"); if (d && d !== tipFor) showTip(d); });
+    document.addEventListener("mouseout", (e) => {
+      const d = e.target.closest("dfn[data-g]");
+      if (d && !d.contains(e.relatedTarget) && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
+    document.addEventListener("focusin", (e) => { const d = e.target.closest("dfn[data-g]"); if (d) showTip(d); });
+    document.addEventListener("focusout", (e) => {
+      if (e.target.closest("dfn[data-g]") && !(tipEl && tipEl.contains(e.relatedTarget))) hideTip();
+    });
+    document.addEventListener("click", (e) => {
+      const d = e.target.closest("dfn[data-g]");
+      if (d) { e.preventDefault(); if (tipFor === d) hideTip(); else showTip(d); } else if (!e.target.closest(".gtip")) hideTip();
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideTip(); closeDrawer(); } });
+    window.addEventListener("scroll", hideTip, { passive: true });
+  }
+  // Направи всички dfn фокусируеми и добави само икона към проверената справка.
+  function prepDfn(root) {
+    root.querySelectorAll("dfn[data-g]").forEach((d) => {
+      d.setAttribute("tabindex", "0");
+      const url = sourceFor(d.dataset.g);
+      if (!url || d.closest("a")) return;
+      const button = d.closest("button");
+      if (button) {
+        let wrap = button.parentElement;
+        if (!wrap.classList.contains("term-source-card-wrap")) {
+          const parent = wrap;
+          wrap = h("span", { class: "term-source-card-wrap" });
+          parent.insertBefore(wrap, button);
+          wrap.append(button);
+        }
+        let links = wrap.querySelector(".term-source-card-links");
+        if (!links) { links = h("span", { class: "term-source-card-links" }); wrap.append(links); }
+        if (![...links.querySelectorAll("a")].some((a) => a.href === url)) links.append(sourceLink(url, d.textContent.trim()));
+        return;
+      }
+      if (!(d.nextElementSibling && d.nextElementSibling.classList.contains("term-source"))) d.insertAdjacentElement("afterend", sourceLink(url, d.textContent.trim()));
+    });
+  }
+
+  let drawer = null;
+  function closeDrawer() { if (drawer) drawer.remove(); drawer = null; }
+  S.openGlossary = function (q = "") {
+    closeDrawer();
+    const G = window.GLOSSARY || {};
+    const list = h("div", { class: "dl" });
+    const inp = h("input", { type: "search", id: "gloss-q", placeholder: "Търси понятие…", value: q, "aria-label": "Търси понятие" });
+    function render() {
+      const s = inp.value.toLowerCase().trim();
+      list.innerHTML = "";
+      Object.values(G).filter((g) => !s || (g.t + " " + (g.en || "") + " " + g.d).toLowerCase().includes(s))
+        .sort((a, b) => a.t.localeCompare(b.t, "bg"))
+        .forEach((g) => list.append(h("div", { class: "gi" },
+          g.cat ? h("span", { class: "cat", text: g.cat }) : null,
+          h("b", { text: g.t }), g.en ? h("span", { class: "en", text: g.en }) : null,
+          h("span", { html: g.d }), g.more ? h("span", { class: "muted", html: g.more }) : null)));
+      if (!list.children.length) list.append(h("p", { class: "muted", text: "Няма съвпадения." }));
+    }
+    inp.addEventListener("input", render);
+    drawer = h("aside", { class: "drawer", "aria-label": "Речник" },
+      h("div", { class: "dh" }, h("h3", { text: "Речник на понятията" }), h("button", { class: "btn", onclick: closeDrawer, text: "Затвори" })),
+      inp, list);
+    document.body.append(drawer);
+    render();
+    inp.focus();
+  };
+
+  /* ---------------- визуализатор ---------------- */
+  const SPEEDS = [["бавно", 1300], ["нормално", 650], ["бързо", 260], ["много бързо", 80], ["турбо", 15]];
+
+  S.viz = function (host, cfg) {
+    const id = cfg.id || "v" + Math.random().toString(36).slice(2, 8);
+    const root = h("div", { class: "viz", id: "viz-" + id, tabindex: "-1" });
+    const head = h("div", { class: "viz-head" }, h("h4", { text: cfg.title || "" }), cfg.sub ? h("span", { class: "sub", html: cfg.sub }) : null);
+    root.append(head);
+
+    // входове
+    const inputs = {};
+    let inBox = null;
+    if (cfg.inputs && cfg.inputs.length) {
+      inBox = h("div", { class: "viz-inputs" });
+      for (const f of cfg.inputs) {
+        let el;
+        const fid = `${id}-${f.id}`;
+        if (f.type === "select") {
+          el = h("select", { id: fid }, ...f.options.map((o) => {
+            const [v, t] = Array.isArray(o) ? o : [o, o];
+            return h("option", { value: v, text: t, selected: String(v) === String(f.value) ? true : null });
+          }));
+        } else if (f.type === "checkbox") {
+          el = h("input", { type: "checkbox", id: fid, checked: f.value ? true : null });
+        } else {
+          el = h("input", { id: fid, type: f.type === "number" ? "number" : "text", value: f.value, min: f.min, max: f.max, step: f.step, spellcheck: "false", autocomplete: "off" });
+          if (f.width) el.style.width = f.width;
+        }
+        inputs[f.id] = el;
+        const lab = h("label", { class: "field", for: fid }, h("span", { html: f.label }), el);
+        if (f.type === "checkbox") { lab.style.display = "flex"; lab.style.gap = "6px"; lab.style.alignItems = "center"; lab.prepend(el); }
+        inBox.append(lab);
+        el.addEventListener("keydown", (e) => { if (e.key === "Enter") apply(); });
+        if (f.type === "select" || f.type === "checkbox" || f.live) el.addEventListener("change", () => apply());
+      }
+      inBox.append(h("button", { class: "btn primary", onclick: () => apply(), text: "Изпълни" }));
+      if (cfg.random) inBox.append(h("button", { class: "btn", onclick: () => { setValues(cfg.random()); apply(); }, text: "Случайни" }));
+      if (cfg.presets) for (const p of cfg.presets) inBox.append(h("button", { class: "btn ghost", onclick: () => { setValues(p.values); apply(); }, text: p.label, title: p.title || "" }));
+      root.append(inBox);
+    }
+    function setValues(vals) {
+      for (const k in vals) if (inputs[k]) { if (inputs[k].type === "checkbox") inputs[k].checked = !!vals[k]; else inputs[k].value = vals[k]; }
+    }
+    function readValues() {
+      const o = {};
+      for (const k in inputs) o[k] = inputs[k].type === "checkbox" ? inputs[k].checked : inputs[k].value;
+      return o;
+    }
+
+    const stage = h("div", { class: "viz-stage" });
+    if (cfg.stageHeight) stage.style.minHeight = cfg.stageHeight + "px";
+    root.append(stage);
+
+    const msg = h("div", { class: "viz-msg", "aria-live": "polite" });
+    // контроли
+    const bFirst = h("button", { class: "btn icon", title: "Начало (Home)", "aria-label": "Начало", text: "⏮" });
+    const bPrev = h("button", { class: "btn icon", title: "Стъпка назад (←)", "aria-label": "Стъпка назад", text: "◀" });
+    const bPlay = h("button", { class: "btn primary", title: "Пусни / пауза (интервал)", text: "▶ Пусни" });
+    const bNext = h("button", { class: "btn icon", title: "Стъпка напред (→)", "aria-label": "Стъпка напред", text: "▶" });
+    const bLast = h("button", { class: "btn icon", title: "Край (End)", "aria-label": "Край", text: "⏭" });
+    const scrub = h("input", { type: "range", class: "scrub", min: 0, max: 0, value: 0, "aria-label": "Позиция", id: id + "-scrub" });
+    const pos = h("span", { class: "pos" });
+    const speed = h("select", { id: id + "-speed", "aria-label": "Скорост" }, ...SPEEDS.map(([t, ms], i) => h("option", { value: ms, text: t, selected: i === (cfg.speed ?? 1) ? true : null })));
+    const ctrl = h("div", { class: "viz-ctrl" }, bFirst, bPrev, bPlay, bNext, bLast, scrub, pos, h("label", null, "скорост", speed));
+    root.append(ctrl, msg);
+
+    // код + странично
+    const body = h("div", { class: "viz-body" });
+    const codeBox = h("div", { class: "viz-code" });
+    const side = h("div", { class: "viz-side" });
+    body.append(codeBox, side);
+    if (cfg.code !== false) root.append(body);
+    const varsSec = h("div", { class: "sec" }, h("span", { class: "eyebrow", text: "Променливи" }), h("dl", { class: "vars" }));
+    const statSec = h("div", { class: "sec" }, h("span", { class: "eyebrow", text: "Броячи" }), h("div", { class: "stats" }));
+    const logSec = h("div", { class: "sec" }, h("span", { class: "eyebrow", text: "Ход на изпълнението" }), h("div", { class: "log" }));
+    const legSec = cfg.legend ? h("div", { class: "sec" }, h("span", { class: "eyebrow", text: "Легенда" }),
+      h("div", { class: "legend" }, ...cfg.legend.map(([cls, t]) => h("span", { class: cls }, h("i"), t)))) : null;
+    side.append(varsSec, statSec, logSec);
+    if (legSec) side.append(legSec);
+    if (cfg.sideExtra) side.append(cfg.sideExtra);
+
+    host.append(root);
+
+    let frames = [], i = 0, timer = null, codeKey = null, codeLines = [], tags = {}, inp = {}, extra = null, logIdx = [];
+
+    function loadCode(key) {
+      if (cfg.code === false || key === codeKey) return;
+      codeKey = key;
+      const src = (window.CSRC || {})[key];
+      codeBox.innerHTML = "";
+      if (!src) { codeBox.append(h("p", { class: "warn", style: { padding: "10px" }, text: "Липсва C код: " + key })); console.warn("Липсва C регион", key); return; }
+      tags = src.tags;
+      const copy = h("button", { class: "btn ghost", text: "Копирай", onclick: () => {
+        const done = () => { copy.textContent = "Копирано"; setTimeout(() => (copy.textContent = "Копирай"), 1200); };
+        if (navigator.clipboard) navigator.clipboard.writeText(src.code).then(done, () => selectCode());
+        else selectCode();
+      } });
+      const pre = h("pre", { class: "c" });
+      function selectCode() { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+      codeLines = S.highlightC(src.code).map((l) => h("span", { class: "l", html: l || " " }));
+      pre.append(...codeLines);
+      codeBox.append(h("div", { class: "ch" }, h("span", { class: "mono", text: "C · " + src.file }), h("span", { class: "sp" }),
+        h("a", { href: (cfg.cPath || S.cBase || "c/") + src.file, target: "_blank", rel: "noopener", text: "целият файл" }), copy), pre);
+    }
+
+    function apply() {
+      stop();
+      inp = readValues();
+      let res;
+      try {
+        res = cfg.build(inp);
+      } catch (e) {
+        frames = [];
+        stage.innerHTML = "";
+        msg.innerHTML = "";
+        msg.append(h("span", { class: "warn", text: "Грешка във входа: " + e.message }));
+        updateCtrl();
+        return;
+      }
+      if (Array.isArray(res)) res = { frames: res };
+      frames = res.frames || [];
+      extra = res;
+      if (frames.length > 20000) frames = frames.slice(0, 20000);
+      logIdx = [];
+      frames.forEach((f, k) => { if (f.log) logIdx.push(k); });
+      loadCode(typeof cfg.code === "function" ? cfg.code(inp) : cfg.code);
+      scrub.max = Math.max(0, frames.length - 1);
+      go(cfg.startAtEnd ? frames.length - 1 : 0);
+    }
+
+    let prevVars = {};
+    function go(k) {
+      if (!frames.length) return;
+      i = Math.max(0, Math.min(frames.length - 1, k));
+      const f = frames[i];
+      // сцена
+      try { cfg.draw(stage, f, { inputs: inp, frames, i, res: extra }); }
+      catch (e) { console.error(e); stage.textContent = "Грешка при рисуване: " + e.message; }
+      // съобщение
+      msg.innerHTML = "";
+      msg.append(h("div", { html: f.msg || "" }));
+      if (f.inv) msg.append(h("span", { class: "inv " + (f.inv.ok === false ? "bad" : "ok"), html: (f.inv.ok === false ? "✗ " : "✓ ") + f.inv.text }));
+      // код
+      codeLines.forEach((l) => l.classList.remove("hl", "hl2"));
+      const at = f.at == null ? [] : [].concat(f.at);
+      let first = null;
+      at.forEach((t, ti) => {
+        const ls = tags[t];
+        if (!ls) { if (codeKey) console.warn(`Етикет @${t} липсва в ${codeKey}`); return; }
+        ls.forEach((n) => { const el = codeLines[n - 1]; if (el) { el.classList.add(ti === 0 ? "hl" : "hl2"); first = first || el; } });
+      });
+      if (first) {
+        const top = first.offsetTop, bh = codeBox.clientHeight;
+        if (top < codeBox.scrollTop + 30 || top > codeBox.scrollTop + bh - 40) codeBox.scrollTop = top - bh / 3;
+      }
+      // променливи
+      const dl = varsSec.querySelector("dl");
+      dl.innerHTML = "";
+      const vars = f.vars || {};
+      const vk = Object.keys(vars);
+      varsSec.hidden = !vk.length;
+      const pv = i > 0 ? frames[i - 1].vars || {} : {};
+      vk.forEach((k2) => {
+        const val = fmtVal(vars[k2]);
+        const changed = i > 0 && k2 in pv && fmtVal(pv[k2]) !== val;
+        dl.append(h("dt", { text: k2 }), h("dd", { class: changed ? "chg" : "", text: val }));
+      });
+      // броячи
+      const st = f.stats || {};
+      const sk = Object.keys(st);
+      statSec.hidden = !sk.length;
+      const sb = statSec.querySelector(".stats");
+      sb.innerHTML = "";
+      sk.forEach((k2) => sb.append(h("span", null, k2 + ": ", h("b", { text: String(st[k2]) }))));
+      // лог
+      const lb = logSec.querySelector(".log");
+      lb.innerHTML = "";
+      const upto = logIdx.filter((x) => x <= i);
+      logSec.hidden = !logIdx.length;
+      upto.slice(-60).forEach((x) => lb.append(h("div", { class: x === upto[upto.length - 1] ? "cur" : "", html: frames[x].log })));
+      lb.scrollTop = lb.scrollHeight;
+      updateCtrl();
+      if (cfg.onFrame) cfg.onFrame(f, i, frames);
+    }
+    function fmtVal(v) {
+      if (Array.isArray(v)) return "[" + v.map((x) => (x === null || x === undefined ? "·" : Array.isArray(x) ? fmtVal(x) : x)).join(", ") + "]";
+      if (v === null || v === undefined) return "—";
+      if (typeof v === "boolean") return v ? "true" : "false";
+      return String(v);
+    }
+    function updateCtrl() {
+      const n = frames.length;
+      scrub.value = i;
+      pos.textContent = n ? `стъпка ${i + 1}/${n}` : "—";
+      bFirst.disabled = bPrev.disabled = !n || i === 0;
+      bNext.disabled = bLast.disabled = !n || i >= n - 1;
+      bPlay.disabled = !n;
+      bPlay.textContent = timer ? "❚❚ Пауза" : i >= n - 1 && n > 1 ? "↺ Отначало" : "▶ Пусни";
+    }
+    function play() {
+      if (timer) return stop();
+      if (i >= frames.length - 1) go(0);
+      timer = setInterval(() => { if (i >= frames.length - 1) stop(); else go(i + 1); }, +speed.value);
+      updateCtrl();
+    }
+    function stop() { if (timer) clearInterval(timer); timer = null; updateCtrl(); }
+    speed.addEventListener("change", () => { if (timer) { stop(); play(); } });
+    bFirst.onclick = () => { stop(); go(0); };
+    bPrev.onclick = () => { stop(); go(i - 1); };
+    bNext.onclick = () => { stop(); go(i + 1); };
+    bLast.onclick = () => { stop(); go(frames.length - 1); };
+    bPlay.onclick = play;
+    scrub.addEventListener("input", () => { const k = +scrub.value; stop(); go(k); });
+    root.addEventListener("keydown", (e) => {
+      if (e.target.closest("input:not([type=range]),select,textarea")) return;
+      if (e.key === "ArrowRight") { e.preventDefault(); stop(); go(i + 1); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); stop(); go(i - 1); }
+      else if (e.key === " ") { e.preventDefault(); play(); }
+      else if (e.key === "Home") { e.preventDefault(); stop(); go(0); }
+      else if (e.key === "End") { e.preventDefault(); stop(); go(frames.length - 1); }
+    });
+
+    const api = { apply, go, stop, setValues, get frames() { return frames; }, get index() { return i; }, root, stage };
+    if (cfg.initial) setValues(cfg.initial);
+    apply();
+    return api;
+  };
+
+  /** Статичен изглед на C регион (без стъпки). hl: етикет(и) за подсветка. */
+  S.codeView = function (host, key, hl, cPath) {
+    const src = (window.CSRC || {})[key];
+    const box = h("div", { class: "viz-code", style: { borderRight: "none", border: "1px solid var(--line)", borderRadius: "6px", maxHeight: "none" } });
+    if (!src) { box.append(h("p", { class: "warn", text: "Липсва C код: " + key })); host.append(box); return box; }
+    const lines = S.highlightC(src.code).map((l) => h("span", { class: "l", html: l || " " }));
+    [].concat(hl || []).forEach((t) => (src.tags[t] || []).forEach((n) => lines[n - 1] && lines[n - 1].classList.add("hl")));
+    box.append(h("div", { class: "ch" }, h("span", { class: "mono", text: "C · " + src.file }), h("span", { class: "sp" }),
+      h("a", { href: (cPath || S.cBase || "c/") + src.file, target: "_blank", rel: "noopener", text: "целият файл" })), h("pre", { class: "c" }, ...lines));
+    host.append(box);
+    return box;
+  };
+
+  /* ---------------- рисуване на масиви ---------------- */
+  /** opts: {cls:{i:'s-cmp'}, ptr:{i:'i'}, dim:[from,to] | fn, gapAfter:k, label:i=>txt} */
+  S.drawArray = function (el, arr, opts = {}) {
+    const box = h("div", { class: "arr" });
+    const ptrs = {};
+    for (const name in opts.ptr || {}) { const k = opts.ptr[name]; if (k == null || k < 0 || k >= arr.length) continue; (ptrs[k] = ptrs[k] || []).push(name); }
+    arr.forEach((v, k) => {
+      let cls = (opts.cls && opts.cls[k]) || "";
+      if (opts.dim && (typeof opts.dim === "function" ? opts.dim(k) : k < opts.dim[0] || k > opts.dim[1])) cls = cls || "s-dim";
+      const c = h("div", { class: "cell " + cls + (opts.gapAt && opts.gapAt.includes(k) ? " gap" : "") },
+        v === null || v === undefined ? "" : String(v),
+        h("span", { class: "ix", text: opts.index === false ? "" : (opts.label ? opts.label(k) : k) }),
+        ptrs[k] ? h("span", { class: "ptr", text: ptrs[k].join(",") }) : null);
+      box.append(c);
+    });
+    if (opts.append) el.append(box); else { el.innerHTML = ""; el.append(box); }
+    return box;
+  };
+  S.drawBars = function (el, arr, opts = {}) {
+    const max = Math.max(1, ...arr.map((x) => Math.abs(x)));
+    const box = h("div", { class: "bars" });
+    if (opts.height) box.style.height = opts.height + "px";
+    const showV = arr.length <= (opts.labelsUpTo ?? 32);
+    arr.forEach((v, k) => {
+      const b = h("div", { class: "bar " + ((opts.cls && opts.cls[k]) || "") });
+      b.style.height = Math.max(3, (Math.abs(v) / max) * 100) + "%";
+      if (showV) { b.append(h("span", { class: "bv", text: opts.fmt ? opts.fmt(v, k) : v })); b.append(h("span", { class: "bi", text: k })); }
+      if (opts.title) b.title = opts.title(v, k);
+      box.append(b);
+    });
+    if (opts.append) el.append(box); else { el.innerHTML = ""; el.append(box); }
+    return box;
+  };
+
+  /* ---------------- тест ---------------- */
+  S.quiz = function (host, items, title = "Провери се") {
+    const box = h("div", { class: "quiz" }, h("span", { class: "eyebrow", text: title }));
+    items.forEach((it, qi) => {
+      const why = h("div", { class: "why", html: it.why || "", hidden: true });
+      const opts = h("div", { class: "opts" });
+      it.options.forEach((o, oi) => {
+        const b = h("button", { class: "btn opt", html: o, onclick: () => {
+          opts.querySelectorAll("button").forEach((x, xi) => { x.classList.remove("right", "wrong"); if (xi === it.correct) x.classList.add("right"); });
+          if (oi !== it.correct) b.classList.add("wrong");
+          why.hidden = false;
+          why.innerHTML = (oi === it.correct ? "<b>Вярно.</b> " : "<b>Не точно.</b> ") + (it.why || "");
+        } });
+        opts.append(b);
+      });
+      box.append(h("div", { class: "q" }, h("p", { html: `${qi + 1}. ${it.q}` }), opts, why));
+    });
+    host.append(box);
+    return box;
+  };
+
+  /* ---------------- глави и навигация ---------------- */
+  const chapters = [];
+  S.chapter = (def) => chapters.push(def);
+  S.chapters = chapters;
+
+  S.boot = function (opt) {
+    const theme = S.store.get("theme", null);
+    if (theme) document.documentElement.dataset.theme = theme;
+    chapters.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const nav = document.getElementById("sidenav");
+    const sel = document.getElementById("navselect");
+    const main = document.getElementById("content");
+    const seen = S.store.get(opt.topic + ":seen", {});
+    const ol = h("ol");
+    let lastGroup = null;
+    const links = {};
+    chapters.forEach((c) => {
+      if (c.group && c.group !== lastGroup) { ol.append(h("li", { class: "group eyebrow", text: c.group })); lastGroup = c.group; }
+      const a = h("a", { href: "#" + c.id, class: seen[c.id] ? "seen" : "" }, h("span", { class: "n", text: c.num || "" }), h("span", { text: c.title }));
+      links[c.id] = a;
+      ol.append(h("li", null, a));
+      sel.append(h("option", { value: c.id, text: (c.num ? c.num + " · " : "") + c.title }));
+    });
+    nav.append(ol);
+    sel.addEventListener("change", () => (location.hash = sel.value));
+    const mounted = {};
+    function show() {
+      const id = (location.hash || "").slice(1);
+      const c = chapters.find((x) => x.id === id) || chapters[0];
+      chapters.forEach((x) => { if (mounted[x.id]) mounted[x.id].hidden = x !== c; });
+      Object.values(links).forEach((a) => a.classList.remove("on"));
+      links[c.id].classList.add("on");
+      sel.value = c.id;
+      if (!mounted[c.id]) {
+        const idx = chapters.indexOf(c);
+        const prev = chapters[idx - 1], next = chapters[idx + 1];
+        const sec = h("section", { class: "chapter", id: "ch-" + c.id },
+          h("header", null, h("span", { class: "eyebrow", text: (c.group ? c.group + " · " : "") + (c.num ? "Раздел " + c.num : "") }),
+            h("h1", { text: c.title }), c.lead ? h("p", { class: "lead", html: c.lead }) : null));
+        const body = h("div", { class: "chapter-body", style: { display: "grid", gap: "22px", minWidth: "0" } });
+        if (c.html) body.innerHTML = c.html;
+        sec.append(body);
+        sec.append(h("nav", { class: "chapnav" },
+          prev ? h("a", { class: "btn", href: "#" + prev.id, text: "← " + prev.title }) : h("span"),
+          next ? h("a", { class: "btn primary", href: "#" + next.id, text: next.title + " →" }) : h("span")));
+        main.append(sec);
+        mounted[c.id] = sec;
+        try { if (c.mount) c.mount(body); } catch (e) { console.error(e); body.prepend(h("p", { class: "warn", text: "Грешка в главата: " + e.message })); }
+        prepDfn(sec);
+      }
+      seen[c.id] = 1; S.store.set(opt.topic + ":seen", seen); links[c.id].classList.add("seen");
+      if (S._booted) window.scrollTo(0, 0);
+      S._booted = true;
+      document.title = c.title + " · " + opt.title;
+      S.current = { chapter: c, section: mounted[c.id], topic: opt };
+      document.dispatchEvent(new CustomEvent("study:chapter", { detail: S.current }));
+    }
+    window.addEventListener("hashchange", show);
+    document.getElementById("btn-gloss").onclick = () => S.openGlossary();
+    const tb = document.getElementById("btn-theme");
+    const curDark = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    const lab = () => (tb.textContent = curDark() ? "Светла тема" : "Тъмна тема");
+    tb.onclick = () => { const t = curDark() ? "light" : "dark"; document.documentElement.dataset.theme = t; S.store.set("theme", t); lab(); };
+    lab();
+    bindGlossary();
+    show();
+  };
+})();
+
+/* HTML/CSS playground: local srcdoc preview, generated source and native controls. */
+(function () {
+  "use strict";
+  const P = window.WebPlayground = {};
+  const MODES = [["html", "HTML · структурни елементи"], ["flex", "CSS · Flexbox"], ["grid", "CSS · Grid"], ["media", "CSS · media queries"]];
+  const OPTIONS = {
+    direction: ["row", "row-reverse", "column", "column-reverse"],
+    wrap: ["nowrap", "wrap", "wrap-reverse"],
+    justify: ["flex-start", "flex-end", "center", "space-between", "space-around", "space-evenly"],
+    align: ["stretch", "flex-start", "flex-end", "center", "baseline"],
+    content: ["normal", "stretch", "flex-start", "flex-end", "center", "space-between", "space-around", "space-evenly"],
+    gridAlign: ["stretch", "start", "end", "center"],
+    gridContent: ["start", "end", "center", "stretch", "space-between", "space-around", "space-evenly"],
+    columns: [["repeat(2, minmax(0, 1fr))", "2 равни колони"], ["repeat(3, minmax(0, 1fr))", "3 равни колони"], ["repeat(4, minmax(0, 1fr))", "4 равни колони"], ["repeat(6, minmax(0, 1fr))", "6 равни колони"], ["repeat(auto-fit, minmax(140px, 1fr))", "auto-fit · минимум 140px"], ["100px 1fr 2fr", "100px / 1fr / 2fr"], ["120px 120px", "2 фиксирани колони по 120px"]],
+    rootTag: ["main", "div", "section", "article", "nav", "aside", "header", "footer"],
+    itemTag: ["article", "section", "div", "aside"],
+    heading: ["h1", "h2", "h3", "h4", "h5", "h6"],
+    contentType: [["text", "Абзац · p"], ["list", "Списък · ul и li"], ["link", "Връзка · a"], ["button", "Бутон · button"], ["image", "Изображение · img с alt"]],
+    rows: ["auto", "80px", "120px", "minmax(80px, auto)"],
+    flow: ["row", "column", "row dense", "column dense"],
+    basis: ["auto", "0px", "80px", "120px", "180px", "25%", "40%"],
+    self: ["auto", "flex-start", "flex-end", "center", "stretch", "baseline"],
+    gridSelf: ["auto", "start", "end", "center", "stretch"],
+    span: [["auto", "auto · автоматично"], ["span 2", "span 2 · две колони"], ["span 3", "span 3 · три колони"], ["1 / -1", "1 / -1 · целият явен ред"]],
+    rowSpan: ["auto", "span 2", "span 3"],
+    feature: [["min-width", "min-width · поне прага"], ["max-width", "max-width · най-много прага"]],
+    display: ["grid", "flex", "block"],
+    palette: [["#e7f0ff", "Синьо"], ["#e2f6e8", "Зелено"], ["#fff0db", "Оранжево"], ["#f1e7ff", "Лилаво"]]
+  };
+  const DEFAULTS = {
+    mode: "flex", width: 720, height: 380, count: 6, gap: 12, padding: 16,
+    direction: "row", wrap: "wrap", justify: "flex-start", align: "stretch", content: "normal",
+    columns: "repeat(3, minmax(0, 1fr))", rows: "auto", flow: "row", gridAlign: "stretch", gridJustify: "stretch", gridContent: "start",
+    itemWidth: 120, itemHeight: "auto", varied: false, selected: 2, grow: 0, shrink: 1, basis: "auto", self: "auto", span: "auto", rowSpan: "auto", gridSelf: "auto",
+    rootTag: "main", itemTag: "article", heading: "h2", contentType: "text", showHeader: true, showNav: true, showAside: true, showFooter: true, outlines: true,
+    feature: "min-width", breakpoint: 600, baseDisplay: "grid", activeDisplay: "grid", baseColumns: 1, activeColumns: 3,
+    baseDirection: "column", activeDirection: "row", baseColor: "#e7f0ff", activeColor: "#e2f6e8"
+  };
+  const HELPS = {
+    html: "Избери HTML елементи и виж маркировката им. Семантиката може да се промени без голяма промяна във външния вид — сравни генерирания HTML и етикетите.",
+    flex: "Контейнерът е с пунктир. Променяй по едно свойство. При row основната ос е хоризонтална, при column — вертикална. Оцветеният елемент има отделни настройки.",
+    grid: "Избери колони, автоматични редове и подравняване. 1fr дели свободното пространство. span може да създаде допълнителни колони, ако поискате повече от наличните.",
+    media: "Ширината е на iframe прегледа, а не на прозореца на сайта. Условието включва самия праг. Премини точно под, на и над него и сравни фона и подредбата."
+  };
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[c]));
+  function choice(key, value, fallback) {
+    const values = OPTIONS[key].map(x => Array.isArray(x) ? x[0] : x);
+    return values.includes(value) ? value : fallback;
+  }
+  function integer(v, min, max, fallback) {
+    if (String(v).trim() === "" || !Number.isFinite(Number(v))) return fallback;
+    return Math.min(max, Math.max(min, Math.round(Number(v))));
+  }
+  P.defaults = DEFAULTS;
+  P.options = OPTIONS;
+  P.normalize = function (raw) {
+    const s = { ...DEFAULTS, ...raw };
+    if (!MODES.some(x => x[0] === s.mode)) s.mode = DEFAULTS.mode;
+    for (const k of ["direction", "wrap", "justify", "align", "content", "columns", "rows", "flow", "gridAlign", "gridContent", "basis", "self", "span", "rowSpan", "gridSelf", "rootTag", "itemTag", "heading", "contentType", "feature"])
+      s[k] = choice(k, s[k], DEFAULTS[k]);
+    s.gridJustify = choice("gridAlign", s.gridJustify, DEFAULTS.gridJustify);
+    for (const k of ["baseDisplay", "activeDisplay"]) s[k] = choice("display", s[k], DEFAULTS[k]);
+    for (const k of ["baseDirection", "activeDirection"]) s[k] = choice("direction", s[k], DEFAULTS[k]);
+    for (const k of ["baseColor", "activeColor"]) s[k] = choice("palette", s[k], DEFAULTS[k]);
+    for (const [k, lo, hi] of [["width",240,1280],["height",220,720],["count",1,12],["gap",0,48],["padding",0,40],["itemWidth",60,240],["grow",0,4],["shrink",0,4],["breakpoint",280,1200],["baseColumns",1,6],["activeColumns",1,6]]) s[k] = integer(s[k],lo,hi,DEFAULTS[k]);
+    s.selected = integer(s.selected,1,s.count,Math.min(2,s.count));
+    s.itemHeight = ["auto", "60px", "100px", "150px"].includes(s.itemHeight) ? s.itemHeight : "auto";
+    for (const k of ["varied", "showHeader", "showNav", "showAside", "showFooter", "outlines"]) s[k] = s[k] === true || s[k] === "true";
+    return s;
+  };
+  P.build = function (raw) {
+    const s = P.normalize(raw), htmlMode = s.mode === "html";
+    const root = htmlMode ? s.rootTag : "div", tag = htmlMode ? s.itemTag : "article";
+    const heading = htmlMode ? s.heading : "h2";
+    const items = [];
+    for (let i = 1; i <= s.count; i++) {
+      let content = "<p>Съдържание " + i + (s.varied && i % 2 === 0 ? ". По-дълъг текст, който заема повече място и показва разликата между размерите." : ".") + "</p>";
+      if (htmlMode) {
+        if (s.contentType === "list") content = "<ul><li>Първа точка</li><li>Втора точка</li></ul>";
+        if (s.contentType === "link") content = '<a href="#preview-top">Към началото на прегледа</a>';
+        if (s.contentType === "button") content = '<button type="button">Примерен бутон</button>';
+        if (s.contentType === "image") {
+          const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="80"><rect width="240" height="80" rx="8" fill="#cde5f1"/><text x="120" y="47" text-anchor="middle" font-size="20" fill="#14394b">HTML img</text></svg>';
+          content = '<img width="240" height="80" src="data:image/svg+xml,' + esc(encodeURIComponent(svg)) + '" alt="Учебно изображение с надпис HTML img">';
+        }
+      }
+      items.push(`  <${tag} class="item${i === s.selected && ["flex", "grid"].includes(s.mode) ? " chosen" : ""}" data-element="${tag} · ${i}">\n    <${heading}>Елемент ${i}</${heading}>\n    ${content}\n  </${tag}>`);
+    }
+    const before = htmlMode ? [s.showHeader ? '<header data-element="header" id="preview-top"><h1>Моят учебен сайт</h1></header>' : '<div id="preview-top"></div>', s.showNav ? '<nav data-element="nav" aria-label="Учебна навигация"><a href="#demo">Към съдържанието</a></nav>' : ""].filter(Boolean).join("\n") + "\n" : "";
+    const after = htmlMode ? [s.showAside ? '<aside data-element="aside"><p>Допълнителна информация</p></aside>' : "", s.showFooter ? '<footer data-element="footer"><small>Край на страницата</small></footer>' : ""].filter(Boolean).join("\n") : "";
+    const html = before + `<${root} class="demo" id="demo"${htmlMode ? ` data-element="${root}"` : ""}>\n` + items.join("\n") + `\n</${root}>\n` + after;
+    let css = `* { box-sizing: border-box; }\nbody { margin: 0; padding: 12px; font: 16px/1.4 system-ui, sans-serif; color: #183044; background: #f8fafc; }\n.item { min-width: 0; padding: 12px; border: 2px solid #527d9d; border-radius: 8px; background: #e7f0ff; }\n.item h1, .item h2, .item h3, .item h4, .item h5, .item h6 { margin: 0 0 8px; }\n.item p { margin: 0; }\n.item:nth-child(even) { background: #fff0db; }\n.chosen { outline: 3px solid #ae411d; outline-offset: -3px; }\n`;
+    if (htmlMode) {
+      css += `.demo { padding: ${s.padding}px; }\nheader, nav, aside, footer { padding: 12px; margin-bottom: 8px; background: #edf2f7; }\n.item { margin-bottom: ${s.gap}px; }\nimg { max-width: 100%; height: auto; }\n`;
+      if (s.outlines) css += `[data-element] { position: relative; border: 2px dashed #527d9d; padding-top: 30px; }\n[data-element]::before { content: attr(data-element); position: absolute; top: 3px; left: 5px; color: #183044; background: #fff; padding: 1px 5px; font: 12px/1.4 monospace; }\n`;
+    } else {
+      css += `.demo { height: ${s.height - 24}px; padding: ${s.padding}px; gap: ${s.gap}px; border: 2px dashed #527d9d; overflow: auto; }\n.item { width: ${s.itemWidth}px;${s.itemHeight !== "auto" ? " height: " + s.itemHeight + "; overflow: auto;" : ""} }\n`;
+      if (s.mode === "flex") css += `.demo { display: flex; flex-direction: ${s.direction}; flex-wrap: ${s.wrap}; justify-content: ${s.justify}; align-items: ${s.align}; align-content: ${s.content}; }\n.item:nth-child(${s.selected}) { flex-grow: ${s.grow}; flex-shrink: ${s.shrink}; flex-basis: ${s.basis}; align-self: ${s.self}; }\n`;
+      if (s.mode === "grid") css += `.demo { display: grid; grid-template-columns: ${s.columns}; grid-auto-rows: ${s.rows}; grid-auto-columns: 120px; grid-auto-flow: ${s.flow}; justify-items: ${s.gridJustify}; align-items: ${s.gridAlign}; justify-content: ${s.justify === "flex-start" ? "start" : s.justify === "flex-end" ? "end" : s.justify}; align-content: ${s.gridContent}; }\n.item { width: auto; }\n.item:nth-child(${s.selected}) { grid-column: ${s.span}; grid-row: ${s.rowSpan}; align-self: ${s.gridSelf}; }\n`;
+      if (s.mode === "media") css += `.demo { display: ${s.baseDisplay}; grid-template-columns: repeat(${s.baseColumns}, minmax(0, 1fr)); flex-direction: ${s.baseDirection}; background: ${s.baseColor}; }\n.item { width: auto; }\n@media (${s.feature}: ${s.breakpoint}px) {\n  .demo { display: ${s.activeDisplay}; grid-template-columns: repeat(${s.activeColumns}, minmax(0, 1fr)); flex-direction: ${s.activeDirection}; background: ${s.activeColor}; }\n}\n`;
+    }
+    const active = s.feature === "min-width" ? s.width >= s.breakpoint : s.width <= s.breakpoint;
+    const policy = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; img-src data:; base-uri \'none\'; form-action \'none\'">';
+    const document = '<!doctype html><html lang="bg"><head><meta charset="utf-8">' + policy + '<meta name="viewport" content="width=device-width, initial-scale=1"><title>HTML и CSS playground</title><style>' + css + '</style></head><body>' + html + '</body></html>';
+    return { state: s, html, css, document, active };
+  };
+  const STYLE = `
+.wp-lab { border:1px solid var(--line); border-radius:12px; padding:16px; display:grid; gap:16px; min-width:0; background:var(--panel); }
+.wp-lab h3,.wp-lab p { margin:0; }.wp-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:end}.wp-toolbar .wp-field{flex:1 1 210px}.wp-field{display:grid;gap:5px;min-width:0;font-size:.85rem}.wp-field select,.wp-field input[type=number]{width:100%;min-width:0;box-sizing:border-box}.wp-field small{font-size:.76rem;color:var(--muted);line-height:1.35}.wp-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.wp-panel{display:grid;gap:12px}.wp-panel[hidden]{display:none}.wp-panel fieldset{border:1px solid var(--line);padding:12px;min-width:0;border-radius:8px}.wp-panel legend{padding:0 6px;font-size:.88rem;font-weight:600}.wp-numeric{display:grid;grid-template-columns:minmax(0,1fr) 72px;gap:8px;align-items:center}.wp-numeric input[type=range]{width:100%;min-width:0}.wp-check{display:flex;align-items:center;gap:7px;font-size:.85rem}.wp-frame-wrap{overflow:auto;max-width:100%;border:1px solid var(--line);border-radius:8px;background:#dce3eb;padding:8px}.wp-frame{display:block;border:0;background:white;max-width:none;box-sizing:content-box;flex:none}.wp-status{padding:10px 12px;background:var(--bg);border-radius:6px;font-size:.88rem;overflow-wrap:anywhere}.wp-status[data-active=true]{border-left:4px solid #2d8055}.wp-status[data-active=false]{border-left:4px solid #ae411d}.wp-sources{display:grid;grid-template-columns:1fr 1fr;gap:12px}.wp-sources textarea{width:100%;height:260px;box-sizing:border-box;font:12px/1.5 var(--f-mono,monospace);white-space:pre;overflow:auto}.wp-sources label{display:grid;gap:6px;min-width:0}.wp-actions{display:flex;flex-wrap:wrap;gap:8px}.wp-help{color:var(--ink-2);font-size:.88rem;line-height:1.5}.wp-width-presets{display:flex;flex-wrap:wrap;gap:6px}.wp-lab summary{cursor:pointer}.wp-title{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.wp-title .pill{font-size:.75rem}.wp-copy-status{min-height:1.3em;font-size:.8rem;color:var(--muted)}
+@media(max-width:650px){.wp-sources{grid-template-columns:1fr}.wp-controls{grid-template-columns:1fr 1fr}.wp-lab{padding:12px}.wp-toolbar{align-items:stretch}.wp-toolbar .wp-field{flex-basis:100%}}
+@media(max-width:420px){.wp-controls{grid-template-columns:1fr}}
+`;
+  let nextId = 0;
+  P.mount = function (host, initialMode) {
+    if (!host) return;
+    if (!document.getElementById("web-playground-style")) {
+      const style = document.createElement("style"); style.id = "web-playground-style"; style.textContent = STYLE; document.head.append(style);
+    }
+    const S = window.Study, h = S.h, uid = "wp-" + (++nextId);
+    let state = { ...DEFAULTS, mode: initialMode || "flex" };
+    if (state.mode === "html") state.count = 2;
+    const fields = {}, root = h("div", { class:"wp-lab", "data-playground":true });
+    const field = (key, label, control, help) => {
+      control.id = uid + "-" + key; control.dataset.key = key; fields[key] = control;
+      const hint = help ? h("small", { id:control.id + "-help", text:help }) : null;
+      if (hint) control.setAttribute("aria-describedby", hint.id);
+      return h("label", { class:"wp-field", for:control.id }, h("span", {text:label}), control, hint);
+    };
+    const select = (key,label,opts,help) => field(key,label,h("select",null,...opts.map(x=>{const [v,t]=Array.isArray(x)?x:[x,x];return h("option",{value:v,text:t});})),help);
+    const numeric = (key,label,min,max,step,help) => {
+      const input=h("input",{type:"number",min,max,step:step||1}),range=h("input",{type:"range",min,max,step:step||1,"aria-label":label + " — плъзгач"});
+      input.id=uid+"-"+key; input.dataset.key=key; fields[key]=input;
+      range.dataset.forKey=key;
+      range.addEventListener("input",()=>{input.value=range.value;input.dispatchEvent(new Event("input",{bubbles:true}));});
+      return h("div",{class:"wp-field"},h("label",{for:input.id,text:label}),h("div",{class:"wp-numeric"},range,input),help?h("small",{text:help}):null);
+    };
+    const check = (key,label) => {const input=h("input",{type:"checkbox","data-key":key,id:uid+"-"+key});fields[key]=input;return h("label",{class:"wp-check",for:input.id},input,label);};
+    const controls = (...kids) => h("div",{class:"wp-controls"},...kids);
+    const group = (label,...kids) => h("fieldset",null,h("legend",{text:label}),controls(...kids));
+    root.append(h("div",{class:"wp-title"},h("h3",{text:"HTML и CSS playground"}),h("span",{class:"pill",text:"Промените се виждат веднага"})));
+    const modeSelect=select("mode","Какво изследвам",MODES);
+    const preset=h("select",{id:uid+"-preset","aria-label":"Готов пример"});
+    const presetWrap=h("label",{class:"wp-field",for:preset.id},h("span",{text:"Готов пример"}),preset);
+    const reset=h("button",{class:"btn ghost",type:"button",text:"Нулирай настройките"});
+    root.append(h("div",{class:"wp-toolbar"},modeSelect,presetWrap,reset));
+    const help=h("p",{class:"wp-help"});root.append(help);
+    root.append(group("Размери на прегледа",numeric("width","Ширина на viewport (px)",240,1280,1),numeric("height","Височина на viewport (px)",220,720,1),numeric("count","Брой елементи",1,12,1),numeric("gap","gap / отстояние между елементите (px)",0,48,1),numeric("padding","padding на контейнера (px)",0,40,1)));
+    const widths=h("div",{class:"wp-width-presets"});
+    for(const w of [320,360,600,800,1024])widths.append(h("button",{type:"button",class:"btn ghost",text:w+"px",onclick:()=>{state.width=w;sync();render();}}));
+    root.append(widths);
+    const panels={};const panel=(mode,...kids)=>{const el=h("div",{class:"wp-panel","data-mode-panel":mode},...kids);panels[mode]=el;root.append(el);};
+    panel("html",group("HTML структура",select("rootTag","Обвиващ структурен елемент",OPTIONS.rootTag),select("itemTag","Елемент за всяка карта",OPTIONS.itemTag),select("heading","Ниво на заглавие в картите",OPTIONS.heading),select("contentType","Съдържание на картите",OPTIONS.contentType)),
+      controls(check("showHeader","header · въвеждаща област"),check("showNav","nav · навигация"),check("showAside","aside · допълнение"),check("showFooter","footer · долна област"),check("outlines","Показвай граници и имена на таговете")));
+    panel("flex",group("Flexbox · контейнер",select("direction","flex-direction",OPTIONS.direction,"Определя основната ос и посоката."),select("wrap","flex-wrap",OPTIONS.wrap,"nowrap може да свие елементите. wrap допуска нов ред / колона."),select("justify","justify-content",OPTIONS.justify,"Разпределя свободното пространство по основната ос."),select("align","align-items",OPTIONS.align,"Подравнява по напречната ос. Фиксирана височина ограничава stretch."),select("content","align-content",OPTIONS.content,"Ефектът личи при няколко flex реда, wrap и свободно място.")),
+      group("Flexbox · само избрания елемент",select("selected","Избран елемент",Array.from({length:12},(_,i)=>[String(i+1),"Елемент "+(i+1)])),numeric("grow","flex-grow",0,4,1),numeric("shrink","flex-shrink",0,4,1),select("basis","flex-basis",OPTIONS.basis),select("self","align-self",OPTIONS.self)),
+      group("Размер на всички flex елементи",numeric("itemWidth","width (px)",60,240,1),select("itemHeight","height",["auto","60px","100px","150px"]),check("varied","Различна дължина на текстовете")));
+    // Same state keys appear in two modes; use mirrored controls without overwriting the field registry.
+    const mirrorSelect=(key,label,opts,help)=>{const previous=fields[key];const el=select(key,label,opts,help);const control=fields[key];control.id += "-grid";el.htmlFor=control.id;const hint=el.querySelector("small");if(hint){hint.id=control.id+"-help";control.setAttribute("aria-describedby",hint.id);}fields[key]=previous;control.dataset.mirror=key;delete control.dataset.key;return el;};
+    panel("grid",group("Grid · контейнер",select("columns","grid-template-columns",OPTIONS.columns),select("rows","grid-auto-rows",OPTIONS.rows),select("flow","grid-auto-flow",OPTIONS.flow,"При column се създават и неявни колони по 120px."),select("gridJustify","justify-items",OPTIONS.gridAlign),select("gridAlign","align-items",OPTIONS.gridAlign),mirrorSelect("justify","justify-content",OPTIONS.justify,"Виж ефекта при фиксирани колони, оставящи свободно място."),select("gridContent","align-content",OPTIONS.gridContent)),
+      group("Grid · само избрания елемент",mirrorSelect("selected","Избран елемент",Array.from({length:12},(_,i)=>[String(i+1),"Елемент "+(i+1)])),select("span","grid-column",OPTIONS.span),select("rowSpan","grid-row",OPTIONS.rowSpan),select("gridSelf","align-self",OPTIONS.gridSelf)),
+      group("Съдържание",mirrorSelect("itemHeight","height на всички елементи",["auto","60px","100px","150px"]),(()=>{const previous=fields.varied;const el=check("varied","Различна дължина на текстовете");const input=fields.varied;input.id+="-grid";el.htmlFor=input.id;input.dataset.mirror="varied";delete input.dataset.key;fields.varied=previous;return el;})()));
+    const near=h("div",{class:"wp-width-presets"});
+    for(const delta of [-1,0,1])near.append(h("button",{type:"button",class:"btn ghost","data-near":delta,onclick:()=>{state.width=state.breakpoint+delta;sync();render();}}));
+    panel("media",group("Условие на media query",select("feature","Условие",OPTIONS.feature),numeric("breakpoint","Праг (px)",280,1200,1)),near,
+      group("Базов CSS · извън условието",select("baseDisplay","display",OPTIONS.display),numeric("baseColumns","Брой Grid колони",1,6,1),select("baseDirection","flex-direction",OPTIONS.direction),select("baseColor","Фон на контейнера",OPTIONS.palette)),
+      group("CSS вътре в media query",select("activeDisplay","display при съвпадение",OPTIONS.display),numeric("activeColumns","Брой Grid колони при съвпадение",1,6,1),select("activeDirection","flex-direction при съвпадение",OPTIONS.direction),select("activeColor","Фон при съвпадение",OPTIONS.palette)));
+    const status=h("div",{class:"wp-status",role:"status","aria-live":"polite"});
+    const iframe=h("iframe",{class:"wp-frame",title:"Интерактивен HTML и CSS преглед",sandbox:""});
+    root.append(status,h("div",{class:"wp-frame-wrap"},iframe),h("p",{class:"wp-help",text:"Прегледът има собствена ширина. Ако е по-широк от екрана ти, плъзни хоризонтално в сивата област. Примерите са локални; бутоните в HTML прегледа нямат JavaScript поведение."}));
+    const htmlSource=h("textarea",{readOnly:true,spellcheck:"false","aria-label":"Генериран HTML"}),cssSource=h("textarea",{readOnly:true,spellcheck:"false","aria-label":"Генериран CSS"});
+    const copyStatus=h("p",{class:"wp-copy-status",role:"status"});
+    const copy=(area,label)=>h("button",{type:"button",class:"btn",text:label,onclick:async()=>{try{if(!navigator.clipboard)throw new Error();await navigator.clipboard.writeText(area.value);copyStatus.textContent="Кодът е копиран.";}catch(e){area.focus();area.select();copyStatus.textContent="Кодът е маркиран. Натисни Ctrl+C (или ⌘C).";}}});
+    root.append(h("details",{class:"wp-code",open:true},h("summary",{text:"Генериран HTML и CSS · виж какво променя всяка настройка"}),h("div",{class:"wp-sources"},h("label",null,h("span",{text:"HTML"}),htmlSource),h("label",null,h("span",{text:"CSS"}),cssSource)),h("div",{class:"wp-actions"},copy(htmlSource,"Копирай HTML"),copy(cssSource,"Копирай CSS")),copyStatus));
+    const PRESETS={
+      html:[["default","Семантична страница"],["minimal","Само div контейнери"],["lists","Списъци"],["images","Изображения и alt"]],
+      flex:[["default","Редове с пренасяне"],["center","Центриране по двете оси"],["column","Вертикална основна ос"],["nowrap","Без пренасяне · shrink"],["grow","Елемент 2 расте"]],
+      grid:[["default","3 равни колони"],["fixed","2 фиксирани колони"],["fit","auto-fit според ширината"],["span","Елемент 2 заема две колони"]],
+      media:[["default","1 → 3 Grid колони при 600px"],["flex","Flexbox · колона → ред"],["max","max-width · тесен екран"]]
+    };
+    let lastMode="";
+    function sync(){
+      for(const [k,el] of Object.entries(fields)){if(el.type==="checkbox")el.checked=!!state[k];else el.value=String(state[k]);}
+      root.querySelectorAll("[data-for-key]").forEach(el=>{el.value=state[el.dataset.forKey];});
+      root.querySelectorAll("[data-mirror]").forEach(el=>{if(el.type==="checkbox")el.checked=state[el.dataset.mirror];else el.value=state[el.dataset.mirror];});
+      root.querySelectorAll('select[data-key="selected"],select[data-mirror="selected"]').forEach(el=>{for(const opt of el.options)opt.disabled=+opt.value>state.count;});
+      for(const [mode,p]of Object.entries(panels))p.hidden=mode!==state.mode;
+      if(lastMode!==state.mode){preset.replaceChildren(...PRESETS[state.mode].map(([value,text])=>h("option",{value,text})));lastMode=state.mode;}
+      near.querySelectorAll("button").forEach(el=>{const delta=+el.dataset.near;el.textContent=(state.breakpoint+delta)+"px · "+(delta<0?"под прага":delta>0?"над прага":"точно на прага");});
+      fields.baseColumns.disabled=state.baseDisplay!=="grid";fields.activeColumns.disabled=state.activeDisplay!=="grid";
+      fields.baseDirection.disabled=state.baseDisplay!=="flex";fields.activeDirection.disabled=state.activeDisplay!=="flex";
+    }
+    function render(){
+      const result=P.build(state);state=result.state;help.textContent=HELPS[state.mode];
+      iframe.style.width=state.width+"px";iframe.style.height=state.height+"px";iframe.srcdoc=result.document;
+      htmlSource.value=result.html;cssSource.value=result.css;
+      if(state.mode==="media"){
+        status.dataset.active=String(result.active);
+        status.textContent=`Viewport ${state.width}px · @media (${state.feature}: ${state.breakpoint}px) ${result.active?"СЪВПАДА — прилага се CSS вътре в условието":"НЕ СЪВПАДА — остава базовият CSS"}. display: ${result.active?state.activeDisplay:state.baseDisplay}.`;
+      }else{delete status.dataset.active;status.textContent=`Преглед ${state.width} × ${state.height}px · ${state.count} елемента`+(state.mode==="html"?` · обвивка <${state.rootTag}>, карти <${state.itemTag}>.`:state.mode==="flex"?` · основна ос: ${state.direction.startsWith("row")?"хоризонтална":"вертикална"} · избран елемент ${state.selected}.`:` · избран елемент ${state.selected} · колони: ${state.columns}.`);}
+    }
+    root.addEventListener("input",e=>{
+      const key=e.target.dataset.key||e.target.dataset.mirror;if(!key)return;
+      if(e.target.type==="number"&&(e.target.value===""||!e.target.validity.valid))return;
+      state[key]=e.target.type==="checkbox"?e.target.checked:e.target.value;
+      state=P.normalize(state);sync();render();
+    });
+    // change also supports keyboard selection and assistive technologies.
+    root.addEventListener("change",e=>{const key=e.target.dataset.key||e.target.dataset.mirror;if(!key)return;if(e.target.type==="number"){state[key]=e.target.value;state=P.normalize(state);sync();render();}else e.target.dispatchEvent(new Event("input",{bubbles:true}));});
+    function setPreset(name){
+      const mode=state.mode;state={...DEFAULTS,mode,count:mode==="html"?2:6};
+      if(mode==="html"){if(name==="minimal")Object.assign(state,{rootTag:"div",itemTag:"div",showHeader:false,showNav:false,showAside:false,showFooter:false});if(name==="lists")state.contentType="list";if(name==="images")state.contentType="image";}
+      if(mode==="flex"){if(name==="center")Object.assign(state,{count:3,wrap:"nowrap",justify:"center",align:"center"});if(name==="column")Object.assign(state,{direction:"column",count:3,align:"flex-start"});if(name==="nowrap")Object.assign(state,{width:360,wrap:"nowrap",count:6});if(name==="grow")Object.assign(state,{count:3,grow:1});}
+      if(mode==="grid"){if(name==="fixed")Object.assign(state,{columns:"120px 120px",justify:"center",gridContent:"center"});if(name==="fit")state.columns="repeat(auto-fit, minmax(140px, 1fr))";if(name==="span")state.span="span 2";}
+      if(mode==="media"){if(name==="flex")Object.assign(state,{baseDisplay:"flex",activeDisplay:"flex",count:3});if(name==="max")Object.assign(state,{feature:"max-width",baseColumns:3,activeColumns:1});}
+      sync();preset.value=name;render();
+    }
+    preset.addEventListener("change",()=>setPreset(preset.value));reset.addEventListener("click",()=>setPreset("default"));
+    host.append(root);sync();render();
+    return {root,iframe,get state(){return {...state};}};
+  };
+})();
+
+const savedTheme = Study.store.get("theme", null);
+if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+WebPlayground.mount(document.getElementById("playground"), "flex");
+</script></body></html>

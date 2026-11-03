@@ -25,3 +25,5 @@ Playground модели: `node Tema_12_Web_design/tests/playground.models.test.c
 Playground-ът показва генерирания HTML и CSS и работи без JavaScript в sandbox прегледа. Промените на настройките се отразяват веднага. Превключването на структурен HTML елемент може да запази визуалния вид, затова има видими имена на таговете. Ширината на iframe е действителният viewport за media queries; при широк преглед на тесен екран се превърта само областта на прегледа.
 
 Пакет: `python tools/bundle.py Tema_12_Web_design`.
+
+Отделен playground: `playground.html`. Обновяване: `python tools/build_web_playground.py`.
