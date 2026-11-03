@@ -16,7 +16,7 @@
   <footer><small>Материал за подготовка</small></footer>
 </body>
 </html>`;
-  const html = `<div class="prose"><p><dfn data-g="html">HTML</dfn> е език за маркиране. Елементът има име, атрибути и обикновено съдържание. В <code>&lt;a href="index.html"&gt;Начало&lt;/a&gt;</code> атрибутът <code>href</code> задава целта на връзката. <code>img</code>, <code>input</code> и <code>meta</code> са празни (void) елементи — нямат затварящ таг.</p>
+  const html = `<div id="html-playground"></div><div class="prose"><p><dfn data-g="html">HTML</dfn> е език за маркиране. Елементът има име, атрибути и обикновено съдържание. В <code>&lt;a href="index.html"&gt;Начало&lt;/a&gt;</code> атрибутът <code>href</code> задава целта на връзката. <code>img</code>, <code>input</code> и <code>meta</code> са празни (void) елементи — нямат затварящ таг.</p>
   <p><code>doctype</code> включва стандартния режим на HTML. В <code>head</code> са метаданните; в <code>body</code> — съдържанието. <code>lang="bg"</code> посочва езика; <code>charset="utf-8"</code> — кодирането; <code>title</code> е заглавието на документа, а <code>h1</code> е заглавие в съдържанието.</p></div>
   <div class="block"><h3>Семантични структурни елементи</h3><table class="t"><tr><th>Елемент</th><th>Роля</th></tr>
   <tr><td>header, footer</td><td>Въвеждаща и заключителна информация за страница или секция</td></tr>
@@ -35,6 +35,7 @@
   <iframe id="html-preview" title="Преглед на HTML документа" sandbox="" style="width:100%;height:300px;border:1px solid var(--line);background:white"></iframe>
   <p class="muted">Изолиран преглед на HTML: скриптове и изпращане на формуляри са изключени. Относителните адреси се тълкуват спрямо адреса на страницата; абсолютният URL включва схема и хост.</p></div>`;
   function mount(root) {
+    window.WebPlayground.mount(root.querySelector("#html-playground"), "html");
     const input = root.querySelector("#html-source"), frame = root.querySelector("#html-preview");
     function render() {
       const policy = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; img-src data:; base-uri \'none\'; form-action \'none\'">';
@@ -42,8 +43,8 @@
       frame.srcdoc = /^\s*<!doctype html>/i.test(source) ? source.replace(/^(\s*<!doctype html>)/i, '$1' + policy) : policy + source;
     }
     root.querySelector("#render-html").addEventListener("click", render);
-    root.querySelector("#reset-html").addEventListener("click", () => { input.value = SAMPLE; render(); });
-    input.value = SAMPLE; render();
+    root.querySelector("#reset-html").addEventListener("click", () => { input.addEventListener("input", render); input.value = SAMPLE; render(); });
+    input.addEventListener("input", render); input.value = SAMPLE; render();
   }
   S.chapter({id:"html", order:1, num:"1", group:"Структура", title:"HTML: документ, елементи и семантика", lead:"Структура на документа, смисъл на елементите, DOM и редактируем пример.", html, mount, algos:{}});
 })();

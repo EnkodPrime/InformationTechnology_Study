@@ -13,7 +13,7 @@ h2 { color: #185b75; }
 @media (min-width: 600px) {
   .cards { grid-template-columns: repeat(3, 1fr); }
 }`;
-  const html = `<div class="prose"><p>В нормалния поток блоковите кутии обикновено се подреждат една след друга, а текстът и inline елементите — по редове. <code>display</code> избира модел на оформление. Не подреждаме страница с поредица от интервали и <code>br</code>.</p></div>
+  const html = `<div id="layout-playground"></div><div class="prose"><p>В нормалния поток блоковите кутии обикновено се подреждат една след друга, а текстът и inline елементите — по редове. <code>display</code> избира модел на оформление. Не подреждаме страница с поредица от интервали и <code>br</code>.</p></div>
   <div class="block"><h3>Flexbox и Grid</h3><table class="t"><tr><th>Модел</th><th>Основна идея</th><th>Подходящ пример</th></tr>
   <tr><td>Flexbox</td><td>Едномерно разпределяне по основна ос, с възможно пренасяне</td><td>Навигация, лента от бутони; display:flex; gap:1rem; flex-wrap:wrap</td></tr>
   <tr><td>Grid</td><td>Редове и колони, общи линии на мрежата</td><td>Карти и областите на страница; grid-template-columns:repeat(3,1fr)</td></tr></table>
@@ -27,14 +27,15 @@ h2 { color: #185b75; }
   <details class="hint"><summary>Защо съдържанието идва първо?</summary><div><p>Логичният ред в HTML остава важен за клавиатура и екранни четци. CSS пренареждането на картите може да промени визуалния ред, без да промени реда на фокуса.</p></div></details></div>
   <div class="block"><h3>Проверка на достъпността</h3><ul class="prose"><li>Семантични заглавия и области, описателни връзки, текстови алтернативи на изображенията.</li><li>Всички действия са достижими с клавиатура; фокусът се вижда. Използвай native button и form controls.</li><li>Проверявай контраст, увеличение на текста и липса на нежелано хоризонтално превъртане.</li><li>Съдържанието остава разбираемо без цвят и при различни размери. Избягвай ненужно движение.</li></ul></div>`;
   function mount(root) {
+    window.WebPlayground.mount(root.querySelector("#layout-playground"), "flex");
     const css=root.querySelector("#layout-css"), width=root.querySelector("#preview-width"), frame=root.querySelector("#layout-preview");
     function render() {
       frame.style.width=width.value+"px";
       frame.srcdoc='<!doctype html><html lang="bg"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; base-uri \'none\'; form-action \'none\'"><meta name="viewport" content="width=device-width, initial-scale=1"><style>'+css.value+'</style></head><body>'+HTML+'</body></html>';
     }
-    css.value=CSS; root.querySelector("#layout-run").addEventListener("click",render);
+    css.addEventListener("input",render); css.value=CSS; root.querySelector("#layout-run").addEventListener("click",render);
     root.querySelector("#layout-reset").addEventListener("click",()=>{css.value=CSS;render();});
     width.addEventListener("change",render);render();
   }
-  S.chapter({id:"layout",order:3,num:"3",group:"Форматиране",title:"Оформление, адаптивност и достъпност",lead:"Нормален поток, Flexbox, Grid и редактируема лаборатория с две ширини.",html,mount,algos:{}});
+  S.chapter({id:"layout",order:3,num:"3",group:"Форматиране",title:"Оформление, адаптивност и достъпност",lead:"HTML структура, Flexbox, Grid и media queries с падащи менюта и незабавен преглед.",html,mount,algos:{}});
 })();
