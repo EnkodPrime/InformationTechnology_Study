@@ -1,6 +1,6 @@
 (function () {
   const S=window.Study;
-  const html=`<div class="block"><h3>Опорен план по конспекта</h3><ol class="prose">
+  const html=`<div class="block"><h3>Опорен план за допълнителния материал</h3><ol class="prose">
   <li><b>Уеб дизайн:</b> потребители, задачи, информационна архитектура, навигация, визуална йерархия, използваемост и достъпност.</li>
   <li><b>Основни структурни елементи:</b> HTML документ (doctype, html, head, body), метаданни, семантични области, заглавия, абзаци, списъци, връзки, изображения, таблици и формуляри. HTML се анализира до DOM.</li>
   <li><b>Форматиране:</b> CSS правила и селектори, каскада и наследяване, шрифт и цвят, кутиев модел, нормален поток, Flexbox, Grid и media queries.</li>
@@ -25,6 +25,6 @@
   <li><a href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting/Event_bubbling" target="_blank" rel="noopener">MDN: Event bubbling</a> и <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide" target="_blank" rel="noopener">JavaScript Guide</a>.</li>
   <li><a href="https://www.w3.org/WAI/tutorials/" target="_blank" rel="noopener">W3C WAI Tutorials</a> — практически насоки за достъпност.</li>
   <li><a href="https://www.rfc-editor.org/rfc/rfc9110.html" target="_blank" rel="noopener">RFC 9110: HTTP Semantics</a> — методи и статуси.</li></ul>
-  <p class="muted">Нормативните спецификации и документацията обосновават техническите примери. Обхватът на темата следва точка 12 от конспекта „1-BS-Конспект-4.6-Докт_Integrity“ (21.01.2025).</p></div>`;
-  S.chapter({id:"sistematizacia",order:6,num:"6",group:"Обобщение",title:"Систематизация и опорен план",lead:"Покритие на трите части от конспекта, работен процес, разграничения и източници.",html,mount(){},algos:{}});
+  <p class="muted">Нормативните спецификации и документацията обосновават техническите примери. Темата присъства в конспекта от 21.01.2025 г. и е запазена като допълнителен материал извън новия конспект.</p></div>`;
+  S.chapter({id:"sistematizacia",order:6,num:"6",group:"Обобщение",title:"Систематизация и опорен план",lead:"Преглед на трите части на допълнителния материал, работен процес, разграничения и източници.",html,mount(){},algos:{}});
 })();
