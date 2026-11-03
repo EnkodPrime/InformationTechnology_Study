@@ -1030,7 +1030,7 @@ main.playground-page{max-width:1240px;margin:auto;padding:24px 16px 48px;min-wid
     mode: "flex", width: 720, height: 380, count: 6, gap: 12, padding: 16,
     direction: "row", wrap: "wrap", justify: "flex-start", align: "stretch", content: "normal",
     columns: "repeat(3, minmax(0, 1fr))", rows: "auto", flow: "row", gridAlign: "stretch", gridJustify: "stretch", gridContent: "start",
-    itemWidth: 120, itemHeight: "auto", varied: false, selected: 2, grow: 0, shrink: 1, basis: "auto", self: "auto", span: "auto", rowSpan: "auto", gridSelf: "auto",
+    itemWidth: 160, itemHeight: "auto", varied: false, selected: 2, grow: 0, shrink: 1, basis: "auto", self: "auto", span: "auto", rowSpan: "auto", gridSelf: "auto",
     rootTag: "main", itemTag: "article", heading: "h2", contentType: "text", showHeader: true, showNav: true, showAside: true, showFooter: true, outlines: true,
     feature: "min-width", breakpoint: 600, baseDisplay: "grid", activeDisplay: "grid", baseColumns: 1, activeColumns: 3,
     baseDirection: "column", activeDirection: "row", baseColor: "#e7f0ff", activeColor: "#e2f6e8"
@@ -1088,7 +1088,7 @@ main.playground-page{max-width:1240px;margin:auto;padding:24px 16px 48px;min-wid
     const before = htmlMode ? [s.showHeader ? '<header data-element="header" id="preview-top"><h1>Моят учебен сайт</h1></header>' : '<div id="preview-top"></div>', s.showNav ? '<nav data-element="nav" aria-label="Учебна навигация"><a href="#demo">Към съдържанието</a></nav>' : ""].filter(Boolean).join("\n") + "\n" : "";
     const after = htmlMode ? [s.showAside ? '<aside data-element="aside"><p>Допълнителна информация</p></aside>' : "", s.showFooter ? '<footer data-element="footer"><small>Край на страницата</small></footer>' : ""].filter(Boolean).join("\n") : "";
     const html = before + `<${root} class="demo" id="demo"${htmlMode ? ` data-element="${root}"` : ""}>\n` + items.join("\n") + `\n</${root}>\n` + after;
-    let css = `* { box-sizing: border-box; }\nbody { margin: 0; padding: 12px; font: 16px/1.4 system-ui, sans-serif; color: #183044; background: #f8fafc; }\n.item { min-width: 0; padding: 12px; border: 2px solid #527d9d; border-radius: 8px; background: #e7f0ff; }\n.item h1, .item h2, .item h3, .item h4, .item h5, .item h6 { margin: 0 0 8px; }\n.item p { margin: 0; }\n.item:nth-child(even) { background: #fff0db; }\n.chosen { outline: 3px solid #ae411d; outline-offset: -3px; }\n`;
+    let css = `* { box-sizing: border-box; }\nbody { margin: 0; padding: 12px; font: 16px/1.4 system-ui, sans-serif; color: #183044; background: #f8fafc; }\n.item { min-width: 0; overflow-wrap: anywhere; padding: 12px; border: 2px solid #527d9d; border-radius: 8px; background: #e7f0ff; }\n.item h1, .item h2, .item h3, .item h4, .item h5, .item h6 { margin: 0 0 8px; }\n.item p { margin: 0; }\n.item:nth-child(even) { background: #fff0db; }\n.chosen { outline: 3px solid #ae411d; outline-offset: -3px; }\n`;
     if (htmlMode) {
       css += `.demo { padding: ${s.padding}px; }\nheader, nav, aside, footer { padding: 12px; margin-bottom: 8px; background: #edf2f7; }\n.item { margin-bottom: ${s.gap}px; }\nimg { max-width: 100%; height: auto; }\n`;
       if (s.outlines) css += `[data-element] { position: relative; border: 2px dashed #527d9d; padding-top: 30px; }\n[data-element]::before { content: attr(data-element); position: absolute; top: 3px; left: 5px; color: #183044; background: #fff; padding: 1px 5px; font: 12px/1.4 monospace; }\n`;
